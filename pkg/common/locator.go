@@ -13,9 +13,14 @@ const (
 )
 
 type Locator struct {
-	kind    int32
-	port    uint32
-	address [16]octet
+	Kind    int8
+	Port    uint32
+	Address [16]Octet
 }
 
 type LocatorList = []Locator
+
+func NewLocatorList() LocatorList {
+	locator_list := []Locator{}
+	return locator_list
+}
