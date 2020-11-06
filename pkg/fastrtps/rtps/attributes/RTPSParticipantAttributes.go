@@ -73,7 +73,7 @@ func NewSimpleEDPAttributes() *SimpleEDPAttributes {
 //defines the behavior of the RTPSParticipant initial announcements.
 type InitialAnnouncementConfig struct {
 	Count  uint32
-	Period Duration
+	Period Duration_t
 }
 
 func NewDefaultInitialAnnouncementConfig() InitialAnnouncementConfig {
@@ -93,11 +93,11 @@ type DiscoverySettings struct {
 	Use_STATIC_EndpointDiscoveryProtocol bool
 
 	//indicating how much time remote RTPSParticipants should consider this RTPSParticipant alive.
-	LeaseDuration Duration
+	LeaseDuration Duration_t
 
 	//The period for the RTPSParticipant to send its Discovery Message to all other discovered
 	//RTPSParticipants as well as to all Multicast ports.
-	LeaseDuration_AnnouncementPeriod Duration
+	LeaseDuration_AnnouncementPeriod Duration_t
 
 	Initial_Announcements InitialAnnouncementConfig
 	SimpleEDP             *SimpleEDPAttributes
@@ -105,7 +105,7 @@ type DiscoverySettings struct {
 	//function that returns a PDP object (only if EXTERNAL selected)
 	PDPFactory interface{}
 
-	DiscoveryServer_client_syncperiod Duration
+	DiscoveryServer_client_syncperiod Duration_t
 }
 
 func NewDiscoverySettings() *DiscoverySettings {

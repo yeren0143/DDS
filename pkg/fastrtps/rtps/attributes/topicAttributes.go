@@ -2,6 +2,7 @@ package attributes
 
 import (
 	. "common"
+	. "policy"
 )
 
 type TopicAttributes struct {

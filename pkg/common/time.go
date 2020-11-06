@@ -5,7 +5,7 @@ type Time struct {
 	Nanosec uint32
 }
 
-type Duration = Time
+type Duration_t = Time
 
 func CreateDuration(seconds int32, nanosec uint32) Time {
 	return Time{
