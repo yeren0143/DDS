@@ -2,9 +2,9 @@ package attributes
 
 import (
 	. "common"
-	. "flowcontrol"
-	. "resources"
-	. "transport"
+	. "fastrtps/rtps/flowcontrol"
+	. "fastrtps/rtps/resources"
+	. "fastrtps/transport"
 )
 
 type DiscoveryProtocol_t int8

@@ -9,7 +9,7 @@
             "type": "go",
             "request": "launch",
             "mode": "test",
-            "program": "${workspaceFolder}/pkg/fastrtps/rtps/attributes",
+            "program": "${workspaceFolder}/pkg/rtps/attributes",
             "env": {},
             "args": [],
             "showLog": true

@@ -3,6 +3,7 @@ package participant
 import (
 	. "attributes"
 	. "common"
+	. "core/policy"
 	. "writer"
 )
 

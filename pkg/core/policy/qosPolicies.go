@@ -2,6 +2,7 @@ package policy
 
 import (
 	. "common"
+
 	. "types"
 )
 
@@ -640,24 +641,24 @@ type TypeObjectV1 struct {
 type TypeInformation struct {
 	Parameter_t
 	QosPolicy
-	Type_Info TypeInform_t
-	Assigned  bool
+	//Type_Info TypeInform_t
+	Assigned bool
 }
 
 type WireProtocolConfigQos struct {
 	QosPolicy
-	Prefix                         GuidPrefix_t
-	Participant_Id                 int32
-	Builtin_Attr                   *BuiltinAttributes
-	Port                           *PortParameters
-	Throughput_Controller          *ThroughputControllerDescriptor
+	Prefix         GuidPrefix_t
+	Participant_Id int32
+	//Builtin_Attr                   *BuiltinAttributes
+	Port *PortParameters
+	//Throughput_Controller          *ThroughputControllerDescriptor
 	Default_Unicast_Locator_List   *LocatorList
 	Default_Multicast_Locator_list *LocatorList
 }
 
 type TransportConfigQos struct {
 	QosPolicy
-	User_Transports           []*TransportDescriptorInterface
+	//User_Transports           []*TransportDescriptorInterface
 	Use_Builtin_Transport     bool
 	Send_Socket_Buffer_Size   uint32
 	Listen_Socket_Buffer_Size uint32
