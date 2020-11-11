@@ -3,24 +3,26 @@ module rtps
 go 1.15
 
 replace (
-	attributes => ./attributes
 	common => ../../common
-	flowcontrol => ./flowcontrol
-	participant => ./participant
-	qos => ./qos
-	resources => ./resources
-	transport => ../transport
-	types => ../../types
-	utils => ../utils
-	writer => ./writer
 	core/policy => ../../core/policy
+	dds/publisher/qos => ../../dds/publisher/qos
+	fastrtps/rtps/attributes => ./attributes
+	fastrtps/rtps/flowcontrol => ./flowcontrol
+	fastrtps/rtps/participant => ./participant
+	fastrtps/rtps/qos => ./qos
+	fastrtps/rtps/resources => ./resources
+	fastrtps/rtps/writer => ./writer
+	fastrtps/transport => ../transport
+	fastrtps/utils => ../utils
+	types => ../../types
 )
 
 require (
-	attributes v0.0.0
 	common v0.0.0
-	participant v0.0.0-00010101000000-000000000000
-	qos v0.0.0-00010101000000-000000000000 // indirect
-	utils v0.0.0
-	writer v0.0.0-00010101000000-000000000000 // indirect
+	dds/publisher/qos v0.0.0-00010101000000-000000000000
+	fastrtps/rtps/attributes v0.0.0
+	fastrtps/rtps/participant v0.0.0-00010101000000-000000000000
+	fastrtps/rtps/qos v0.0.0-00010101000000-000000000000 // indirect
+	fastrtps/rtps/writer v0.0.0-00010101000000-000000000000 // indirect
+	fastrtps/utils v0.0.0
 )

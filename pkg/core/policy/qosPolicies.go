@@ -265,6 +265,22 @@ type GenericDataQosPolicy struct {
 	QosPolicy
 }
 
+type UserDataQosPolicy struct {
+	GenericDataQosPolicy
+}
+
+func NewUserDataQosPolicy() *UserDataQosPolicy {
+	return &UserDataQosPolicy{}
+}
+
+type TopicDataQosPolicy struct {
+	GenericDataQosPolicy
+}
+
+type GroupDataQosPolicy struct {
+	GenericDataQosPolicy
+}
+
 /**
  * Filter that allows a DataReader to specify that it is interested only in (potentially) a subset of
  * the values of the data.

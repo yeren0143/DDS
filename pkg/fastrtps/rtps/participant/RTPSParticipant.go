@@ -1,10 +1,12 @@
 package participant
 
 import (
-	. "attributes"
 	. "common"
-	. "core/policy"
-	. "writer"
+	//. "core/policy"
+	. "fastrtps/rtps/attributes"
+	//. "fastrtps/rtps/qos"
+	. "dds/publisher/qos"
+	. "fastrtps/rtps/writer"
 )
 
 type RTPSParticipant interface {

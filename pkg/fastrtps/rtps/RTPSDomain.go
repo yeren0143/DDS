@@ -1,12 +1,13 @@
 package rtps
 
 import (
-	. "attributes"
 	. "common"
+	. "dds/publisher/qos"
+	. "fastrtps/rtps/attributes"
+	. "fastrtps/rtps/participant"
+	. "fastrtps/utils"
 	"log"
 	"os"
-	. "participant"
-	. "utils"
 )
 
 var (
