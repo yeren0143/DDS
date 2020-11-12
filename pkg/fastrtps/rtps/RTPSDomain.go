@@ -2,11 +2,10 @@ package rtps
 
 import (
 	. "common"
-	. "dds/publisher/qos"
 	. "fastrtps/rtps/attributes"
 	. "fastrtps/rtps/participant"
+	. "fastrtps/rtps/resources"
 	. "fastrtps/utils"
-	"log"
 	"os"
 )
 
@@ -16,6 +15,7 @@ var (
 )
 
 type RTPSDomain struct {
+	Participant_list []*Participant
 }
 
 // type t_p_RTPSParticipant {
@@ -46,6 +46,10 @@ func createGuidPrefix(ID uint32) *GuidPrefix_t {
 	return &guid
 }
 
-func NewParticipant(domain_id uint32, attrs *RTPSParticipantAttributes) *RTPSParticipant {
-	log.Println("")
+func (domain *RTPSDomain) CreateParticipant(attrs *RTPSParticipantAttributes, listen *ParticipantListener) *RTPSParticipant {
+
+	participant := NewRTPSParticipant(attrs, listen)
+	domain.Participant_list = append(Participant_list, participant)
+
+	return participant
 }

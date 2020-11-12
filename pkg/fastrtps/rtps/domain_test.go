@@ -7,6 +7,7 @@ import (
 
 func TestNewParticipant(t *testing.T) {
 	var att RTPSParticipantAttributes
-	participant := NewParticipant(0, &att)
+	//var listen ParticipantListener
+	participant := NewParticipant(&att, nil)
 	fmt.Printf("%v", participant)
 }

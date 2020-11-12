@@ -1,3 +1,3 @@
-module resource
+module resources
 
 go 1.15

@@ -7,15 +7,15 @@ import (
 type WriterQos struct {
 	Durability          DurabilityQosPolicy
 	DurabilityService   DurabilityServiceQosPolicy
-	Deadline            DeadLineQosPolicy
+	Deadline            DeadlineQosPolicy
 	LatencyBudget       LatencyBudgetQosPolicy
-	Liveliness          LiveLinessQosPolicy
+	Liveliness          LivelinessQosPolicy
 	Reliability         ReliabilityQosPolicy
-	LifeSpan            LifeSpanQosPolicy
+	Lifespan            LifespanQosPolicy
 	UserData            UserDataQosPolicy
 	TimeBasedFilter     TimeBasedFilterQosPolicy
-	OwnerShip           OwnerShipQosPolicy
-	OwnerShipStrength   OwnerShipStrengthQosPolicy
+	Ownership           OwnershipQosPolicy
+	OwnershipStrength   OwnershipStrengthQosPolicy
 	DestinationOrder    DestinationOrderQosPolicy
 	Presentation        PresentationQosPolicy
 	Partition           PartitionQosPolicy
