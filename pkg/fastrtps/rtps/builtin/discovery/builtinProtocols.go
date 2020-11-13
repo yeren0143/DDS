@@ -1,8 +1,8 @@
 package discovery
 
 import (
-	. "common"
-	. "fastrtps/rtps/attributes"
+	. "github.com/yeren0143/DDS/common"
+	. "github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 )
 
 type BuiltinProtocols struct {

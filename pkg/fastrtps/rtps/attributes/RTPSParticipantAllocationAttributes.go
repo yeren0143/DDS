@@ -1,7 +1,7 @@
 package attributes
 
 import (
-	. "fastrtps/utils"
+	. "github.com/yeren0143/DDS/fastrtps/utils"
 )
 
 type RemoteLocatorsAllocationAttributes struct {

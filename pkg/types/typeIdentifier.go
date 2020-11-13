@@ -1,7 +1,7 @@
 package types
 
 import (
-	. "common"
+	. "github.com/yeren0143/DDS/common"
 )
 
 type TypeIdentifierKind = Octet

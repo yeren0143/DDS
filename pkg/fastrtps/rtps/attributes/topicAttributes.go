@@ -1,8 +1,8 @@
 package attributes
 
 import (
-	. "common"
-	. "core/policy"
+	. "github.com/yeren0143/DDS/common"
+	. "github.com/yeren0143/DDS/core/policy"
 )
 
 type TopicAttributes struct {

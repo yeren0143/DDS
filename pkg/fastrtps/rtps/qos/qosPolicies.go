@@ -1,7 +1,7 @@
 package qos
 
 import (
-	_ "core/policy"
+	_ "github.com/yeren0143/DDS/core/policy"
 )
 
 // type DurabilityQosPolicyKind = policy.DurabilityQosPolicyKind

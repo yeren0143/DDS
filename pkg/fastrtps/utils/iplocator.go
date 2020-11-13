@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"common"
+	"github.com/yeren0143/DDS/common"
 )
 
 func setIPv4WithBytes(locator *common.Locator, ipv4 []common.Octet) {

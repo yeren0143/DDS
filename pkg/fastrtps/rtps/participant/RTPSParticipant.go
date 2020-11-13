@@ -1,15 +1,15 @@
 package participant
 
 import (
-	. "common"
+	. "github.com/yeren0143/DDS/common"
 	//. "dds/publisher/qos"
-	. "fastrtps/participant"
-	. "fastrtps/rtps/attributes"
-	. "fastrtps/rtps/builtin/discovery"
-	. "fastrtps/rtps/flowcontrol"
-	. "fastrtps/rtps/reader"
-	. "fastrtps/rtps/resources"
-	. "fastrtps/rtps/writer"
+	. "github.com/yeren0143/DDS/fastrtps/participant"
+	. "github.com/yeren0143/DDS/fastrtps/rtps/attributes"
+	. "github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery"
+	. "github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol"
+	. "github.com/yeren0143/DDS/fastrtps/rtps/reader"
+	. "github.com/yeren0143/DDS/fastrtps/rtps/resources"
+	. "github.com/yeren0143/DDS/fastrtps/rtps/writer"
 )
 
 type RTPSParticipant struct {

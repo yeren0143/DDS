@@ -1,7 +1,7 @@
 package qos
 
 import (
-	. "core/policy"
+	. "github.com/yeren0143/DDS/core/policy"
 )
 
 type WriterQos struct {

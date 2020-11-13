@@ -56,7 +56,7 @@ package utils
 import "C"
 
 import (
-	"common"
+	"github.com/yeren0143/DDS/common"
 	"errors"
 	"fmt"
 	"syscall"

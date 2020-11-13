@@ -1,10 +1,10 @@
 package attributes
 
 import (
-	. "common"
-	. "fastrtps/rtps/flowcontrol"
-	. "fastrtps/rtps/resources"
-	. "fastrtps/transport"
+	. "github.com/yeren0143/DDS/common"
+	. "github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol"
+	. "github.com/yeren0143/DDS/fastrtps/rtps/resources"
+	. "github.com/yeren0143/DDS/fastrtps/transport"
 )
 
 type DiscoveryProtocol_t int8

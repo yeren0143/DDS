@@ -1,7 +1,7 @@
 package data
 
 import (
-	"common"
+	. "github.com/yeren0143/DDS/common"
 )
 
 var BUILTIN_PARTICIPANT_DATA_MAX_SIZE = uint64(100)

@@ -1,9 +1,8 @@
 package policy
 
 import (
-	. "common"
-
-	. "types"
+	. "github.com/yeren0143/DDS/common"
+	. "github.com/yeren0143/DDS/types"
 )
 
 type QosPolicyId uint32

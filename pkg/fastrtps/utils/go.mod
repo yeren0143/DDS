@@ -1,7 +1,7 @@
-module utils
+module github.com/yeren0143/DDS/utils
 
 go 1.15
 
-replace common => ../../common
+replace github.com/yeren0143/DDS/common => /home/allride/Desktop/Ros/DDS/pkg/common
 
-require common v0.0.0-00010101000000-000000000000
+require github.com/yeren0143/DDS/common v0.0.0-00010101000000-000000000000
