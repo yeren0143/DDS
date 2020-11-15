@@ -1,11 +1,11 @@
 package rtps
 
 import (
-	. "common"
-	. "fastrtps/rtps/attributes"
-	. "fastrtps/rtps/participant"
-	. "fastrtps/rtps/resources"
-	. "fastrtps/utils"
+	. "github.com/yeren0143/DDS/common"
+	. "github.com/yeren0143/DDS/fastrtps/rtps/attributes"
+	. "github.com/yeren0143/DDS/fastrtps/rtps/participant"
+	// . "github.com/yeren0143/DDS/fastrtps/rtps/resources"
+	. "github.com/yeren0143/DDS/fastrtps/utils"
 	"os"
 )
 
@@ -15,7 +15,7 @@ var (
 )
 
 type RTPSDomain struct {
-	Participant_list []*Participant
+	Participant_list []*RTPSParticipant
 }
 
 // type t_p_RTPSParticipant {
@@ -46,10 +46,10 @@ func createGuidPrefix(ID uint32) *GuidPrefix_t {
 	return &guid
 }
 
-func (domain *RTPSDomain) CreateParticipant(attrs *RTPSParticipantAttributes, listen *ParticipantListener) *RTPSParticipant {
+func (domain *RTPSDomain) NewParticipant(domainId uint32, useProtocol bool, attrs *RTPSParticipantAttributes, listen *RTPSParticipantListener) *RTPSParticipant {
 
-	participant := NewRTPSParticipant(attrs, listen)
-	domain.Participant_list = append(Participant_list, participant)
+	participant := NewParticipant(domainId, useProtocol, attrs, listen)
+	domain.Participant_list = append(domain.Participant_list, participant)
 
 	return participant
 }

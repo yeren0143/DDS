@@ -1,12 +1,13 @@
 package common
 
+// version info
 var (
-	C_VendorId_Unknown    = NewVendorId(0x00, 0x00)
-	C_VendorId_eProsima   = NewVendorId(0x01, 0x0F)
-	c_ProtocolVersion_2_0 = ProtocolVersion{2, 0}
-	c_ProtocolVersion_2_1 = ProtocolVersion{2, 1}
-	c_ProtocolVersion_2_2 = ProtocolVersion{2, 2}
-	c_ProtocolVersion_2_3 = ProtocolVersion{2, 3}
+	CVendorIDUnknown    = NewVendorId(0x00, 0x00)
+	CVendorIdeProsima   = NewVendorId(0x01, 0x0F)
+	CProtocolVersion20 = ProtocolVersionT{2, 0}
+	CProtocolVersion21 = ProtocolVersionT{2, 1}
+	CProtocolVersion22 = ProtocolVersionT{2, 2}
+	CProtocolVersion23 = ProtocolVersionT{2, 3}
 )
 
 type Endianness int8
@@ -39,11 +40,11 @@ const (
 	WRITER
 )
 
-type TopicKind_t int8
+type TopicKindT int8
 
 const (
-	NO_KEY TopicKind_t = iota
-	WITH_KEY
+	CNoKey TopicKindT = iota
+	CWithKey
 )
 
 type Octet = byte
@@ -55,13 +56,13 @@ type VendorId struct {
 	Vendor [2]Octet
 }
 
-type ProtocolVersion struct {
+type ProtocolVersionT struct {
 	Major Octet
 	Minor Octet
 }
 
-func NewProtocolVersion(maj Octet, min Octet) ProtocolVersion {
-	return ProtocolVersion{maj, min}
+func NewProtocolVersion(maj Octet, min Octet) ProtocolVersionT {
+	return ProtocolVersionT{maj, min}
 }
 
 // func NewVendorId(v *VendorId) VendorId {

@@ -1,4 +1,4 @@
-module data
+module network
 
 go 1.15
 
