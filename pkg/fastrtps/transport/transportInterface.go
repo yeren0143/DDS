@@ -2,7 +2,7 @@ package transport
 
 import (
 	common "github.com/yeren0143/DDS/common"
-	network "github.com/yeren0143/DDS/fastrtps/network"
+	//network "github.com/yeren0143/DDS/fastrtps/network"
 )
 
 // const to descripe transport layer
@@ -15,7 +15,8 @@ const (
 )
 
 // SenderSourceList is a slice of SenderResource
-type SenderSourceList []*network.SenderResource
+//type SenderSourceList []*network.SenderResource
+type SenderSourceList []interface{}
 
 // ITransport against which to implement a transport layer, decoupled from FastRTPS internals.
 // TransportInterface expects the user to implement a logical equivalence between Locators and protocol-specific "channels".
