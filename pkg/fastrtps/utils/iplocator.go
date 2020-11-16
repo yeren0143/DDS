@@ -85,8 +85,8 @@ func GetIPv4(locator *common.Locator) []common.Octet {
 }
 
 func IsLocal(locator *common.Locator) bool {
-	if locator.Kind == common.LOCATOR_KIND_UDPv4 ||
-		locator.Kind == common.LOCATOR_KIND_TCPv4 {
+	if locator.Kind == common.LocatorKindUDPv4 ||
+		locator.Kind == common.LocatorKindTCPv4 {
 		local := []byte{127, 0, 0, 1}
 		return bytes.Equal(locator.Address[12:], local)
 	} else {

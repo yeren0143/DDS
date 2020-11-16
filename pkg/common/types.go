@@ -2,8 +2,8 @@ package common
 
 // version info
 var (
-	CVendorIDUnknown    = NewVendorId(0x00, 0x00)
-	CVendorIdeProsima   = NewVendorId(0x01, 0x0F)
+	CVendorIDUnknown   = NewVendorId(0x00, 0x00)
+	CVendorIdeProsima  = NewVendorId(0x01, 0x0F)
 	CProtocolVersion20 = ProtocolVersionT{2, 0}
 	CProtocolVersion21 = ProtocolVersionT{2, 1}
 	CProtocolVersion22 = ProtocolVersionT{2, 2}

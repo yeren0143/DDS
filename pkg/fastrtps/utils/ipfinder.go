@@ -57,10 +57,10 @@ import "C"
 
 import (
 	"errors"
-	"fmt"
-	"github.com/yeren0143/DDS/common"
 	"syscall"
 	"unsafe"
+
+	"github.com/yeren0143/DDS/common"
 )
 
 // These are roughly enough for the following:
@@ -80,39 +80,39 @@ func (eai addrinfoErrno) Error() string   { return C.GoString(C.gai_strerror(C.i
 func (eai addrinfoErrno) Temporary() bool { return eai == C.EAI_AGAIN }
 func (eai addrinfoErrno) Timeout() bool   { return false }
 
-func parseIP4(info *Info_IP) {
-	info.locator.Kind = 1
-	info.locator.Port = 0
-	setIPv4WithIP(&info.locator, info.name)
-	if IsLocal(&info.locator) {
-		info.ip_type = IP4_LOCAL
+func parseIP4(info *InfoIP) {
+	info.Locator.Kind = 1
+	info.Locator.Port = 0
+	setIPv4WithIP(&info.Locator, info.Name)
+	if IsLocal(&info.Locator) {
+		info.Type = CIP4Local
 	}
 }
 
 type IPTYPE = int8
 
 const (
-	IP4       IPTYPE = 0
-	IP6       IPTYPE = 1
-	IP4_LOCAL IPTYPE = 2
-	IP6_LOCAL IPTYPE = 3
+	CIP4      IPTYPE = 0
+	CIP6      IPTYPE = 1
+	CIP4Local IPTYPE = 2
+	CIP6Local IPTYPE = 3
 )
 
-type Info_IP struct {
-	ip_type IPTYPE
-	name    string
-	dev     string
-	locator common.Locator
+type InfoIP struct {
+	Type    IPTYPE
+	Name    string
+	Dev     string
+	Locator common.Locator
 }
 
 type addrinfoErrno int
 
-func parseIP6(info *Info_IP) {
-	info.locator.Kind = common.LOCATOR_KIND_UDPv6
-	info.locator.Port = 0
-	setIP6WithString(&info.locator, info.name)
-	if IsLocal(&info.locator) {
-		info.ip_type = IP6_LOCAL
+func parseIP6(info *InfoIP) {
+	info.Locator.Kind = common.LocatorKindUDPv6
+	info.Locator.Port = 0
+	setIP6WithString(&info.Locator, info.Name)
+	if IsLocal(&info.Locator) {
+		info.Type = CIP6Local
 	}
 }
 
@@ -155,8 +155,8 @@ func lookupAddr(sa *C.struct_sockaddr, salen C.socklen_t) string {
 	return string(b)
 }
 
-func getIPs(return_loopback bool) ([]Info_IP, error) {
-	var info_ips []Info_IP
+func GetIPs(return_loopback bool) ([]*InfoIP, error) {
+	var InfoIPs []*InfoIP
 
 	var ifap *C.struct_ifaddrs
 	if C.getifaddrs(&ifap) == -1 {
@@ -165,7 +165,6 @@ func getIPs(return_loopback bool) ([]Info_IP, error) {
 	defer C.freeifaddrs(ifap)
 
 	for ifa := ifap; ifa != nil; ifa = ifa.ifa_next {
-		fmt.Println(ifa)
 		if ifa.ifa_addr == nil || (ifa.ifa_flags&C.IFF_RUNNING) == 0 {
 			continue
 		}
@@ -175,42 +174,42 @@ func getIPs(return_loopback bool) ([]Info_IP, error) {
 
 		if family == C.AF_INET {
 
-			var info Info_IP
-			info.ip_type = IP4
+			var info InfoIP
+			info.Type = CIP4
 			salen := C.socklen_t(syscall.SizeofSockaddrInet4)
-			info.name = lookupAddr(ifa.ifa_addr, salen)
-			info.dev = ifa_name
+			info.Name = lookupAddr(ifa.ifa_addr, salen)
+			info.Dev = ifa_name
 			parseIP4(&info)
 
-			if return_loopback || info.ip_type != IP4_LOCAL {
-				info_ips = append(info_ips, info)
+			if return_loopback || info.Type != CIP4Local {
+				InfoIPs = append(InfoIPs, &info)
 			}
 
 		} else if family == C.AF_INET6 {
-			var info Info_IP
-			info.ip_type = IP6
+			var info InfoIP
+			info.Type = CIP6
 			salen := C.socklen_t(syscall.SizeofSockaddrInet6)
-			info.name = lookupAddr(ifa.ifa_addr, salen)
-			info.dev = ifa_name
+			info.Name = lookupAddr(ifa.ifa_addr, salen)
+			info.Dev = ifa_name
 			parseIP6(&info)
 
-			if return_loopback || info.ip_type != IP6_LOCAL {
-				info_ips = append(info_ips, info)
+			if return_loopback || info.Type != CIP6Local {
+				InfoIPs = append(InfoIPs, &info)
 			}
 		}
 	}
 
-	return info_ips, nil
+	return InfoIPs, nil
 }
 
 func GetIP4Address() common.LocatorList {
 
 	locators := common.NewLocatorList()
 
-	ip_names, _ := getIPs(false)
+	ip_names, _ := GetIPs(false)
 	for _, ip := range ip_names {
-		if ip.ip_type == IP4 {
-			locators = append(locators, ip.locator)
+		if ip.Type == CIP4 {
+			locators = append(locators, ip.Locator)
 		}
 	}
 	return locators

@@ -7,10 +7,10 @@ const (
 
 //SocketTransportDescriptor define configuration of transports using sockets.
 type SocketTransportDescriptor struct {
-	ITransportDescriptor
+	transportDescriptor
 
-	sendBufferSize    uint32
-	receiveBufferSize uint32
+	sendBufferSize uint32
+	rcvBufferSize  uint32
 	//Allowed interfaces in an IP string format.
 	interfaceWhiteList []string
 	//Specified time to live (8bit - 255 max TTL)

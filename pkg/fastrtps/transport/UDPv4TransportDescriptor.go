@@ -10,10 +10,10 @@ type UDPv4TransportDescriptor struct {
 }
 
 //CreateTransport ...
-func (descriptor *UDPv4TransportDescriptor) CreateTransport() ITransport {
+func (descriptor *UDPv4TransportDescriptor) CreateTransport() *UDPv4Transport {
 	var transport UDPv4Transport
 	transport.sendBufferSize = descriptor.sendBufferSize
-	transport.receiveBufferSize = descriptor.receiveBufferSize
+	transport.rcvBufferSize = descriptor.rcvBufferSize
 	transport.configure = descriptor
 	transport.kind = common.LocatorKindUDPv4
 	return &transport
