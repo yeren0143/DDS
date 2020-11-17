@@ -4,7 +4,6 @@ import (
 	. "github.com/yeren0143/DDS/common"
 	. "github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol"
 	. "github.com/yeren0143/DDS/fastrtps/rtps/resources"
-	. "github.com/yeren0143/DDS/fastrtps/transport"
 )
 
 // DiscoveryProtocolT ...
@@ -64,30 +63,30 @@ type SimpleEDPAttributes struct {
 // NewSimpleEDPAttributes create EDPAttributes
 func NewSimpleEDPAttributes() *SimpleEDPAttributes {
 	return &SimpleEDPAttributes{
-		Use_PublicationWriterANDSubscriptionReader:                         true,
-		Use_PublicationReaderANDSubscriptionWriter:                         true,
-		Enable_builtin_secure_publications_writer_and_subscriptions_reader: true,
-		Enable_builtin_secure_subscriptions_writer_and_publications_reader: true,
+		UsePublicationWriterANDSubscriptionReader:                   true,
+		UsePublicationReaderANDSubscriptionWriter:                   true,
+		EnableBuiltinSecurePublicationsWriterAndSubscriptionsReader: true,
+		EnableBuiltinSecureSubscriptionsWriterAndPublicationsReader: true,
 	}
 }
 
 // InitialAnnouncementConfig defines the behavior of the RTPSParticipant initial announcements.
 type InitialAnnouncementConfig struct {
 	Count  uint32
-	Period Duration_t
+	Period DurationT
 }
 
 // NewDefaultInitialAnnouncementConfig create AnnouncementConfig with default config
-func NewDefaultInitialAnnouncementConfig() InitialAnnouncementConfig {
-	return InitialAnnouncementConfig{
+func NewDefaultInitialAnnouncementConfig() *InitialAnnouncementConfig {
+	return &InitialAnnouncementConfig{
 		Count:  5,
-		Period: CreateDuration(0, 100000000),
+		Period: DurationT{0, 100000000},
 	}
 }
 
 // DiscoverySettings define discovery config
 type DiscoverySettings struct {
-	DiscoveryProtocol DiscoveryProtocol_t
+	DiscoveryProtocol DiscoveryProtocolT
 
 	//If set to true, SimpleEDP would be used.
 	UseSimpleEndpointDiscoveryProtocol bool
@@ -96,32 +95,32 @@ type DiscoverySettings struct {
 	UseStaticEndpointDiscoveryProtocol bool
 
 	//indicating how much time remote RTPSParticipants should consider this RTPSParticipant alive.
-	LeaseDuration Duration_t
+	LeaseDuration DurationT
 
 	//The period for the RTPSParticipant to send its Discovery Message to all other discovered
 	//RTPSParticipants as well as to all Multicast ports.
-	LeaseDurationAnnouncementPeriod Duration_t
+	LeaseDurationAnnouncementPeriod DurationT
 
-	InitialAnnouncements InitialAnnouncementConfig
+	InitialAnnouncements *InitialAnnouncementConfig
 	SimpleEDP            *SimpleEDPAttributes
 
 	//function that returns a PDP object (only if EXTERNAL selected)
 	PDPFactory interface{}
 
-	DiscoveryServerClientSyncPeriod Duration_t
+	DiscoveryServerClientSyncPeriod DurationT
 }
 
 // NewDiscoverySettings create DiscoverySetting with default value
 func NewDiscoverySettings() *DiscoverySettings {
 	var discoverySettings DiscoverySettings
 	discoverySettings.DiscoveryProtocol = SIMPLE
-	discoverySettings.Use_SIMPLE_EndpointDiscoveryProtocol = true
-	discoverySettings.Use_STATIC_EndpointDiscoveryProtocol = false
-	discoverySettings.LeaseDuration = CreateDuration(20, 0)
-	discoverySettings.LeaseDuration_AnnouncementPeriod = CreateDuration(3, 0)
-	discoverySettings.Initial_Announcements = NewDefaultInitialAnnouncementConfig()
+	discoverySettings.UseSimpleEndpointDiscoveryProtocol = true
+	discoverySettings.UseStaticEndpointDiscoveryProtocol = false
+	discoverySettings.LeaseDuration = DurationT{20, 0}
+	discoverySettings.LeaseDurationAnnouncementPeriod = DurationT{3, 0}
+	discoverySettings.InitialAnnouncements = NewDefaultInitialAnnouncementConfig()
 	discoverySettings.SimpleEDP = NewSimpleEDPAttributes()
-	discoverySettings.DiscoveryServer_client_syncperiod = CreateDuration(0, 450*1000000)
+	discoverySettings.DiscoveryServerClientSyncPeriod = DurationT{0, 450 * 1000000}
 
 	return &discoverySettings
 }
@@ -133,10 +132,10 @@ type TypeLookupSettings struct {
 }
 
 // NewTypeLookupSettings ...
-func NewTypeLookupSettings() TypeLookupSettings {
-	return TypeLookupSettings{
-		Use_Client: false,
-		Use_Server: false,
+func NewTypeLookupSettings() *TypeLookupSettings {
+	return &TypeLookupSettings{
+		UseClient: false,
+		UseServer: false,
 	}
 }
 
@@ -144,7 +143,7 @@ func NewTypeLookupSettings() TypeLookupSettings {
 type BuiltinAttributes struct {
 	DiscoveryConfig                 *DiscoverySettings
 	UseWriterLivelinessProtocol     bool
-	TypeLookupConfig                TypeLookupSettings
+	TypeLookupConfig                *TypeLookupSettings
 	MetatrafficUnicastLocatorList   LocatorList
 	MetatrafficMulticastLocatorList LocatorList
 	InitialPeersList                LocatorList
@@ -158,22 +157,20 @@ type BuiltinAttributes struct {
 
 // NewBuiltinAttributes ...
 func NewBuiltinAttributes() *BuiltinAttributes {
-	att := BuiltinAttributes{
+	return &BuiltinAttributes{
 		DiscoveryConfig:                 NewDiscoverySettings(),
-		Use_WriterLivelinessProtocol:    true,
-		TypeLookup_Config:               NewTypeLookupSettings(),
+		UseWriterLivelinessProtocol:     true,
+		TypeLookupConfig:                NewTypeLookupSettings(),
 		MetatrafficUnicastLocatorList:   NewLocatorList(),
 		MetatrafficMulticastLocatorList: NewLocatorList(),
 		InitialPeersList:                NewLocatorList(),
-		ReaderHostoryMemoryPolicy:       PREALLOCATED_WITH_REALLOC_MEMORY_MODE,
-		ReaderPayloadSize:               BUILTIN_DATA_MAX_SIZE,
-		WriterHistoryMemoryPolicy:       PREALLOCATED_WITH_REALLOC_MEMORY_MODE,
-		WriterPayloadSize:               BUILTIN_DATA_MAX_SIZE,
-		Mutation_Tries:                  100,
-		Avoid_Builtin_Multicast:         true,
+		ReaderHostoryMemoryPolicy:       CPreallocatedWithReallocMemoryMode,
+		ReaderPayloadSize:               CBuiltinDataMaxSize,
+		WriterHistoryMemoryPolicy:       CPreallocatedWithReallocMemoryMode,
+		WriterPayloadSize:               CBuiltinDataMaxSize,
+		MutationTries:                   100,
+		AvoidBuiltinMulticast:           true,
 	}
-
-	return &att
 }
 
 // RTPSParticipantAttributes ...
@@ -184,8 +181,8 @@ type RTPSParticipantAttributes struct {
 	SendSocketBufferSize        uint32
 	ListenSocketBufferSize      uint32
 	Prefix                      *GuidPrefix_t
-	Builtin                     BuiltinAttributes
-	Port                        PortParameters
+	Builtin                     *BuiltinAttributes
+	Port                        *PortParameters
 	UserData                    []Octet
 	ParticipantID               int32
 
@@ -193,7 +190,7 @@ type RTPSParticipantAttributes struct {
 	ThroghputController *ThroghputControllerDescriptor
 
 	//!User defined transports to use alongside or in place of builtins.
-	UserTransports []*TransportDescriptorInterface
+	//UserTransports []*TransportDescriptorInterface
 
 	//!Set as false to disable the default UDPv4 implementation.
 	UseBuiltinTransports bool
@@ -206,18 +203,17 @@ type RTPSParticipantAttributes struct {
 
 // NewRTPSParticipantAttributes ...
 func NewRTPSParticipantAttributes() *RTPSParticipantAttributes {
-	participantAttributes := RTPSParticipantAttributes{
+	return &RTPSParticipantAttributes{
 		name:                        "RTPSParticipant",
 		ParticipantID:               -1,
 		UseBuiltinTransports:        true,
 		DefaultUnicastLocatorList:   NewLocatorList(),
 		DefaultMulticastLocatorList: NewLocatorList(),
 		Prefix:                      NewGuiPrefix(),
+		Builtin:                     NewBuiltinAttributes(),
 		Port:                        NewDefaultPortParameters(),
-		ThroghputController:         &ThroghputControllerDescriptor{},
+		ThroghputController:         NewThroghputControllerDescriptor(),
 		Allocation:                  NewRTPSParticipantAllocationAttributes(),
 		Properties:                  NewPropertyPolicy(),
 	}
-
-	return &participantAttributes
 }

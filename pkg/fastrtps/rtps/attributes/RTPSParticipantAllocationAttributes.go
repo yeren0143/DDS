@@ -4,6 +4,7 @@ import (
 	. "github.com/yeren0143/DDS/fastrtps/utils"
 )
 
+//RemoteLocatorsAllocationAttributes specified remote locators allocation attributes
 type RemoteLocatorsAllocationAttributes struct {
 	/** Maximum number of unicast locators per remote entity.
 	 *
@@ -24,13 +25,15 @@ type RemoteLocatorsAllocationAttributes struct {
 	MaxMulticastLocators uint64
 }
 
-func NewRemoteLocatorsAllocationAttributes() RemoteLocatorsAllocationAttributes {
-	return RemoteLocatorsAllocationAttributes{
+//NewRemoteLocatorsAllocationAttributes create locators allocation attributes
+func NewRemoteLocatorsAllocationAttributes() *RemoteLocatorsAllocationAttributes {
+	return &RemoteLocatorsAllocationAttributes{
 		MaxUnicastLocators:   4,
 		MaxMulticastLocators: 1,
 	}
 }
 
+//SendBuffersAllocationAttributes describe send buffers allocation attributes
 type SendBuffersAllocationAttributes struct {
 	/** Initial number of send buffers to allocate.
 	 *
@@ -50,16 +53,15 @@ type SendBuffersAllocationAttributes struct {
 	Dynamic bool
 }
 
-func NewSendBuffersAllocationAttributes() SendBuffersAllocationAttributes {
-	return SendBuffersAllocationAttributes{
+//NewSendBuffersAllocationAttributes create send buffers allocation attributes
+func NewSendBuffersAllocationAttributes() *SendBuffersAllocationAttributes {
+	return &SendBuffersAllocationAttributes{
 		PreAllocatedNum: 0,
 		Dynamic:         false,
 	}
 }
 
-/**
- * @brief Holds limits for variable-length data.
- */
+//VariableLengthDataLimits Holds limits for variable-length data.
 type VariableLengthDataLimits struct {
 	//! Defines the maximum size (in octets) of properties data in the local or remote participant
 	MaxProperties uint64
@@ -71,39 +73,39 @@ type VariableLengthDataLimits struct {
 	MaxPartitions uint64
 }
 
-func NewVariableLengthDataLimits() VariableLengthDataLimits {
-	return VariableLengthDataLimits{
+//NewVariableLengthDataLimits create VariableLengthDataLimits with default value
+func NewVariableLengthDataLimits() *VariableLengthDataLimits {
+	return &VariableLengthDataLimits{
 		MaxProperties: 0,
 		MaxUserData:   0,
 		MaxPartitions: 0,
 	}
 }
 
-/**
- * @brief Holds allocation limits affecting collections managed by a participant.
- */
+//RTPSParticipantAllocationAttributes Holds allocation limits affecting collections managed by a participant.
 type RTPSParticipantAllocationAttributes struct {
 	//! Holds limits for collections of remote locators.
-	Locators RemoteLocatorsAllocationAttributes
+	Locators *RemoteLocatorsAllocationAttributes
 	//! Defines the allocation behaviour for collections dependent on the total number of participants.
-	Participants ResourceLimitedContainerConfig
+	Participants *ResourceLimitedContainerConfig
 	//! Defines the allocation behaviour for collections dependent on the total number of readers per participant.
-	Readers ResourceLimitedContainerConfig
+	Readers *ResourceLimitedContainerConfig
 	//! Defines the allocation behaviour for collections dependent on the total number of writers per participant.
-	Writers ResourceLimitedContainerConfig
+	Writers *ResourceLimitedContainerConfig
 	//! Defines the allocation behaviour for the send buffer manager.
-	SendBuffers SendBuffersAllocationAttributes
+	SendBuffers *SendBuffersAllocationAttributes
 	//! Holds limits for variable-length data
-	DataLimits VariableLengthDataLimits
+	DataLimits *VariableLengthDataLimits
 }
 
+//NewRTPSParticipantAllocationAttributes create RTPSParticipantAllocationAttributes with default value
 func NewRTPSParticipantAllocationAttributes() *RTPSParticipantAllocationAttributes {
 	return &RTPSParticipantAllocationAttributes{
-		Locators:     RemoteLocatorsAllocationAttributes{},
-		Participants: ResourceLimitedContainerConfig{},
-		Readers:      ResourceLimitedContainerConfig{},
-		Writers:      ResourceLimitedContainerConfig{},
-		SendBuffers:  SendBuffersAllocationAttributes{},
-		DataLimits:   VariableLengthDataLimits{},
+		Locators:     NewRemoteLocatorsAllocationAttributes(),
+		Participants: NewResourceLimitedContainerConfig(),
+		Readers:      NewResourceLimitedContainerConfig(),
+		Writers:      NewResourceLimitedContainerConfig(),
+		SendBuffers:  NewSendBuffersAllocationAttributes(),
+		DataLimits:   NewVariableLengthDataLimits(),
 	}
 }

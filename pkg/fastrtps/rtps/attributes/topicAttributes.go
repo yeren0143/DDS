@@ -6,7 +6,7 @@ import (
 )
 
 type TopicAttributes struct {
-	TopicKind     TopicKind_t
+	TopicKind     TopicKindT
 	TopicName     string
 	TopicDataType string
 	HistoryQos    HistoryQosPolicy

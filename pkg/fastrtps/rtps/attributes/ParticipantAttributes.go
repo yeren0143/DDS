@@ -1,13 +1,15 @@
 package attributes
 
+//ParticipantAttributes ...
 type ParticipantAttributes struct {
-	DomainId uint32
+	DomainID uint32
 	RTPS     *RTPSParticipantAttributes
 }
 
+//NewParticipantAttributes ...
 func NewParticipantAttributes() *ParticipantAttributes {
 	return &ParticipantAttributes{
-		DomainId: 0,
+		DomainID: 0,
 		RTPS:     NewRTPSParticipantAttributes(),
 	}
 }
