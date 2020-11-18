@@ -9,6 +9,18 @@ type Time struct {
 // DurationT used to describe Duration
 type DurationT = Time
 
+func (t *Time) Less(value Time) bool {
+	if t.Seconds < value.Seconds {
+		return true
+	} else if t.Seconds > value.Seconds {
+		return false
+	} else if t.Nanosec < value.Nanosec {
+		return true
+	} else {
+		return false
+	}
+}
+
 // time const
 const (
 	InfiniteSeconds     = 0x7fffffff
@@ -17,15 +29,15 @@ const (
 
 var (
 	// TimeInfinite representing an infinite time
-	TimeInfinite Time
+	CTimeInfinite Time
 	// TimeZero representing a zero time
-	TimeZero Time
+	CTimeZero Time
 	// TimeInvalid representing an invalid time
-	TimeInvalid Time
+	CTimeInvalid Time
 )
 
 func init() {
-	TimeInfinite = Time{Seconds: 0x7fffffff, Nanosec: 0xffffffff}
-	TimeZero = Time{Seconds: 0, Nanosec: 0}
-	TimeInvalid = Time{Seconds: -1, Nanosec: InfiniteNanoSeconds}
+	CTimeInfinite = Time{Seconds: InfiniteSeconds, Nanosec: InfiniteNanoSeconds}
+	CTimeZero = Time{Seconds: 0, Nanosec: 0}
+	CTimeInvalid = Time{Seconds: -1, Nanosec: InfiniteNanoSeconds}
 }

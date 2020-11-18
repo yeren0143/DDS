@@ -16,8 +16,8 @@ func (guid *GUID_t) IsOnTheSameProcess(id *GuidPrefix_t) bool {
 // func CreateGuidPrefix(id uint32) *GuidPrefix {
 // 	guid_prefix := GuidPrefix{}
 
-// 	guid_prefix.value[0] = C_VendorId_eProsima.Vendor[0]
-// 	guid_prefix.value[1] = C_VendorId_eProsima.Vendor[1]
+// 	guid_prefix.value[0] = C_VendorIDT_eProsima.Vendor[0]
+// 	guid_prefix.value[1] = C_VendorIDT_eProsima.Vendor[1]
 
 // 	host_id := utils.GetHost().Id()
 // 	guid_prefix.value[2] = Octet(host_id)

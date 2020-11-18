@@ -54,8 +54,8 @@ const (
 
 // SimpleEDPAttributes define the attributes of the Simple Endpoint Discovery Protocol.
 type SimpleEDPAttributes struct {
-	UsePublicationWriterANDSubscriptionReader                   bool
-	UsePublicationReaderANDSubscriptionWriter                   bool
+	UsePublicationWriterAndSubscriptionReader                   bool
+	UsePublicationReaderAndSubscriptionWriter                   bool
 	EnableBuiltinSecurePublicationsWriterAndSubscriptionsReader bool
 	EnableBuiltinSecureSubscriptionsWriterAndPublicationsReader bool
 }
@@ -63,8 +63,8 @@ type SimpleEDPAttributes struct {
 // NewSimpleEDPAttributes create EDPAttributes
 func NewSimpleEDPAttributes() *SimpleEDPAttributes {
 	return &SimpleEDPAttributes{
-		UsePublicationWriterANDSubscriptionReader:                   true,
-		UsePublicationReaderANDSubscriptionWriter:                   true,
+		UsePublicationWriterAndSubscriptionReader:                   true,
+		UsePublicationReaderAndSubscriptionWriter:                   true,
 		EnableBuiltinSecurePublicationsWriterAndSubscriptionsReader: true,
 		EnableBuiltinSecureSubscriptionsWriterAndPublicationsReader: true,
 	}
@@ -144,9 +144,9 @@ type BuiltinAttributes struct {
 	DiscoveryConfig                 *DiscoverySettings
 	UseWriterLivelinessProtocol     bool
 	TypeLookupConfig                *TypeLookupSettings
-	MetatrafficUnicastLocatorList   LocatorList
-	MetatrafficMulticastLocatorList LocatorList
-	InitialPeersList                LocatorList
+	MetatrafficUnicastLocatorList   *LocatorList
+	MetatrafficMulticastLocatorList *LocatorList
+	InitialPeersList                *LocatorList
 	ReaderHostoryMemoryPolicy       MemoryManagementPolicy
 	ReaderPayloadSize               uint32 //Maximum payload size for builtin readers
 	WriterHistoryMemoryPolicy       MemoryManagementPolicy
@@ -175,16 +175,16 @@ func NewBuiltinAttributes() *BuiltinAttributes {
 
 // RTPSParticipantAttributes ...
 type RTPSParticipantAttributes struct {
-	name                        string
-	DefaultUnicastLocatorList   LocatorList
-	DefaultMulticastLocatorList LocatorList
+	Name                        string
+	DefaultUnicastLocatorList   *LocatorList
+	DefaultMulticastLocatorList *LocatorList
 	SendSocketBufferSize        uint32
 	ListenSocketBufferSize      uint32
 	Prefix                      *GuidPrefix_t
 	Builtin                     *BuiltinAttributes
 	Port                        *PortParameters
 	UserData                    []Octet
-	ParticipantID               int32
+	ParticipantID               uint32
 
 	//!Throughput controller parameters. Leave default for uncontrolled flow.
 	ThroghputController *ThroghputControllerDescriptor
@@ -204,8 +204,8 @@ type RTPSParticipantAttributes struct {
 // NewRTPSParticipantAttributes ...
 func NewRTPSParticipantAttributes() *RTPSParticipantAttributes {
 	return &RTPSParticipantAttributes{
-		name:                        "RTPSParticipant",
-		ParticipantID:               -1,
+		Name:                        "RTPSParticipant",
+		ParticipantID:               ^uint32(0),
 		UseBuiltinTransports:        true,
 		DefaultUnicastLocatorList:   NewLocatorList(),
 		DefaultMulticastLocatorList: NewLocatorList(),

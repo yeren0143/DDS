@@ -2,8 +2,8 @@ package common
 
 // version info
 var (
-	CVendorIDUnknown   = NewVendorId(0x00, 0x00)
-	CVendorIdeProsima  = NewVendorId(0x01, 0x0F)
+	CVendorIDTUnknown  = NewVendorID(0x00, 0x00)
+	CVendorIDTeProsima = NewVendorID(0x01, 0x0F)
 	CProtocolVersion20 = ProtocolVersionT{2, 0}
 	CProtocolVersion21 = ProtocolVersionT{2, 1}
 	CProtocolVersion22 = ProtocolVersionT{2, 2}
@@ -33,10 +33,10 @@ const (
 	PERSISTENT //!< NOT IMPLEMENTED.
 )
 
-type EndpointKind_t int8
+type EndpointKindT int8
 
 const (
-	READER EndpointKind_t = iota
+	READER EndpointKindT = iota
 	WRITER
 )
 
@@ -50,9 +50,9 @@ const (
 type Octet = byte
 type SubmessageFlag = byte
 type BuiltinEndpointSet = uint32
-type Count_t = uint32
+type CountT = uint32
 
-type VendorId struct {
+type VendorIDT struct {
 	Vendor [2]Octet
 }
 
@@ -65,21 +65,21 @@ func NewProtocolVersion(maj Octet, min Octet) ProtocolVersionT {
 	return ProtocolVersionT{maj, min}
 }
 
-// func NewVendorId(v *VendorId) VendorId {
-// 	vendor := VendorId{}
+// func NewVendorID(v *VendorIDT) VendorIDT {
+// 	vendor := VendorIDT{}
 // 	vendor.m_vendor[0] = v.m_vendor[0]
 // 	vendor.m_vendor[1] = v.m_vendor[1]
 // 	return vendor
 // }
 
-func NewVendorId(a uint8, b uint8) VendorId {
-	var vendor VendorId
+func NewVendorID(a uint8, b uint8) VendorIDT {
+	var vendor VendorIDT
 	vendor.Vendor[0] = a
 	vendor.Vendor[1] = b
 	return vendor
 }
 
-func (vendor_id *VendorId) Equal(v *VendorId) bool {
+func (vendor_id *VendorIDT) Equal(v *VendorIDT) bool {
 	if vendor_id.Vendor[0] == v.Vendor[0] && vendor_id.Vendor[1] == v.Vendor[1] {
 		return true
 	} else {

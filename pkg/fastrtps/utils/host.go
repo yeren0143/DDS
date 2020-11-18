@@ -21,12 +21,12 @@ func GetHost() *Host {
 			hostInstance = &Host{}
 			addrs := GetIP4Address()
 
-			if len(addrs) == 0 {
+			if len(addrs.Locators) == 0 {
 				hostInstance.id |= 127 << 8
 				hostInstance.id |= 1
 			} else {
 				var data []byte
-				for _, loc := range addrs {
+				for _, loc := range addrs.Locators {
 					data = append(data, loc.Address[0:16]...)
 				}
 				digest := md5.Sum(data)

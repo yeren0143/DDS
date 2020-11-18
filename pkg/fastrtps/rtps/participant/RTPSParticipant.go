@@ -1,8 +1,7 @@
 package participant
 
 import (
-	. "github.com/yeren0143/DDS/common"
-	// . "github.com/yeren0143/DDS/fastrtps/participant"
+	common "github.com/yeren0143/DDS/common"
 	. "github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	. "github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery"
 	. "github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol"
@@ -14,8 +13,8 @@ import (
 type RTPSParticipant struct {
 	DomaninId         uint32
 	Att               *RTPSParticipantAttributes
-	Guid              *GUID_t
-	Persistence_guid  *GUID_t // Persistence guid of the RTPSParticipant
+	Guid              *common.GUID_t
+	Persistence_guid  *common.GUID_t // Persistence guid of the RTPSParticipant
 	Event_Thr         *ResourceEvent
 	Builtin_protocols *BuiltinProtocols
 	//Resource_semaphore   *Semaphore // Semaphore to wait for the listen thread creation.
@@ -27,10 +26,11 @@ type RTPSParticipant struct {
 }
 
 // NewParticipant create new rtps participant
-func NewParticipant(domainId uint32, useProtocol bool, patt *RTPSParticipantAttributes, listen *RTPSParticipantListener) *RTPSParticipant {
+func NewParticipant(domainId uint32, useProtocol bool, attrs *RTPSParticipantAttributes, listen *RTPSParticipantListener) *RTPSParticipant {
+
 	return &RTPSParticipant{
 		DomaninId: domainId,
-		Att:       patt,
+		Att:       attrs,
 		Listener:  listen,
 	}
 }

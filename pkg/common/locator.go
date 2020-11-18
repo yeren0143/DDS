@@ -21,9 +21,37 @@ type Locator struct {
 	Address [16]Octet
 }
 
-type LocatorList = []Locator
+func (locator *Locator) Valid() bool {
+	return locator.Kind >= 0
+}
 
-func NewLocatorList() LocatorList {
-	locator_list := []Locator{}
-	return locator_list
+//type LocatorList = []Locator
+
+type LocatorList struct {
+	Locators []Locator
+}
+
+func (list *LocatorList) Valid() bool {
+	for _, locator := range list.Locators {
+		if locator.Valid() == false {
+			return false
+		}
+	}
+	return true
+}
+
+func (list *LocatorList) PushBack(local *Locator) {
+	list.Locators = append(list.Locators, *local)
+}
+
+func (list *LocatorList) Empty() bool {
+	if len(list.Locators) > 0 {
+		return false
+	}
+
+	return true
+}
+
+func NewLocatorList() *LocatorList {
+	return &LocatorList{}
 }

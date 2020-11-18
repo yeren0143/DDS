@@ -34,11 +34,11 @@ var DISC_BUILTIN_ENDPOINT_PARTICIPANT_SECURE_DETECTOR = uint64(0x00000001 << 27)
 type ParticipantProxyData struct {
 	ProtoVersion            common.Proto
 	Guid                    common.GUID_t
-	VendorId                common.VendorId
+	VendorIDT               common.VendorIDT
 	ExpectsInlineQos        bool
 	AviableBuiltinEndpoints BuiltinEndpointSet
 	MetatrafficLocators     RemoteLocatorList
 	DefaultLocatord         RemoteLocatorList
-	ManualLivelinessCount   Count_t
+	ManualLivelinessCount   CountT
 	ParticipantName         string
 }

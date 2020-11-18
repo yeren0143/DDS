@@ -126,7 +126,7 @@ type DurabilityQosPolicy struct {
 type DeadlineQosPolicy struct {
 	Parameter_t
 	QosPolicy
-	Period Duration_t
+	Period DurationT
 }
 
 /**
@@ -139,7 +139,7 @@ type DeadlineQosPolicy struct {
 type LatencyBudgetQosPolicy struct {
 	Parameter_t
 	QosPolicy
-	Duration Duration_t
+	Duration DurationT
 }
 
 type LivelinessQosPolicyKind uint8
@@ -176,8 +176,8 @@ type LivelinessQosPolicy struct {
 	QosPolicy
 	Kind LivelinessQosPolicyKind
 
-	Lease_Duration      Duration_t
-	Announcement_Period Duration_t
+	Lease_Duration      DurationT
+	Announcement_Period DurationT
 }
 
 type ReliabilityQosPolicyKind uint8
@@ -203,7 +203,7 @@ type ReliabilityQosPolicy struct {
 	Parameter_t
 	QosPolicy
 	Kind              ReliabilityQosPolicyKind
-	Max_Blocking_Time Duration_t
+	Max_Blocking_Time DurationT
 }
 
 type OwnershipQosPolicyKind uint8
@@ -293,7 +293,7 @@ type GroupDataQosPolicy struct {
 type TimeBasedFilterQosPolicy struct {
 	Parameter_t
 	QosPolicy
-	Minium_Separation Duration_t
+	Minium_Separation DurationT
 }
 
 type PresentationQosPolicyAccessScopeKind uint8
@@ -464,7 +464,7 @@ type DurabilityServiceQosPolicy struct {
 	 * @brief Control when the service is able to remove all information regarding a data-instance. <br>
 	 * By default, c_TimeZero.
 	 */
-	Service_CleanUp_Delay Duration_t
+	Service_CleanUp_Delay DurationT
 
 	//Controls the HistoryQosPolicy of the fictitious DataReader that stores the data
 	// within the durability service.
@@ -502,7 +502,7 @@ type DurabilityServiceQosPolicy struct {
 type LifespanQosPolicy struct {
 	Parameter_t
 	QosPolicy
-	Duration Duration_t
+	Duration DurationT
 }
 
 /**
@@ -637,7 +637,7 @@ type DisablePositiveACKsQosPolicy struct {
 	Enable bool
 
 	//The duration to keep samples for (not serialized as not needed by reader).
-	Duration Duration_t
+	Duration DurationT
 }
 
 type TypeIdV1 struct {

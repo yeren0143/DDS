@@ -202,14 +202,14 @@ func GetIPs(return_loopback bool) ([]*InfoIP, error) {
 	return InfoIPs, nil
 }
 
-func GetIP4Address() common.LocatorList {
+func GetIP4Address() *common.LocatorList {
 
 	locators := common.NewLocatorList()
 
 	ip_names, _ := GetIPs(false)
 	for _, ip := range ip_names {
 		if ip.Type == CIP4 {
-			locators = append(locators, ip.Locator)
+			locators.Locators = append(locators.Locators, ip.Locator)
 		}
 	}
 	return locators

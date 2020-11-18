@@ -27,7 +27,7 @@ const (
 	PID_TIME_BASED_FILTER                   ParameterId_t = 0x0004
 	PID_TRANSPORT_PRIORITY                  ParameterId_t = 0x0049
 	PID_PROTOCOL_VERSION                    ParameterId_t = 0x0015
-	PID_VENDORID                            ParameterId_t = 0x0016
+	PID_VendorIDT                           ParameterId_t = 0x0016
 	PID_UNICAST_LOCATOR                     ParameterId_t = 0x002f
 	PID_MULTICAST_LOCATOR                   ParameterId_t = 0x0030
 	PID_MULTICAST_IPADDRESS                 ParameterId_t = 0x0011

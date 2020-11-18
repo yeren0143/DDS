@@ -9,7 +9,7 @@ import (
 // Receiver process the received messages.
 type Receiver struct {
 	sourceVersion     common.ProtocolVertionT
-	sourceVendorID    common.VendorId
+	sourceVendorIDT   common.VendorIDT
 	sourceGUIDPrefix  common.GuidPrefix
 	destGUIDPrefix    common.GuidPrefix
 	haveTimeStamp     bool

@@ -26,6 +26,11 @@ func setIPv4WithIP(locator *common.Locator, ip string) bool {
 	return true
 }
 
+func SetIPv4(locator *common.Locator, o1, o2, o3, o4 common.Octet) bool {
+	locator.Address = [16]common.Octet{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, o1, o2, o3, o4}
+	return true
+}
+
 func setIP6WithString(locator *common.Locator, ip string) bool {
 	hexdigits := strings.Split(ip, ":")
 

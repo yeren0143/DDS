@@ -10,8 +10,8 @@ type PortParameters struct {
 	Offsetd3          uint16
 }
 
-func NewDefaultPortParameters() PortParameters {
-	return PortParameters{
+func NewDefaultPortParameters() *PortParameters {
+	return &PortParameters{
 		PortBase:          7400,
 		DomainIDGain:      250,
 		ParticipantIDGain: 2,
