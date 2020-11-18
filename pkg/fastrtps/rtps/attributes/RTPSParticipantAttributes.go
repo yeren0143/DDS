@@ -180,7 +180,7 @@ type RTPSParticipantAttributes struct {
 	DefaultMulticastLocatorList *LocatorList
 	SendSocketBufferSize        uint32
 	ListenSocketBufferSize      uint32
-	Prefix                      *GuidPrefix_t
+	Prefix                      *GUIDPrefixT
 	Builtin                     *BuiltinAttributes
 	Port                        *PortParameters
 	UserData                    []Octet
@@ -209,7 +209,7 @@ func NewRTPSParticipantAttributes() *RTPSParticipantAttributes {
 		UseBuiltinTransports:        true,
 		DefaultUnicastLocatorList:   NewLocatorList(),
 		DefaultMulticastLocatorList: NewLocatorList(),
-		Prefix:                      NewGuiPrefix(),
+		Prefix:                      NewGUIDPrefix(),
 		Builtin:                     NewBuiltinAttributes(),
 		Port:                        NewDefaultPortParameters(),
 		ThroghputController:         NewThroghputControllerDescriptor(),

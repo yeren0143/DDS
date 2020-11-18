@@ -1,15 +1,18 @@
 package common
 
-type GUID_t struct {
-	Prefix    GuidPrefix_t
-	Entity_id EntityId
+// GUIDT define the unique object
+type GUIDT struct {
+	Prefix GUIDPrefixT
+	EntID  EntityID
 }
 
-func (guid *GUID_t) IsOnTheSameHost(id *GuidPrefix_t) bool {
+//IsOnTheSameHost ...
+func (guid *GUIDT) IsOnTheSameHost(id *GUIDPrefixT) bool {
 	return false
 }
 
-func (guid *GUID_t) IsOnTheSameProcess(id *GuidPrefix_t) bool {
+//IsOnTheSameProcess ...
+func (guid *GUIDT) IsOnTheSameProcess(id *GUIDPrefixT) bool {
 	return false
 }
 

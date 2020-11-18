@@ -3,9 +3,9 @@ module transport
 go 1.15
 
 replace (
-	github.com/yeren0143/DDS/common => /home/allride/Desktop/DDS/pkg/common
-	github.com/yeren0143/DDS/fastrtps/network => /home/allride/Desktop/DDS/pkg/fastrtps/network
-	github.com/yeren0143/DDS/fastrtps/utils => /home/allride/Desktop/DDS/pkg/fastrtps/utils
+	github.com/yeren0143/DDS/common => /home/jiayin/Desktop/DDS/pkg/common
+	github.com/yeren0143/DDS/fastrtps/network => /home/jiayin/Desktop/DDS/pkg/fastrtps/network
+	github.com/yeren0143/DDS/fastrtps/utils => /home/jiayin/Desktop/DDS/pkg/fastrtps/utils
 
 )
 

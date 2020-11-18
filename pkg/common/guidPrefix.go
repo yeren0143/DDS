@@ -1,13 +1,16 @@
 package common
 
-type GuidPrefix_t struct {
+//GUIDPrefixT guid prefix of GUID
+type GUIDPrefixT struct {
 	Value [12]Octet
 }
 
+//CUnknownGuidPrefix guid
 var (
-	UnknownGuid GuidPrefix_t = GuidPrefix_t{}
+	CUnknownGUIDPrefix GUIDPrefixT = GUIDPrefixT{}
 )
 
-func NewGuiPrefix() *GuidPrefix_t {
-	return &GuidPrefix_t{}
+//NewGUIDPrefix ...
+func NewGUIDPrefix() *GUIDPrefixT {
+	return &GUIDPrefixT{}
 }

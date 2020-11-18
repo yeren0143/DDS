@@ -15,28 +15,26 @@ var (
 	gMaxRTPSParticipantID uint32 = 1
 	gRTPSParticipantIDs   map[uint32]bool
 	gLock                 sync.Mutex
+	gParticipantList []*rtpsPant.RTPSParticipant
 )
 
-type RTPSDomain struct {
-	ParticipantList []*rtpsPant.RTPSParticipant
-}
 
-func (domain *RTPSDomain) getNewId() uint32 {
+func getNewID() uint32 {
 	ret := gMaxRTPSParticipantID
-	gMaxRTPSParticipantID += 1
+	gMaxRTPSParticipantID++
 	return ret
 }
 
-func createGuidPrefix(ID uint32) *common.GuidPrefix_t {
-	var guid common.GuidPrefix_t
+func createGUIDPrefix(ID uint32) *common.GUIDPrefixT {
+	var guid common.GUIDPrefixT
 	pid := os.Getppid()
 
 	guid.Value[0] = common.CVendorIDTeProsima.Vendor[0]
 	guid.Value[1] = common.CVendorIDTeProsima.Vendor[1]
 
-	host_id := utils.GetHost().Id()
-	guid.Value[2] = common.Octet(host_id)
-	guid.Value[3] = common.Octet(host_id >> 8)
+	hostID := utils.GetHost().Id()
+	guid.Value[2] = common.Octet(hostID)
+	guid.Value[3] = common.Octet(hostID >> 8)
 
 	guid.Value[4] = common.Octet(pid)
 	guid.Value[5] = common.Octet(pid >> 8)
@@ -50,7 +48,8 @@ func createGuidPrefix(ID uint32) *common.GuidPrefix_t {
 	return &guid
 }
 
-func (domain *RTPSDomain) NewRTPSParticipant(domainId uint32, useProtocol bool, attrs *rtpsAtt.RTPSParticipantAttributes, listen *rtpsPant.RTPSParticipantListener) *rtpsPant.RTPSParticipant {
+//NewRTPSParticipant create new rtps participant
+func NewRTPSParticipant(domainID uint32, useProtocol bool, attrs *rtpsAtt.RTPSParticipantAttributes, listen *rtpsPant.RTPSParticipantListener) *rtpsPant.RTPSParticipant {
 	log.Println("cretae RTPS participant")
 
 	if attrs.Builtin.DiscoveryConfig.LeaseDuration.Less(common.CTimeInfinite) &&
@@ -66,10 +65,10 @@ func (domain *RTPSDomain) NewRTPSParticipant(domainId uint32, useProtocol bool, 
 		defer gLock.Unlock()
 
 		if attrs.ParticipantID < 0 {
-			id = domain.getNewId()
+			id = getNewID()
 			_, ok := gRTPSParticipantIDs[id]
 			for ok {
-				id = domain.getNewId()
+				id = getNewID()
 				_, ok = gRTPSParticipantIDs[id]
 			}
 			gRTPSParticipantIDs[id] = true
@@ -101,8 +100,10 @@ func (domain *RTPSDomain) NewRTPSParticipant(domainId uint32, useProtocol bool, 
 		attrs.Builtin.InitialPeersList.PushBack(&local)
 	}
 
-	participant := rtpsPant.NewParticipant(domainId, useProtocol, attrs, listen)
-	domain.ParticipantList = append(domain.ParticipantList, participant)
+	guidP := createGUIDPrefix(id)
+
+	participant := rtpsPant.NewParticipant(domainID, useProtocol, attrs, listen)
+	gParticipantList = append(gParticipantList, participant)
 
 	return participant
 }

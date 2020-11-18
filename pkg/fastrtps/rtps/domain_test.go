@@ -6,7 +6,6 @@ import (
 
 	common "github.com/yeren0143/DDS/common"
 	rtpsAtt "github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	rtpsPant "github.com/yeren0143/DDS/fastrtps/rtps/participant"
 )
 
 func TestNewParticipant(t *testing.T) {
@@ -18,6 +17,6 @@ func TestNewParticipant(t *testing.T) {
 	att.Builtin.DiscoveryConfig.LeaseDuration = common.CTimeInfinite
 	att.Name = "Participant_sub_test"
 
-	participant := rtpsPant.NewParticipant(0, true, att, nil)
+	participant := NewRTPSParticipant(0, true, att, nil)
 	fmt.Printf("%v", participant)
 }

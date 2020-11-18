@@ -662,7 +662,7 @@ type TypeInformation struct {
 
 type WireProtocolConfigQos struct {
 	QosPolicy
-	Prefix         GuidPrefix_t
+	Prefix         GUIDPrefixT
 	Participant_Id int32
 	//Builtin_Attr                   *BuiltinAttributes
 	Port *PortParameters

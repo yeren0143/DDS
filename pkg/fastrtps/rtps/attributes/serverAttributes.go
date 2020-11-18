@@ -12,7 +12,7 @@ const (
 type RemoteServerAttributes struct {
 	MetrafficUnicastLocatorList   LocatorList
 	MetrafficMulticastLocatorList LocatorList
-	GuidPrefix                    GuidPrefix_t
+	GuidPrefix                    GUIDPrefixT
 	ParticipantProxy              interface{} // Live participant proxy reference
 }
 

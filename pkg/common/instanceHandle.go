@@ -9,25 +9,25 @@ var (
 	C_InstanceHandle_Unknown = InstanceHandle_t{}
 )
 
-func CreateInstanceHandle(guid GUID_t) InstanceHandle_t {
+func CreateInstanceHandle(guid GUIDT) InstanceHandle_t {
 	var instance InstanceHandle_t
 	for i := 0; i < 12; i += 1 {
 		instance.Value[i] = guid.Prefix.Value[i]
 	}
 	for i := 12; i < 16; i += 1 {
-		instance.Value[i] = guid.Entity_id.Value[i-12]
+		instance.Value[i] = guid.EntID.Value[i-12]
 	}
 
 	return instance
 }
 
-func IHandle2GUID(ihandle *InstanceHandle_t) GUID_t {
-	var guid GUID_t
+func IHandle2GUID(ihandle *InstanceHandle_t) GUIDT {
+	var guid GUIDT
 	for i := 0; i < 12; i += 1 {
 		guid.Prefix.Value[i] = ihandle.Value[i]
 	}
 	for i := 12; i < 16; i += 1 {
-		guid.Entity_id.Value[i-12] = ihandle.Value[i]
+		guid.EntID.Value[i-12] = ihandle.Value[i]
 	}
 	return guid
 }
