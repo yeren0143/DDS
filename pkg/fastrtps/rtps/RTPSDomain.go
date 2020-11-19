@@ -15,9 +15,8 @@ var (
 	gMaxRTPSParticipantID uint32 = 1
 	gRTPSParticipantIDs   map[uint32]bool
 	gLock                 sync.Mutex
-	gParticipantList []*rtpsPant.RTPSParticipant
+	gParticipantList      []*rtpsPant.RTPSParticipant
 )
-
 
 func getNewID() uint32 {
 	ret := gMaxRTPSParticipantID
@@ -102,7 +101,13 @@ func NewRTPSParticipant(domainID uint32, useProtocol bool, attrs *rtpsAtt.RTPSPa
 
 	guidP := createGUIDPrefix(id)
 
-	participant := rtpsPant.NewParticipant(domainID, useProtocol, attrs, listen)
+	participant := rtpsPant.NewParticipant(domainID, attrs, guidP, &common.CUnknownGUIDPrefix, listen)
+
+	if attrs.Builtin.DiscoveryConfig.DiscoveryProtocol == rtpsAtt.CDisServer ||
+		attrs.Builtin.DiscoveryConfig.DiscoveryProtocol == rtpsAtt.CDisBackup {
+		log.Fatal("Server wasn't able to allocate the specified listening port")
+	}
+
 	gParticipantList = append(gParticipantList, participant)
 
 	return participant

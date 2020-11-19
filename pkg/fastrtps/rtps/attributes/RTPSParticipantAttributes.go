@@ -10,30 +10,30 @@ import (
 type DiscoveryProtocolT int8
 
 const (
-	// NONE NO discovery whatsoever would be used.
+	// CDisNone NO discovery whatsoever would be used.
 	// Publisher and Subscriber defined with the same topic name would NOT be linked.
 	// All matching must be done manually through the addReaderLocator, addReaderProxy, addWriterProxy methods.
-	NONE DiscoveryProtocolT = iota
+	CDisNone DiscoveryProtocolT = iota
 
-	//SIMPLE Discovery works according to 'The Real-time Publish-Subscribe Protocol(RTPS) DDS
-	//Interoperability Wire Protocol Specification'
-	SIMPLE
+	// CDisSimple Discovery works according to 'The Real-time Publish-Subscribe Protocol(RTPS) DDS
+	// Interoperability Wire Protocol Specification'
+	CDisSimple
 
-	//EXTERNAL A user defined PDP subclass object must be provided in the attributes that deals with the discovery.
-	//Framework is not responsible of this object lifetime.
-	EXTERNAL
+	// CDisExternal A user defined PDP subclass object must be provided in the attributes that deals with the discovery.
+	// Framework is not responsible of this object lifetime.
+	CDisExternal
 
-	//CLIENT The participant will behave as a client concerning discovery operation.
-	//Server locators should be specified as attributes.
-	CLIENT
+	// CDisClient The participant will behave as a client concerning discovery operation.
+	// Server locators should be specified as attributes.
+	CDisClient
 
-	// SERVER participant will behave as a server concerning discovery operation.
+	// CDisServer participant will behave as a server concerning discovery operation.
 	//Discovery operation is volatile (discovery handshake must take place if shutdown
-	SERVER
+	CDisServer
 
-	// BACKUP participant will behave as a server concerning discovery operation.
+	// CDisBackup participant will behave as a server concerning discovery operation.
 	//Discovery operation persist on a file (discovery handshake wouldn't repeat if shutdown
-	BACKUP
+	CDisBackup
 )
 
 // ParticipantFilteringFlags ...
@@ -113,7 +113,7 @@ type DiscoverySettings struct {
 // NewDiscoverySettings create DiscoverySetting with default value
 func NewDiscoverySettings() *DiscoverySettings {
 	var discoverySettings DiscoverySettings
-	discoverySettings.DiscoveryProtocol = SIMPLE
+	discoverySettings.DiscoveryProtocol = CDisSimple
 	discoverySettings.UseSimpleEndpointDiscoveryProtocol = true
 	discoverySettings.UseStaticEndpointDiscoveryProtocol = false
 	discoverySettings.LeaseDuration = DurationT{20, 0}

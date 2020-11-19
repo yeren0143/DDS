@@ -10,7 +10,7 @@ import (
 
 func TestNewParticipant(t *testing.T) {
 	att := rtpsAtt.NewRTPSParticipantAttributes()
-	att.Builtin.DiscoveryConfig.DiscoveryProtocol = rtpsAtt.SIMPLE
+	att.Builtin.DiscoveryConfig.DiscoveryProtocol = rtpsAtt.CDisSimple
 	att.Builtin.DiscoveryConfig.UseSimpleEndpointDiscoveryProtocol = true
 	att.Builtin.DiscoveryConfig.SimpleEDP.UsePublicationReaderAndSubscriptionWriter = true
 	att.Builtin.DiscoveryConfig.SimpleEDP.UsePublicationWriterAndSubscriptionReader = true
