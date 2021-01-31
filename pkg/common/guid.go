@@ -2,9 +2,11 @@ package common
 
 // GUIDT define the unique object
 type GUIDT struct {
-	Prefix GUIDPrefixT
-	EntID  EntityID
+	Prefix   GUIDPrefixT
+	EntityID EntityIDT
 }
+
+var KGuidUnknown GUIDT
 
 //IsOnTheSameHost ...
 func (guid *GUIDT) IsOnTheSameHost(id *GUIDPrefixT) bool {

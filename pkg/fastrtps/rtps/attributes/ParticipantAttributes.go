@@ -2,8 +2,9 @@ package attributes
 
 //ParticipantAttributes ...
 type ParticipantAttributes struct {
-	DomainID uint32
-	RTPS     *RTPSParticipantAttributes
+	DomainID   uint32
+	RTPS       *RTPSParticipantAttributes
+	Allocation RTPSParticipantAllocationAttributes
 }
 
 //NewParticipantAttributes ...

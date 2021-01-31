@@ -1,14 +1,25 @@
 package common
 
-// version info
 var (
-	CVendorIDTUnknown  = NewVendorID(0x00, 0x00)
-	CVendorIDTeProsima = NewVendorID(0x01, 0x0F)
-	CProtocolVersion20 = ProtocolVersionT{2, 0}
-	CProtocolVersion21 = ProtocolVersionT{2, 1}
-	CProtocolVersion22 = ProtocolVersionT{2, 2}
-	CProtocolVersion23 = ProtocolVersionT{2, 3}
+	KVendorIDTUnknown  VendorIDT
+	KVendorIDTeProsima VendorIDT
+	KProtocolVersion20 ProtocolVersionT
+	KProtocolVersion21 ProtocolVersionT
+	KProtocolVersion22 ProtocolVersionT
+	KProtocolVersion23 ProtocolVersionT
+	KProtocolVersion   ProtocolVersionT
 )
+
+// version info
+func init() {
+	KVendorIDTUnknown = CreateVendorID(0x00, 0x00)
+	KVendorIDTeProsima = CreateVendorID(0x01, 0x0F)
+	KProtocolVersion20 = ProtocolVersionT{2, 0}
+	KProtocolVersion21 = ProtocolVersionT{2, 1}
+	KProtocolVersion22 = ProtocolVersionT{2, 2}
+	KProtocolVersion23 = ProtocolVersionT{2, 3}
+	KProtocolVersion = ProtocolVersionT{2, 2}
+}
 
 type Endianness int8
 
@@ -17,34 +28,32 @@ const (
 	LITTLEEND Endianness = 0x0
 )
 
-type ReliabilityKind int8
+var KDefaultEndian Endianness = LITTLEEND
 
+type ReliabilityKindT int8
 const (
-	RELIABLE ReliabilityKind = iota
-	BEST_EFFORT
+	KReliable ReliabilityKindT = iota
+	KBestEffort
 )
 
-type DurabilityKind int8
-
+type DurabilityKindT int8
 const (
-	VOLATILE DurabilityKind = iota
-	TRANSIENT_LOCAL
-	TRANSIENT
-	PERSISTENT //!< NOT IMPLEMENTED.
+	KVolatile DurabilityKindT = iota
+	KTransientLocal
+	KTransient
+	KPersistent //!< NOT IMPLEMENTED.
 )
 
 type EndpointKindT int8
-
 const (
-	READER EndpointKindT = iota
-	WRITER
+	KREADER EndpointKindT = iota
+	KWRITER
 )
 
 type TopicKindT int8
-
 const (
-	CNoKey TopicKindT = iota
-	CWithKey
+	KNoKey TopicKindT = iota
+	KWithKey
 )
 
 type Octet = byte
@@ -65,14 +74,7 @@ func NewProtocolVersion(maj Octet, min Octet) ProtocolVersionT {
 	return ProtocolVersionT{maj, min}
 }
 
-// func NewVendorID(v *VendorIDT) VendorIDT {
-// 	vendor := VendorIDT{}
-// 	vendor.m_vendor[0] = v.m_vendor[0]
-// 	vendor.m_vendor[1] = v.m_vendor[1]
-// 	return vendor
-// }
-
-func NewVendorID(a uint8, b uint8) VendorIDT {
+func CreateVendorID(a uint8, b uint8) VendorIDT {
 	var vendor VendorIDT
 	vendor.Vendor[0] = a
 	vendor.Vendor[1] = b
@@ -85,4 +87,8 @@ func (vendor_id *VendorIDT) Equal(v *VendorIDT) bool {
 	} else {
 		return false
 	}
+}
+
+func Bit(i uint32) byte {
+	return 1 << i
 }

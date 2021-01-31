@@ -3,8 +3,8 @@ module policy
 go 1.15
 
 replace (
-	github.com/yeren0143/DDS/common => /home/jiayin/Desktop/DDS/pkg/common
-	github.com/yeren0143/DDS/types => /home/jiayin/Desktop/DDS/pkg/types
+	github.com/yeren0143/DDS/common => /home/jiayin/Desktop/DDS/DDS_go/pkg/common
+	github.com/yeren0143/DDS/types => /home/jiayin/Desktop/DDS/DDS_go/pkg/types
 )
 
 require (

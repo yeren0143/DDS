@@ -1,84 +1,264 @@
 package policy
 
-type ParameterId_t uint16
+import (
+	"github.com/yeren0143/DDS/common"
+)
+
+type ParameterIDT uint16
 
 const (
-	PID_PAD                                 ParameterId_t = 0x0000
-	PID_SENTINEL                            ParameterId_t = 0x0001
-	PID_USER_DATA                           ParameterId_t = 0x002c
-	PID_TOPIC_NAME                          ParameterId_t = 0x0005
-	PID_TYPE_NAME                           ParameterId_t = 0x0007
-	PID_GROUP_DATA                          ParameterId_t = 0x002d
-	PID_TOPIC_DATA                          ParameterId_t = 0x002e
-	PID_DURABILITY                          ParameterId_t = 0x001d
-	PID_DURABILITY_SERVICE                  ParameterId_t = 0x001e
-	PID_DEADLINE                            ParameterId_t = 0x0023
-	PID_LATENCY_BUDGET                      ParameterId_t = 0x0027
-	PID_LIVELINESS                          ParameterId_t = 0x001b
-	PID_RELIABILITY                         ParameterId_t = 0x001A
-	PID_LIFESPAN                            ParameterId_t = 0x002b
-	PID_DESTINATION_ORDER                   ParameterId_t = 0x0025
-	PID_HISTORY                             ParameterId_t = 0x0040
-	PID_RESOURCE_LIMITS                     ParameterId_t = 0x0041
-	PID_OWNERSHIP                           ParameterId_t = 0x001f
-	PID_OWNERSHIP_STRENGTH                  ParameterId_t = 0x0006
-	PID_PRESENTATION                        ParameterId_t = 0x0021
-	PID_PARTITION                           ParameterId_t = 0x0029
-	PID_TIME_BASED_FILTER                   ParameterId_t = 0x0004
-	PID_TRANSPORT_PRIORITY                  ParameterId_t = 0x0049
-	PID_PROTOCOL_VERSION                    ParameterId_t = 0x0015
-	PID_VendorIDT                           ParameterId_t = 0x0016
-	PID_UNICAST_LOCATOR                     ParameterId_t = 0x002f
-	PID_MULTICAST_LOCATOR                   ParameterId_t = 0x0030
-	PID_MULTICAST_IPADDRESS                 ParameterId_t = 0x0011
-	PID_DEFAULT_UNICAST_LOCATOR             ParameterId_t = 0x0031
-	PID_DEFAULT_MULTICAST_LOCATOR           ParameterId_t = 0x0048
-	PID_METATRAFFIC_UNICAST_LOCATOR         ParameterId_t = 0x0032
-	PID_METATRAFFIC_MULTICAST_LOCATOR       ParameterId_t = 0x0033
-	PID_DEFAULT_UNICAST_IPADDRESS           ParameterId_t = 0x000c
-	PID_DEFAULT_UNICAST_PORT                ParameterId_t = 0x000e
-	PID_METATRAFFIC_UNICAST_IPADDRESS       ParameterId_t = 0x0045
-	PID_METATRAFFIC_UNICAST_PORT            ParameterId_t = 0x000d
-	PID_METATRAFFIC_MULTICAST_IPADDRESS     ParameterId_t = 0x000b
-	PID_METATRAFFIC_MULTICAST_PORT          ParameterId_t = 0x0046
-	PID_EXPECTS_INLINE_QOS                  ParameterId_t = 0x0043
-	PID_PARTICIPANT_MANUAL_LIVELINESS_COUNT ParameterId_t = 0x0034
-	PID_PARTICIPANT_BUILTIN_ENDPOINTS       ParameterId_t = 0x0044
-	PID_PARTICIPANT_LEASE_DURATION          ParameterId_t = 0x0002
-	PID_CONTENT_FILTER_PROPERTY             ParameterId_t = 0x0035
-	PID_PARTICIPANT_GUID                    ParameterId_t = 0x0050
-	PID_PARTICIPANT_ENTITYID                ParameterId_t = 0x0051
-	PID_GROUP_GUID                          ParameterId_t = 0x0052
-	PID_GROUP_ENTITYID                      ParameterId_t = 0x0053
-	PID_BUILTIN_ENDPOINT_SET                ParameterId_t = 0x0058
-	PID_PROPERTY_LIST                       ParameterId_t = 0x0059
-	PID_TYPE_MAX_SIZE_SERIALIZED            ParameterId_t = 0x0060
-	PID_ENTITY_NAME                         ParameterId_t = 0x0062
-	PID_TYPE_IDV1                           ParameterId_t = 0x0069
-	PID_KEY_HASH                            ParameterId_t = 0x0070
-	PID_STATUS_INFO                         ParameterId_t = 0x0071
-	PID_TYPE_OBJECTV1                       ParameterId_t = 0x0072
-	PID_ENDPOINT_GUID                       ParameterId_t = 0x005a
-	PID_IDENTITY_TOKEN                      ParameterId_t = 0x1001
-	PID_PERMISSIONS_TOKEN                   ParameterId_t = 0x1002
-	PID_DATA_TAGS                           ParameterId_t = 0x1003
-	PID_ENDPOINT_SECURITY_INFO              ParameterId_t = 0x1004
-	PID_PARTICIPANT_SECURITY_INFO           ParameterId_t = 0x1005
-	PID_IDENTITY_STATUS_TOKEN               ParameterId_t = 0x1006
-	PID_PERSISTENCE_GUID                    ParameterId_t = 0x8002
-	PID_RELATED_SAMPLE_IDENTITY             ParameterId_t = 0x800f
-	PID_DATA_REPRESENTATION                 ParameterId_t = 0x0073
-	PID_TYPE_CONSISTENCY_ENFORCEMENT        ParameterId_t = 0x0074
-	PID_TYPE_INFORMATION                    ParameterId_t = 0x0075
-	PID_DISABLE_POSITIVE_ACKS               ParameterId_t = 0x8005
+	KParameterKeyHashLength = 16
+)
+
+const (
+	KPidPad                              ParameterIDT = 0x0000
+	KPidSentinel                         ParameterIDT = 0x0001
+	KPidUserData                         ParameterIDT = 0x002c
+	KPidTopicName                        ParameterIDT = 0x0005
+	KPidTypeName                         ParameterIDT = 0x0007
+	KPidGroupData                        ParameterIDT = 0x002d
+	KPidTopicData                        ParameterIDT = 0x002e
+	KPidDurability                       ParameterIDT = 0x001d
+	KPidDurabilityService                ParameterIDT = 0x001e
+	KPidDeadline                         ParameterIDT = 0x0023
+	KPidLatencyBudget                    ParameterIDT = 0x0027
+	KPidLiveliness                       ParameterIDT = 0x001b
+	KPidReliability                      ParameterIDT = 0x001A
+	KPidLifeSpan                         ParameterIDT = 0x002b
+	KPidDestinationOrder                 ParameterIDT = 0x0025
+	KPidHistory                          ParameterIDT = 0x0040
+	KPidResourceLimits                   ParameterIDT = 0x0041
+	KPidOwnership                        ParameterIDT = 0x001f
+	KPidOwnershipStrength                ParameterIDT = 0x0006
+	KPidPresentation                     ParameterIDT = 0x0021
+	KPidPartition                        ParameterIDT = 0x0029
+	KPidTimeBasedFilter                  ParameterIDT = 0x0004
+	KPidTransportPriority                ParameterIDT = 0x0049
+	KPidProtocolVersion                  ParameterIDT = 0x0015
+	KPidVersionID                        ParameterIDT = 0x0016
+	KPidUnicastLocator                   ParameterIDT = 0x002f
+	KPidMulticastLocator                 ParameterIDT = 0x0030
+	KPidMulticastIPAddress               ParameterIDT = 0x0011
+	KPidDefaultUnicastLocator            ParameterIDT = 0x0031
+	KPidDefaultMulticastLocator          ParameterIDT = 0x0048
+	KPidMetatrafficUnicastLocator        ParameterIDT = 0x0032
+	KPidMetatrafficMulticastLocator      ParameterIDT = 0x0033
+	KPidDefaultUnicastIPAddress          ParameterIDT = 0x000c
+	KPidDefaultUnicastPort               ParameterIDT = 0x000e
+	KPidMetatrafficUnicastIPAddress      ParameterIDT = 0x0045
+	KPidMetatrafficUnicastPort           ParameterIDT = 0x000d
+	KPidMetatrafficMulticastIPAddress    ParameterIDT = 0x000b
+	KPidMetatrafficMulticastPort         ParameterIDT = 0x0046
+	KPidExpectsInlineQos                 ParameterIDT = 0x0043
+	KPidParticipantManualLivelinessCount ParameterIDT = 0x0034
+	KPidParticipantBuiltinEndpoints      ParameterIDT = 0x0044
+	KPidParticipantLeaseDuration         ParameterIDT = 0x0002
+	KPidContentFilterProperty            ParameterIDT = 0x0035
+	KPidParticipantGUID                  ParameterIDT = 0x0050
+	KPidParticipantEntityID              ParameterIDT = 0x0051
+	KPidGroupGUID                        ParameterIDT = 0x0052
+	KPidGroupEntityID                    ParameterIDT = 0x0053
+	KPidBuiltinEndpointSet               ParameterIDT = 0x0058
+	KPidPropertyList                     ParameterIDT = 0x0059
+	KPidTypeMaxSizeSerialized            ParameterIDT = 0x0060
+	KPidEntityName                       ParameterIDT = 0x0062
+	KPidTypeIDV1                         ParameterIDT = 0x0069
+	KPidKeyHash                          ParameterIDT = 0x0070
+	KPidStatusInfo                       ParameterIDT = 0x0071
+	KPidTypeObjectV1                     ParameterIDT = 0x0072
+	KPidEndpointGUID                     ParameterIDT = 0x005a
+	KPidIdentityToken                    ParameterIDT = 0x1001
+	KPidPremissionsToken                 ParameterIDT = 0x1002
+	KPidDataTags                         ParameterIDT = 0x1003
+	KPidEndpointSecurityInfo             ParameterIDT = 0x1004
+	KPidParticipantSecurityInfo          ParameterIDT = 0x1005
+	KPidIdentityStatusToken              ParameterIDT = 0x1006
+	KPidPersistenceGUID                  ParameterIDT = 0x8002
+	KPidRelatedSampleIdentity            ParameterIDT = 0x800f
+	KPidDataRepresentation               ParameterIDT = 0x0073
+	KPidTypeConsistencyEnforcement       ParameterIDT = 0x0074
+	KPidTypeInfoRmation                  ParameterIDT = 0x0075
+	KPidDisablePositiveAcks              ParameterIDT = 0x8005
 	//PID_RELATED_SAMPLE_IDENTITY = 0x0083
 )
 
-type Parameter_t struct {
-	Pid    ParameterId_t
-	Length uint16
+type ParameterT struct {
+	Pid    ParameterIDT
+	Length uint32
 }
 
-type ParameterKey_t struct {
-	Parameter_t
+func NewParameterT(pid ParameterIDT, length uint32) *ParameterT {
+	return &ParameterT{
+		Pid:    pid,
+		Length: length,
+	}
 }
+
+var (
+	KDefaultParameterT ParameterT
+)
+
+func init() {
+	KDefaultParameterT = *NewParameterT(KPidPad, 0)
+}
+
+type ParameterKeyT struct {
+	ParameterT
+	Key common.InstanceHandleT
+}
+
+func NewParameterKey(pid ParameterIDT, length uint32) *ParameterKeyT {
+	return &ParameterKeyT{
+		ParameterT: ParameterT{
+			Pid:    pid,
+			Length: length,
+		},
+	}
+}
+
+type ParamaterLocatorT struct {
+	ParameterT
+	Locator common.Locator
+}
+
+const (
+	KParameterLocatorLength uint32 = 24
+)
+
+type ParameterStringT struct {
+	ParameterT
+	// Name. <br> By default, empty string.
+	name string
+}
+
+type ParameterPortT struct {
+	ParameterT
+	Port uint32
+}
+
+const (
+	KParameterPortLength uint32 = 4
+)
+
+type ParameterGuidT struct {
+	ParameterT
+	Guid common.GUIDT
+}
+
+const (
+	KParameterGuidLength uint32 = 16
+)
+
+type ParameterProtocolVersionT struct {
+	ParameterT
+	ProtocolVersion common.ProtocolVersionT
+}
+
+const (
+	KParameterProtocolLength uint32 = 4
+)
+
+type ParameterVendorIDT struct {
+	ParameterT
+	VendorID common.VendorIDT
+}
+
+const (
+	KParameterVendorLength uint32 = 4
+)
+
+type ParameterIP4AddressT struct {
+	ParameterT
+
+	// Address <br> By default [0,0,0,0].
+	Address [4]common.Octet
+}
+
+const (
+	KParameterIP4Length uint32 = 4
+)
+
+type ParameterBoolT struct {
+	ParameterT
+	// By default, false.
+	Value bool
+}
+
+const (
+	KParameterBoolLength uint32 = 4
+)
+
+type ParameterStatusInfoT struct {
+	ParameterT
+	// By default, 0.
+	Status uint8
+}
+
+const (
+	KParameterStatusInfoLength uint32 = 4
+)
+
+type ParameterCountT struct {
+	ParameterT
+	Count common.CountT
+}
+
+const (
+	KParameterCountLength uint32 = 4
+)
+
+type ParameterEntityIDT struct {
+	ParameterT
+	EntityID common.EntityIDT
+}
+
+const (
+	KParameterEntityIDLength uint32 = 4
+)
+
+type ParameterTimeT struct {
+	ParameterT
+	Time common.Time
+}
+
+const (
+	KParameterTimeLength uint32 = 8
+)
+
+type ParameterBuiltinEndpointSetT struct {
+	ParameterT
+	EndpointSet common.BuiltinEndpointSet
+}
+
+const (
+	KParameterBuiltinEndpointsetLength uint32 = 4
+)
+
+type ParameterPropertyT struct {
+	data []common.Octet
+}
+
+const (
+	KParameterPropertyPersistenceGuid  = "PID_PERSISTENCE_GUID"
+	KParameterPropertyParticipantType  = "PARTICIPANT_TYPE"
+	KParameterPropertyDsVersion        = "DS_VERSION"
+	KPArameterPropertyCurrentDSVersion = "2.0"
+)
+
+type ParameterPropertyListT struct {
+	ParameterT
+	properties  common.SerializedPayloadT
+	nproperties uint32
+	limitSize   bool
+	ptr         []common.Octet
+	value       ParameterPropertyT
+}
+
+type ParameterSampleIdentityT struct {
+	ParameterT
+	SampleID common.SampleIdentityT
+}
+
+const (
+	KParameterSampleIdentidyLength uint32 = 24
+)

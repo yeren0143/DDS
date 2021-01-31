@@ -23,21 +23,10 @@ func (t *Time) Less(value Time) bool {
 
 // time const
 const (
-	InfiniteSeconds     = 0x7fffffff
-	InfiniteNanoSeconds = 0xffffffff
+	KInfiniteSeconds     = 0x7fffffff
+	KInfiniteNanoSeconds = 0xffffffff
 )
 
-var (
-	// TimeInfinite representing an infinite time
-	CTimeInfinite Time
-	// TimeZero representing a zero time
-	CTimeZero Time
-	// TimeInvalid representing an invalid time
-	CTimeInvalid Time
-)
-
-func init() {
-	CTimeInfinite = Time{Seconds: InfiniteSeconds, Nanosec: InfiniteNanoSeconds}
-	CTimeZero = Time{Seconds: 0, Nanosec: 0}
-	CTimeInvalid = Time{Seconds: -1, Nanosec: InfiniteNanoSeconds}
-}
+var KTimeInfinite = Time{Seconds: KInfiniteSeconds, Nanosec: KInfiniteNanoSeconds}
+var KTimeZero = Time{Seconds: 0, Nanosec: 0}
+var KTimeInvalid = Time{Seconds: -1, Nanosec: KInfiniteNanoSeconds}

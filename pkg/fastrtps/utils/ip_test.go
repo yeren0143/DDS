@@ -7,7 +7,7 @@ import (
 
 func TestGetIP4Address(t *testing.T) {
 	addrs := GetIP4Address()
-	for _, address := range addrs {
+	for _, address := range addrs.Locators {
 		fmt.Println("ipv4 address:", address.Address)
 	}
 }

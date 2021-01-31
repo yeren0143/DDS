@@ -1,7 +1,8 @@
 package data
 
 import (
-	. "github.com/yeren0143/DDS/common"
+	"github.com/yeren0143/DDS/common"
+	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 )
 
 var BUILTIN_PARTICIPANT_DATA_MAX_SIZE = uint64(100)
@@ -32,13 +33,17 @@ var DISC_BUILTIN_ENDPOINT_PARTICIPANT_SECURE_ANNOUNCER = uint64(0x00000001 << 26
 var DISC_BUILTIN_ENDPOINT_PARTICIPANT_SECURE_DETECTOR = uint64(0x00000001 << 27)
 
 type ParticipantProxyData struct {
-	ProtoVersion            common.Proto
-	Guid                    common.GUID_t
+	ProtoVersion            common.ProtocolVersionT
+	Guid                    common.GUIDT
 	VendorIDT               common.VendorIDT
 	ExpectsInlineQos        bool
-	AviableBuiltinEndpoints BuiltinEndpointSet
-	MetatrafficLocators     RemoteLocatorList
-	DefaultLocatord         RemoteLocatorList
-	ManualLivelinessCount   CountT
+	AviableBuiltinEndpoints common.BuiltinEndpointSet
+	MetatrafficLocators     common.RemoteLocatorList
+	DefaultLocatord         common.RemoteLocatorList
+	ManualLivelinessCount   common.CountT
 	ParticipantName         string
+}
+
+func NewParticipantProxyData(att *attributes.RTPSParticipantAllocationAttributes) *ParticipantProxyData {
+	return &ParticipantProxyData{}
 }

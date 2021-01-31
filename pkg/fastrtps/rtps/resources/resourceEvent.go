@@ -1,13 +1,165 @@
 package resources
 
-import "time"
+import (
+	"github.com/yeren0143/DDS/fastrtps/utils"
+	"log"
+	"sort"
+	"sync"
+	"sync/atomic"
+	"time"
+)
 
-/**
- * This class centralizes all operations over timed events in the same thread.
- * @ingroup MANAGEMENT_MODULE
- */
+// ResourceEvent centralizes all operations over timed events in the same thread.
 type ResourceEvent struct {
-	Pending_timers []*TimedEvent
-	Active_timers  []*TimedEvent
-	current_time   time.Time
+	stop                    int32 //Warns the internal thread can stop.
+	allowVectorManipulation bool  //Flag used to allow a thread to manipulate the timer collections when the execution thread is not using them.
+	mutex                   sync.Mutex
+	cvManipulation          *utils.TimedConditionVariable
+	cv                      *utils.TimedConditionVariable
+	timersCount             int //The total number of created timers.
+	PendingTimers           TimeEventVector
+	ActiveTimers            TimeEventVector
+	currentTime             time.Time
+}
+
+//NewResourceEvent create resource event with default value
+func NewResourceEvent() *ResourceEvent {
+	var event ResourceEvent
+	event.stop = 0
+	event.allowVectorManipulation = true
+	event.timersCount = 0
+	event.cvManipulation = utils.NewTimedCond(&event.mutex)
+	event.cv = utils.NewTimedCond(&event.mutex)
+	return &event
+}
+
+//InitThread to initialize the internal thread.
+func (resource *ResourceEvent) InitThread() {
+	resource.mutex.Lock()
+	defer resource.mutex.Unlock()
+
+	resource.allowVectorManipulation = false
+	resource.ResizeCollections()
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func(resource *ResourceEvent) {
+		wg.Done()
+		resource.eventService()
+	}(resource)
+}
+
+//ResizeCollections Ensures internal collections can accommodate current total number of timers.
+func (resource *ResourceEvent) ResizeCollections() {
+	resource.PendingTimers.Events = make([]*TimedEvent, resource.timersCount)
+	resource.ActiveTimers.Events = make([]*TimedEvent, resource.timersCount)
+}
+
+func (resource *ResourceEvent) eventService() {
+	for atomic.LoadInt32(&resource.stop) <= 0 {
+		// Perform update and execution of timers
+		resource.updateCurrentTime()
+		resource.doTimerActions()
+
+		resource.mutex.Lock()
+		{
+			resource.allowVectorManipulation = true
+			resource.cvManipulation.Broadcast()
+
+			// Wait for the first timer to be triggered
+			nextTrigger := time.Time{}
+			if len(resource.ActiveTimers.Events) == 0 {
+				nextTrigger = resource.currentTime.Add(time.Second)
+			} else {
+				nextTrigger = resource.ActiveTimers.Events[0].nextTriggerTime
+			}
+
+			if nextTrigger.Before(resource.currentTime) {
+				log.Fatal("next trigger time can not brefore current time")
+			}
+			resource.cv.WaitOrTimeout(nextTrigger.Sub(resource.currentTime))
+
+			// Don't allow other threads to manipulate the timer collections
+			resource.allowVectorManipulation = false
+			resource.ResizeCollections()
+		}
+		resource.mutex.Unlock()
+	}
+}
+
+func (resource *ResourceEvent) updateCurrentTime() {
+	resource.currentTime = time.Now()
+}
+
+func (resource *ResourceEvent) sortTimers() {
+	sort.Sort(&resource.ActiveTimers)
+}
+
+func (resource *ResourceEvent) doTimerActions() {
+	d, _ := time.ParseDuration("24h")
+	cancelTime := resource.currentTime
+	cancelTime.Add(d)
+
+	didSomeThing := false
+
+	//Process pending orders
+	resource.mutex.Lock()
+	{
+		sort.Sort(&resource.ActiveTimers)
+		for _, tp := range resource.PendingTimers.Events {
+			for i, activeTp := range resource.ActiveTimers.Events {
+				if activeTp == tp {
+					copy(resource.ActiveTimers.Events[i+1:], resource.ActiveTimers.Events[i+2:])
+					resource.ActiveTimers.Events[len(resource.ActiveTimers.Events)-1] = nil
+					resource.ActiveTimers.Events = resource.ActiveTimers.Events[:len(resource.ActiveTimers.Events)-1]
+					break
+				}
+			}
+
+			// Update timer info
+			if tp.Update(resource.currentTime, cancelTime) {
+				index := len(resource.ActiveTimers.Events)
+				for i, activeTp := range resource.ActiveTimers.Events {
+					if tp.nextTriggerTime.Before(activeTp.nextTriggerTime) {
+						index = i
+						break
+					}
+				}
+
+				// Insert on correct position
+				events := append([]*TimedEvent{}, resource.ActiveTimers.Events[index:]...)
+				resource.ActiveTimers.Events = append(resource.ActiveTimers.Events[:index], tp)
+				resource.ActiveTimers.Events = append(resource.ActiveTimers.Events, events...)
+			}
+		}
+		resource.PendingTimers = TimeEventVector{}
+	}
+	resource.mutex.Unlock()
+
+	// Trigger active timers
+	for _, tp := range resource.ActiveTimers.Events {
+		if tp.nextTriggerTime.Before(resource.currentTime) {
+			didSomeThing = true
+			tp.Trigger(resource.currentTime, cancelTime)
+		} else {
+			break
+		}
+	}
+
+	// If an action was made, keep active_timers_ sorted
+	if didSomeThing {
+		resource.sortTimers()
+
+		index := len(resource.ActiveTimers.Events)
+		for i, activeTp := range resource.ActiveTimers.Events {
+			if cancelTime.Before(activeTp.nextTriggerTime) {
+				index = i
+				break
+			}
+		}
+
+		if index < len(resource.ActiveTimers.Events) {
+			resource.ActiveTimers.Events = append([]*TimedEvent{}, resource.ActiveTimers.Events[index:]...)
+		}
+	}
 }

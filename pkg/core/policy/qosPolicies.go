@@ -1,14 +1,14 @@
 package policy
 
 import (
-	. "github.com/yeren0143/DDS/common"
-	. "github.com/yeren0143/DDS/types"
+	"github.com/yeren0143/DDS/common"
+	"github.com/yeren0143/DDS/types"
 )
 
-type QosPolicyId uint32
+type QosPolicyIDT uint32
 
 const (
-	INVALID_QOS_POLICY_ID QosPolicyId = iota
+	INVALID_QOS_POLICY_ID QosPolicyIDT = iota
 
 	// Standard QosPolicies
 	USERDATA_QOS_POLICY_ID            //< UserDataQosPolicy
@@ -88,22 +88,22 @@ const (
 	 * known by the DataWriter at the time the instance is written. In other words the Service will only attempt
 	 * to provide the data to existing subscribers
 	 */
-	VOLATILE_DURABILITY_QOS DurabilityQosPolicyKind = iota
+	KVolatileDurabilityQos DurabilityQosPolicyKind = iota
 	/**
 	 * For TRANSIENT_LOCAL, the service is only required to keep the data in the memory of the DataWriter that
 	 * wrote the data and the data is not required to survive the DataWriter.
 	 */
-	TRANSIENT_LOCAL_DURABILITY_QOS
+	KTransientLocalDurabilityQos
 	/**
 	 * For TRANSIENT, the service is only required to keep the data in memory and not in permanent storage; but
 	 * the data is not tied to the lifecycle of the DataWriter and will, in general, survive it.
 	 */
-	TRANSIENT_DURABILITY_QOS
+	KTransientDurabilityQos
 	/**
 	 * Data is kept on permanent storage, so that they can outlive a system session.
 	 * @warning Not Supported
 	 */
-	PERSISTENT_DURABILITY_QOS
+	KPersistentDurabilityQos
 )
 
 const (
@@ -112,9 +112,18 @@ const (
 )
 
 type DurabilityQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 	Kind DurabilityQosPolicyKind
+}
+
+var DefaultDurabilityQosPolicy = DurabilityQosPolicy{
+	ParameterT: *NewParameterT(KPidDurability, PARAMETER_KIND_LENGTH),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: true,
+	},
+	Kind: KVolatileDurabilityQos,
 }
 
 /**
@@ -124,9 +133,21 @@ type DurabilityQosPolicy struct {
  * @note Mutable Qos Policy
  */
 type DeadlineQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
-	Period DurationT
+	Period common.DurationT
+}
+
+var KDefaultDeadlineQosPolicy = DeadlineQosPolicy{
+	ParameterT: *NewParameterT(KPidDeadline, KParameterTimeLength),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: true,
+	},
+	Period: common.Time{
+		Seconds: common.KInfiniteSeconds,
+		Nanosec: common.KInfiniteNanoSeconds,
+	},
 }
 
 /**
@@ -137,13 +158,24 @@ type DeadlineQosPolicy struct {
  * @note Mutable Qos Policy
  */
 type LatencyBudgetQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
-	Duration DurationT
+	Duration common.DurationT
+}
+
+var KDefaultLatencyBudgetQosPolicy = LatencyBudgetQosPolicy{
+	ParameterT: *NewParameterT(KPidLatencyBudget, KParameterTimeLength),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: true,
+	},
+	Duration: common.Time{
+		Seconds: 0,
+		Nanosec: 0,
+	},
 }
 
 type LivelinessQosPolicyKind uint8
-
 const (
 	// The infrastructure will automatically signal liveliness
 	// for the DataWriters at least as often as required by the lease_duration.
@@ -172,12 +204,28 @@ const (
  * Listeners are used to notify the DataReaderof loss of liveliness and DataWriter of violations to the liveliness contract.
  */
 type LivelinessQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
-	Kind LivelinessQosPolicyKind
+	Kind               LivelinessQosPolicyKind
+	LeaseDuration      common.DurationT
+	AnnouncementPeriod common.DurationT
+}
 
-	Lease_Duration      DurationT
-	Announcement_Period DurationT
+var KDefaultLivelinessQosPolicy = LivelinessQosPolicy{
+	ParameterT: *NewParameterT(KPidLiveliness, KParameterTimeLength),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: true,
+	},
+	Kind: AUTOMATIC_LIVELINESS_QOS,
+	LeaseDuration: common.Time{
+		Seconds: common.KInfiniteSeconds,
+		Nanosec: common.KInfiniteNanoSeconds,
+	},
+	AnnouncementPeriod: common.Time{
+		Seconds: common.KInfiniteSeconds,
+		Nanosec: common.KInfiniteNanoSeconds,
+	},
 }
 
 type ReliabilityQosPolicyKind uint8
@@ -200,10 +248,23 @@ const (
 )
 
 type ReliabilityQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
-	Kind              ReliabilityQosPolicyKind
-	Max_Blocking_Time DurationT
+	Kind            ReliabilityQosPolicyKind
+	MaxBlockingTime common.DurationT
+}
+
+var KDefaultReliabilityQosPolicy = ReliabilityQosPolicy{
+	ParameterT: *NewParameterT(KPidReliability, PARAMETER_KIND_LENGTH+KParameterTimeLength),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: true,
+	},
+	Kind: BEST_EFFORT_RELIABILITY_QOS,
+	MaxBlockingTime: common.Time{
+		Seconds: 0,
+		Nanosec: 100000000,
+	}, // 100ms
 }
 
 type OwnershipQosPolicyKind uint8
@@ -227,9 +288,18 @@ const (
 )
 
 type OwnershipQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 	Kind OwnershipQosPolicyKind
+}
+
+var KDefaultOwnershipQosPolicy = OwnershipQosPolicy{
+	ParameterT: *NewParameterT(KPidOwnership, PARAMETER_KIND_LENGTH),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: true,
+	},
+	Kind: SHARED_OWNERSHIP_QOS,
 }
 
 type DestinationOrderQosPolicyKind uint8
@@ -253,15 +323,34 @@ const (
 )
 
 type DestinationOrderQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 	Kind DestinationOrderQosPolicyKind
 }
 
+var KDefaultDestinationOrderQosPolicy = DestinationOrderQosPolicy{
+	ParameterT: *NewParameterT(KPidDestinationOrder, PARAMETER_KIND_LENGTH),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: true,
+	},
+	Kind: BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS,
+}
+
 // GenericDataQosPolicy, base class to transmit user data during the discovery phase.
 type GenericDataQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
+}
+
+func NewGenericDataQosPolicy(pid ParameterIDT, length uint32) *GenericDataQosPolicy {
+	return &GenericDataQosPolicy{
+		ParameterT: *NewParameterT(pid, length),
+		QosPolicy: QosPolicy{
+			HasChanged: false,
+			SendAlways: false,
+		},
+	}
 }
 
 type UserDataQosPolicy struct {
@@ -276,8 +365,16 @@ type TopicDataQosPolicy struct {
 	GenericDataQosPolicy
 }
 
+var KDefaultTopicDataQosPolicy = TopicDataQosPolicy{
+	GenericDataQosPolicy: *NewGenericDataQosPolicy(KPidTopicData, 0),
+}
+
 type GroupDataQosPolicy struct {
 	GenericDataQosPolicy
+}
+
+var KGroupDataQosPolicy = GroupDataQosPolicy{
+	GenericDataQosPolicy: *NewGenericDataQosPolicy(KPidGroupData, 0),
 }
 
 /**
@@ -291,9 +388,21 @@ type GroupDataQosPolicy struct {
  * @note Mutable Qos Policy
  */
 type TimeBasedFilterQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
-	Minium_Separation DurationT
+	Minium_Separation common.DurationT
+}
+
+var KDefaultTimeBasedFilterQosPolicy = TimeBasedFilterQosPolicy{
+	ParameterT: *NewParameterT(KPidTimeBasedFilter, KParameterTimeLength),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: false,
+	},
+	Minium_Separation: common.Time{
+		Seconds: 0,
+		Nanosec: 0,
+	},
 }
 
 type PresentationQosPolicyAccessScopeKind uint8
@@ -334,7 +443,7 @@ const (
  * @note Immutable Qos Policy
  */
 type PresentationQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 	Access_Scope PresentationQosPolicyAccessScopeKind
 
@@ -343,14 +452,25 @@ type PresentationQosPolicy struct {
 	 * on the publishing end such that they are received as a unit at the subscribing end.
 	 * by default, false.
 	 */
-	Coherent_Access bool
+	CoherentAccess bool
 
 	/**
 	 * @brief Specifies support for ordered access to the samples received at the subscription end. That is,
 	 * the ability of the subscriber to see changes in the same order as they occurred on the publishing end.
 	 * By default, false.
 	 */
-	Ordered_Access bool
+	OrderedAccess bool
+}
+
+var KDefaultPresentationQosPolicy = PresentationQosPolicy{
+	ParameterT: *NewParameterT(KPidPresentation, PARAMETER_KIND_LENGTH),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: false,
+	},
+	Access_Scope:   INSTANCE_PRESENTATION_QOS,
+	CoherentAccess: false,
+	OrderedAccess:  false,
 }
 
 type Partition_t struct {
@@ -367,11 +487,21 @@ type Partition_t struct {
  * @note Mutable Qos Policy
  */
 type PartitionQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 	MaxSize    uint32
-	Partitions SerializedPayload_t
+	Partitions common.SerializedPayloadT
 	NPartions  uint32 // Number of partitions. <br> By default, 0.
+}
+
+var KDefaultPartitionQosPolicy = PartitionQosPolicy{
+	ParameterT: *NewParameterT(KPidPartition, 0),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: false,
+	},
+	MaxSize:   0,
+	NPartions: 0,
 }
 
 type HistoryQosPolicyKind uint8
@@ -409,7 +539,7 @@ const (
  * @note Immutable Qos Policy
  */
 type HistoryQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 	Kind  HistoryQosPolicyKind
 	Depth int32
@@ -417,7 +547,7 @@ type HistoryQosPolicy struct {
 
 //Specifies the resources that the Service can consume in order to meet the requested QoS
 type ResourceLimitsQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 
 	/**
@@ -457,14 +587,14 @@ type ResourceLimitsQosPolicy struct {
  * @note Immutable Qos Policy
  */
 type DurabilityServiceQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 
 	/**
 	 * @brief Control when the service is able to remove all information regarding a data-instance. <br>
 	 * By default, c_TimeZero.
 	 */
-	Service_CleanUp_Delay DurationT
+	Service_CleanUp_Delay common.DurationT
 
 	//Controls the HistoryQosPolicy of the fictitious DataReader that stores the data
 	// within the durability service.
@@ -495,14 +625,38 @@ type DurabilityServiceQosPolicy struct {
 	 * It is inconsistent for this value to be greater than max_samples. <br>
 	 * By default, -1 (Length Unlimited).
 	 */
-	MaxSamples_PerInstance int32
+	MaxSamplesPerInstance int32
+}
+
+var KDefaultDurabilityServiceQosPolicy = DurabilityServiceQosPolicy{
+	ParameterT: *NewParameterT(KPidDurabilityService, KParameterTimeLength+PARAMETER_KIND_LENGTH+4+4+4+4),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: false,
+	},
+	HistoryDepth:          -1,
+	MaxSamples:            -1,
+	MaxInstances:          -1,
+	MaxSamplesPerInstance: -1,
 }
 
 //Specifies the maximum duration of validity of the data written by the DataWriter.
 type LifespanQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
-	Duration DurationT
+	Duration common.DurationT
+}
+
+var KDefaultLifespanQosPolicy = LifespanQosPolicy{
+	ParameterT: *NewParameterT(KPidLifeSpan, KParameterTimeLength),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: true,
+	},
+	Duration: common.Time{
+		Seconds: common.KInfiniteSeconds,
+		Nanosec: common.KInfiniteNanoSeconds,
+	},
 }
 
 /**
@@ -512,7 +666,7 @@ type LifespanQosPolicy struct {
  * @note Mutable Qos Policy
  */
 type OwnershipStrengthQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 	Value uint32
 }
@@ -523,7 +677,7 @@ type OwnershipStrengthQosPolicy struct {
  * @note Mutable Qos Policy
  */
 type TransportPriorityQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 	Value uint32
 }
@@ -531,8 +685,8 @@ type TransportPriorityQosPolicy struct {
 type PublishModeQosPolicyKind uint8
 
 const (
-	SYNCHRONOUS_PUBLISH_MODE PublishModeQosPolicyKind = iota
-	ASYNCHRONOUS_PUBLISH_MODE
+	KSynPublishMode PublishModeQosPolicyKind = iota
+	KAsynPublishMode
 )
 
 type PublishModeQosPolicy struct {
@@ -557,9 +711,17 @@ const (
  * @note Immutable Qos Policy
  */
 type DataRepresentationQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 	Values []DataRepresentationId_t
+}
+
+var KDefaultDataRepresentationQosPolicy = DataRepresentationQosPolicy{
+	ParameterT: *NewParameterT(KPidDataRepresentation, 0),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: true,
+	},
 }
 
 type TypeConsistencyKind uint16
@@ -568,12 +730,12 @@ const (
 	/**
 	 * The DataWriter and the DataReader must support the same data type in order for them to communicate.
 	 */
-	DISALLOW_TYPE_COERCION TypeConsistencyKind = iota
+	KDisallowTypeCoercionTypeConsistency = iota
 	/**
 	 * The DataWriter and the DataReader need not support the same data type in order for them to communicate as long as
 	 * the reader’s type is assignable from the writer’s type.
 	 */
-	ALLOW_TYPE_COERCION
+	KAllowTypeCoercion
 )
 
 /**
@@ -629,32 +791,53 @@ type TypeConsistencyEnforcementQosPolicy struct {
 	ForceTypeValidation bool
 }
 
+var KDefaultTypeConsistencyEnforcementQosPolicy = TypeConsistencyEnforcementQosPolicy{
+	Kind:                 KAllowTypeCoercion,
+	IgnoreSequenceBounds: true,
+	IgnoreStringBounds:   true,
+	IgnoreMemberNames:    false,
+	PreventTypeWidening:  false,
+	ForceTypeValidation:  false,
+}
+
 type DisablePositiveACKsQosPolicy struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 
 	//True if this QoS is enabled.
 	Enable bool
-
 	//The duration to keep samples for (not serialized as not needed by reader).
-	Duration DurationT
+	Duration common.DurationT
 }
 
-type TypeIdV1 struct {
-	Parameter_t
+var KDefaultDisablePositiveACKsQosPolicy = DisablePositiveACKsQosPolicy{
+	ParameterT: *NewParameterT(KPidDisablePositiveAcks, PARAMETER_BOOL_LENGTH),
+	QosPolicy: QosPolicy{
+		HasChanged: false,
+		SendAlways: true,
+	},
+	Enable: false,
+	Duration: common.Time{
+		Seconds: common.KInfiniteSeconds,
+		Nanosec: common.KInfiniteNanoSeconds,
+	},
+}
+
+type TypeIDV1 struct {
+	ParameterT
 	QosPolicy
 
-	TypeIdentifier TypeIdentifier_t
+	TypeIdentifier types.TypeIdentifier_t
 }
 
 type TypeObjectV1 struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
-	Type_Object TypeObject_t
+	Type_Object types.TypeObject_t
 }
 
 type TypeInformation struct {
-	Parameter_t
+	ParameterT
 	QosPolicy
 	//Type_Info TypeInform_t
 	Assigned bool
@@ -662,21 +845,21 @@ type TypeInformation struct {
 
 type WireProtocolConfigQos struct {
 	QosPolicy
-	Prefix         GUIDPrefixT
-	Participant_Id int32
+	Prefix                      common.GUIDPrefixT
+	ParticipantID               int32
+	Port                        *common.PortParameters
+	DefaultUnicastLocatorList   *common.LocatorList
+	DefaultMulticastLocatorList *common.LocatorList
 	//Builtin_Attr                   *BuiltinAttributes
-	Port *PortParameters
 	//Throughput_Controller          *ThroughputControllerDescriptor
-	Default_Unicast_Locator_List   *LocatorList
-	Default_Multicast_Locator_list *LocatorList
 }
 
 type TransportConfigQos struct {
 	QosPolicy
 	//User_Transports           []*TransportDescriptorInterface
-	Use_Builtin_Transport     bool
-	Send_Socket_Buffer_Size   uint32
-	Listen_Socket_Buffer_Size uint32
+	UseBuiltinTransport    bool
+	SendSocketBufferSize   uint32
+	ListenSocketBufferSize uint32
 }
 
 type RTPSEndpointQos struct {

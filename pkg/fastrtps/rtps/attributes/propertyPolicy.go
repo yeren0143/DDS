@@ -4,11 +4,11 @@ import (
 	. "github.com/yeren0143/DDS/common"
 )
 
-type PropertyPolicy struct {
+type PropertyPolicyT struct {
 	Properties       PropertySeq
 	BinaryProperties BinaryPropertySeq
 }
 
-func NewPropertyPolicy() *PropertyPolicy {
-	return &PropertyPolicy{}
+func NewPropertyPolicy() *PropertyPolicyT {
+	return &PropertyPolicyT{}
 }

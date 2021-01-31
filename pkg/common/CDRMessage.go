@@ -1,39 +1,39 @@
 package common
 
 const (
-	//RTPSMessageDefaultSize define max size of rtps message in bytes
-	RTPSMessageDefaultSize = 10500
+	//KRTPSMessageDefaultSize define max size of rtps message in bytes
+	KRTPSMessageDefaultSize = 10500
 
-	//RTPSMessageCommonRTPSPayloadSize define common payload a rtps message has TODO(Ricardo) It is necessary?
-	RTPSMessageCommonRTPSPayloadSize = 536
+	//KRTPSMessageCommonRTPSPayloadSize define common payload a rtps message has TODO(Ricardo) It is necessary?
+	KRTPSMessageCommonRTPSPayloadSize = 536
 
-	//RTPSMessageCommonDataPayloadSize define common data size
-	RTPSMessageCommonDataPayloadSize = 1000
+	//KRTPSMessageCommonDataPayloadSize define common data size
+	KRTPSMessageCommonDataPayloadSize = 1000
 
-	//RTPSMessageHeaderSize define header size in bytes
-	RTPSMessageHeaderSize = 20
+	//KRTPSMessageHeaderSize define header size in bytes
+	KRTPSMessageHeaderSize = 20
 
-	//RTPSMessageSubMessageHeaderSize define submessage header size
-	RTPSMessageSubMessageHeaderSize = 4
+	//KRTPSMessageSubMessageHeaderSize define submessage header size
+	KRTPSMessageSubMessageHeaderSize = 4
 
-	//RTPSMessageDataExtraInlineQosSize ?
-	RTPSMessageDataExtraInlineQosSize = 4
+	//KRTPSMessageDataExtraInlineQosSize ?
+	KRTPSMessageDataExtraInlineQosSize = 4
 
-	//RTPSMessageInfoTSSize ?
-	RTPSMessageInfoTSSize = 12
+	//KRTPSMessageInfoTSSize ?
+	KRTPSMessageInfoTSSize = 12
 
-	//RTPSMessageOcetsToInlineQosDataSubMsg ...
-	RTPSMessageOcetsToInlineQosDataSubMsg = 16
+	//KRTPSMessageOcetsToInlineQosDataSubMsg ...
+	KRTPSMessageOcetsToInlineQosDataSubMsg = 16
 
-	//RTPSMessageOcetsToInlineQosDataFragSubMsg ...
-	RTPSMessageOcetsToInlineQosDataFragSubMsg = 28
+	//KRTPSMessageOcetsToInlineQosDataFragSubMsg ...
+	KRTPSMessageOcetsToInlineQosDataFragSubMsg = 28
 
-	//RTPSMessageDataMinLength ...
-	RTPSMessageDataMinLength = 24
+	//KRTPSMessageDataMinLength ...
+	KRTPSMessageDataMinLength = 24
 )
 
-//CDRMessageT contains a serialized message.
-type CDRMessageT struct {
+//CDRMessage contains a serialized message.
+type CDRMessage struct {
 	//Buffer Pointer to the buffer where the data is stored.
 	Buffer []Octet
 
@@ -50,8 +50,67 @@ type CDRMessageT struct {
 	Length uint32
 
 	//Whether this message is wrapping a buffer managed elsewhere.
-	Wrap bool
+	Wraps bool
 
 	//Endianness of the message
 	MsgEndian Endianness
+}
+
+func (message *CDRMessage) AddData(data []Octet) bool {
+	if message.Pos+uint32(len(data)) > message.MaxSize {
+		return false
+	}
+
+	for i := 0; i < len(data); i++ {
+		message.AddOctet(data[i])
+	}
+	message.Pos += uint32(len(data))
+	message.Length += uint32(len(data))
+	return true
+}
+
+func (message *CDRMessage) AddOctet(data Octet) bool {
+	if message.Pos+1 > message.MaxSize {
+		return false
+	}
+
+	message.Buffer[message.Pos] = data
+	message.Pos++
+	message.Length++
+	return true
+}
+
+func (message *CDRMessage) InitCDRMsg(msg *CDRMessage, payloadSize uint32) bool {
+	if len(msg.Buffer) == 0 {
+		msg.Buffer = make([]Octet, payloadSize+KRTPSMessageCommonDataPayloadSize)
+		msg.MaxSize = payloadSize + KRTPSMessageCommonRTPSPayloadSize
+	}
+	msg.Pos = 0
+	msg.Length = 0
+	msg.MsgEndian = KDefaultEndian
+	return true
+}
+
+func (message *CDRMessage) Init(buffer []Octet, size uint32) {
+	if len(buffer) == 0 {
+		return
+	}
+
+	message.Wraps = true
+	message.Pos = 0
+	message.Length = 0
+	message.Buffer = buffer
+	message.MaxSize = size
+	message.MsgEndian = KDefaultEndian
+}
+
+func NewCDRMessage(size uint32) *CDRMessage {
+	return &CDRMessage{
+		Buffer:       make([]Octet, size),
+		Pos:          0,
+		Length:       0,
+		MaxSize:      size,
+		ReservedSize: size,
+		MsgEndian:    KDefaultEndian,
+	}
 }

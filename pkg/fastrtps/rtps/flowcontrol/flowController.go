@@ -1,12 +1,24 @@
 package flowcontrol
 
-type FlowController struct {
+//IFlowController take a vector of cache changes (by reference) and return a filtered
+//vector, with a collection of changes this filter considers valid for sending,
+//ordered by its subjective priority.
+type IFlowController interface {
+	RegisterAsListeningController()
+	DeRegisterAsListeningController()
 }
 
-func (flow_control *FlowController) RegisterAsListeningController() {
+//IFlowControllerSubject is a subject who own FlowControllerIs
+type IFlowControllerSubject interface {
+}
+
+type flowControllerImpl struct {
+}
+
+func (flowControl *flowControllerImpl) RegisterAsListeningController() {
 
 }
 
-func (flow_control *FlowController) DeRegisterAsListeningController() {
+func (flowControl *flowControllerImpl) DeRegisterAsListeningController() {
 
 }

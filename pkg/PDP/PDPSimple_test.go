@@ -31,7 +31,6 @@ func TestListenMultiCast(t *testing.T) {
 	go func() {
 		wg.Done()
 		fmt.Println("begin test listenMultiCast")
-
 		listenMultiCast(ctxWithCancel, "239.255.0.1:7400")
 	}()
 

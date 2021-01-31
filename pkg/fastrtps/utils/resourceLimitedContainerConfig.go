@@ -1,18 +1,24 @@
 package utils
+import (
+	"math"
+)
 
 type ResourceLimitedContainerConfig struct {
 	//! Number of elements to be preallocated in the collection.
-	Initial uint
+	Initial uint32
 	//! Maximum number of elements allowed in the collection.
-	Maximum uint
+	Maximum uint32
 	//! Number of items to add when capacity limit is reached.
-	Increment uint
+	Increment uint32
+}
+
+var KDefaultResourceLimitedContainerConfig = ResourceLimitedContainerConfig{
+	Initial:   0,
+	Maximum:   math.MaxUint32,
+	Increment: 1,
 }
 
 func NewResourceLimitedContainerConfig() *ResourceLimitedContainerConfig {
-	return &ResourceLimitedContainerConfig{
-		Initial:   0,
-		Maximum:   ^uint(0),
-		Increment: 1,
-	}
+	ret := KDefaultResourceLimitedContainerConfig
+	return &ret
 }

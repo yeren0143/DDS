@@ -34,9 +34,10 @@ func (portParams *PortParameters) GetMulticastPort(domainId uint32) uint32 {
 	return port
 }
 
-func (portParams *PortParameters) GetUnicastPort(domaindId, RTPSParticipantID uint32) uint32 {
-	port := uint32(portParams.PortBase) + uint32(portParams.DomainIDGain)*domaindId +
-		uint32(portParams.Offsetd1) + uint32(portParams.ParticipantIDGain)*RTPSParticipantID
+//GetUnicastPort return unicast port
+func (portParams *PortParameters) GetUnicastPort(domaindID uint32, RTPSParticipantID uint32) uint32 {
+	port := uint32(portParams.PortBase) + uint32(portParams.DomainIDGain)*domaindID +
+		uint32(portParams.Offsetd1) + uint32(portParams.ParticipantIDGain)*uint32(RTPSParticipantID)
 
 	if port > 65535 {
 		panic("Calculated port number is too high. Probably the domainId is over 232, there are " +

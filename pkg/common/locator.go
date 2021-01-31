@@ -5,13 +5,13 @@ type LocatorEnum = int8
 
 // transport enum
 const (
-	LocatorPortInvalid  LocatorEnum = 0
-	LocatorKindReserved LocatorEnum = 0
-	LocatorKindUDPv4    LocatorEnum = 1
-	LocatorKindUDPv6    LocatorEnum = 2
-	LocatorKindTCPv4    LocatorEnum = 4
-	LocatorKindTCPv6    LocatorEnum = 8
-	LocatorKindShm      LocatorEnum = 16
+	KLocatorPortInvalid  LocatorEnum = 0
+	KLocatorKindReserved LocatorEnum = 0
+	KLocatorKindUDPv4    LocatorEnum = 1
+	KLocatorKindUDPv6    LocatorEnum = 2
+	KLocatorKindTCPv4    LocatorEnum = 4
+	KLocatorKindTCPv6    LocatorEnum = 8
+	KLocatorKindShm      LocatorEnum = 16
 )
 
 //Locator ...
@@ -21,16 +21,28 @@ type Locator struct {
 	Address [16]Octet
 }
 
+//NewLocator create locator with default value
+func NewLocator() *Locator {
+	return &Locator{
+		Kind: KLocatorKindUDPv4,
+	}
+}
+
 func (locator *Locator) Valid() bool {
 	return locator.Kind >= 0
 }
 
-//type LocatorList = []Locator
+//SetInvalidAddress memset locator's address to 0
+func (locator *Locator) SetInvalidAddress() {
+	locator.Address = [16]Octet{0}
+}
 
+//LocatorList ...
 type LocatorList struct {
 	Locators []Locator
 }
 
+//Valid ...
 func (list *LocatorList) Valid() bool {
 	for _, locator := range list.Locators {
 		if locator.Valid() == false {
@@ -40,8 +52,19 @@ func (list *LocatorList) Valid() bool {
 	return true
 }
 
+//Length ...
+func (list *LocatorList) Length() int {
+	return len(list.Locators)
+}
+
 func (list *LocatorList) PushBack(local *Locator) {
 	list.Locators = append(list.Locators, *local)
+}
+
+//Append add locators to the end of locatorlist
+func (list *LocatorList) Append(newList *LocatorList) *LocatorList {
+	list.Locators = append(list.Locators, newList.Locators...)
+	return list
 }
 
 func (list *LocatorList) Empty() bool {
@@ -50,6 +73,10 @@ func (list *LocatorList) Empty() bool {
 	}
 
 	return true
+}
+
+func (list *LocatorList) Clear() {
+	list.Locators = nil
 }
 
 func NewLocatorList() *LocatorList {

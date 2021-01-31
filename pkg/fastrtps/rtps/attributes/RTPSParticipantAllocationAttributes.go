@@ -1,7 +1,8 @@
 package attributes
 
 import (
-	. "github.com/yeren0143/DDS/fastrtps/utils"
+	"github.com/yeren0143/DDS/fastrtps/utils"
+	"math"
 )
 
 //RemoteLocatorsAllocationAttributes specified remote locators allocation attributes
@@ -87,24 +88,56 @@ type RTPSParticipantAllocationAttributes struct {
 	//! Holds limits for collections of remote locators.
 	Locators *RemoteLocatorsAllocationAttributes
 	//! Defines the allocation behaviour for collections dependent on the total number of participants.
-	Participants *ResourceLimitedContainerConfig
+	Participants *utils.ResourceLimitedContainerConfig
 	//! Defines the allocation behaviour for collections dependent on the total number of readers per participant.
-	Readers *ResourceLimitedContainerConfig
+	Readers *utils.ResourceLimitedContainerConfig
 	//! Defines the allocation behaviour for collections dependent on the total number of writers per participant.
-	Writers *ResourceLimitedContainerConfig
+	Writers *utils.ResourceLimitedContainerConfig
 	//! Defines the allocation behaviour for the send buffer manager.
 	SendBuffers *SendBuffersAllocationAttributes
 	//! Holds limits for variable-length data
 	DataLimits *VariableLengthDataLimits
 }
 
+func (att *RTPSParticipantAllocationAttributes) TotalReaders() *utils.ResourceLimitedContainerConfig {
+	return att.totalEndpoints(att.Readers)
+}
+
+func (att *RTPSParticipantAllocationAttributes) TotalWriters() *utils.ResourceLimitedContainerConfig {
+	return att.totalEndpoints(att.Writers)
+}
+
+func (att *RTPSParticipantAllocationAttributes) totalEndpoints(endpoints *utils.ResourceLimitedContainerConfig) *utils.ResourceLimitedContainerConfig {
+	max := uint32(math.MaxUint32)
+	initial := att.Participants.Initial * endpoints.Initial
+	var maxium uint32
+	if att.Participants.Maximum == max || endpoints.Maximum == max {
+		maxium = max
+	} else {
+		maxium = att.Participants.Maximum * endpoints.Maximum
+	}
+
+	var increment uint32
+	if att.Participants.Increment > endpoints.Increment {
+		increment = att.Participants.Increment
+	} else {
+		increment = endpoints.Increment
+	}
+
+	return &utils.ResourceLimitedContainerConfig{
+		Initial:   initial,
+		Maximum:   maxium,
+		Increment: increment,
+	}
+}
+
 //NewRTPSParticipantAllocationAttributes create RTPSParticipantAllocationAttributes with default value
 func NewRTPSParticipantAllocationAttributes() *RTPSParticipantAllocationAttributes {
 	return &RTPSParticipantAllocationAttributes{
 		Locators:     NewRemoteLocatorsAllocationAttributes(),
-		Participants: NewResourceLimitedContainerConfig(),
-		Readers:      NewResourceLimitedContainerConfig(),
-		Writers:      NewResourceLimitedContainerConfig(),
+		Participants: utils.NewResourceLimitedContainerConfig(),
+		Readers:      utils.NewResourceLimitedContainerConfig(),
+		Writers:      utils.NewResourceLimitedContainerConfig(),
 		SendBuffers:  NewSendBuffersAllocationAttributes(),
 		DataLimits:   NewVariableLengthDataLimits(),
 	}

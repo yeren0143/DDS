@@ -7,16 +7,16 @@ const (
 	PL_CDR_LE = 0x0003
 )
 
-type SerializedPayload_t struct {
+type SerializedPayloadT struct {
 	Encapsulation uint16
 	Length        uint32
-	data          []Octet
+	Data          []Octet
 	MaxSize       uint32
 	Pos           uint32 //!Position when reading
 }
 
-func CreateSerializedPayload() SerializedPayload_t {
-	return SerializedPayload_t{
+func CreateSerializedPayload() SerializedPayloadT {
+	return SerializedPayloadT{
 		Encapsulation: CDR_BE,
 		Length:        0,
 		MaxSize:       0,

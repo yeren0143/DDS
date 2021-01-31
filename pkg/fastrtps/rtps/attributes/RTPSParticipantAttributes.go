@@ -1,39 +1,40 @@
 package attributes
 
 import (
-	. "github.com/yeren0143/DDS/common"
-	. "github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol"
-	. "github.com/yeren0143/DDS/fastrtps/rtps/resources"
+	"github.com/yeren0143/DDS/common"
+	"github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol"
+	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
+	"github.com/yeren0143/DDS/fastrtps/rtps/transport"
 )
 
 // DiscoveryProtocolT ...
 type DiscoveryProtocolT int8
 
 const (
-	// CDisNone NO discovery whatsoever would be used.
+	// KDisPNone NO discovery whatsoever would be used.
 	// Publisher and Subscriber defined with the same topic name would NOT be linked.
 	// All matching must be done manually through the addReaderLocator, addReaderProxy, addWriterProxy methods.
-	CDisNone DiscoveryProtocolT = iota
+	KDisPNone DiscoveryProtocolT = iota
 
-	// CDisSimple Discovery works according to 'The Real-time Publish-Subscribe Protocol(RTPS) DDS
+	// KDisSimple Discovery works according to 'The Real-time Publish-Subscribe Protocol(RTPS) DDS
 	// Interoperability Wire Protocol Specification'
-	CDisSimple
+	KDisPSimple
 
-	// CDisExternal A user defined PDP subclass object must be provided in the attributes that deals with the discovery.
+	// KDisPExternal A user defined PDP subclass object must be provided in the attributes that deals with the discovery.
 	// Framework is not responsible of this object lifetime.
-	CDisExternal
+	KDisPExternal
 
-	// CDisClient The participant will behave as a client concerning discovery operation.
+	// KDisPClient The participant will behave as a client concerning discovery operation.
 	// Server locators should be specified as attributes.
-	CDisClient
+	KDisPClient
 
-	// CDisServer participant will behave as a server concerning discovery operation.
+	// KDisPServer participant will behave as a server concerning discovery operation.
 	//Discovery operation is volatile (discovery handshake must take place if shutdown
-	CDisServer
+	KDisPServer
 
-	// CDisBackup participant will behave as a server concerning discovery operation.
+	// KDisPBackup participant will behave as a server concerning discovery operation.
 	//Discovery operation persist on a file (discovery handshake wouldn't repeat if shutdown
-	CDisBackup
+	KDisPBackup
 )
 
 // ParticipantFilteringFlags ...
@@ -41,11 +42,11 @@ type ParticipantFilteringFlags int8
 
 // ...
 const (
-	CNoFilter               ParticipantFilteringFlags = 0
-	CFilterDifferentHost    ParticipantFilteringFlags = 0x1
-	CFilterDifferentProcess ParticipantFilteringFlags = 0x2
-	CFilterSameProcess      ParticipantFilteringFlags = 0x4
-	CBuiltinDataMaxSize     uint32                    = 512
+	KNoFilter               ParticipantFilteringFlags = 0
+	KFilterDifferentHost    ParticipantFilteringFlags = 0x1
+	KFilterDifferentProcess ParticipantFilteringFlags = 0x2
+	KFilterSameProcess      ParticipantFilteringFlags = 0x4
+	KBuiltinDataMaxSize     uint32                    = 512
 )
 
 // type PDPFactory interface {
@@ -73,33 +74,33 @@ func NewSimpleEDPAttributes() *SimpleEDPAttributes {
 // InitialAnnouncementConfig defines the behavior of the RTPSParticipant initial announcements.
 type InitialAnnouncementConfig struct {
 	Count  uint32
-	Period DurationT
+	Period common.DurationT
 }
 
 // NewDefaultInitialAnnouncementConfig create AnnouncementConfig with default config
 func NewDefaultInitialAnnouncementConfig() *InitialAnnouncementConfig {
 	return &InitialAnnouncementConfig{
 		Count:  5,
-		Period: DurationT{0, 100000000},
+		Period: common.DurationT{Seconds: 0, Nanosec: 100000000},
 	}
 }
 
 // DiscoverySettings define discovery config
 type DiscoverySettings struct {
-	DiscoveryProtocol DiscoveryProtocolT
+	Protocol DiscoveryProtocolT
 
 	//If set to true, SimpleEDP would be used.
-	UseSimpleEndpointDiscoveryProtocol bool
+	UseSimpleEndpoint bool
 
 	//If set to true, StaticEDP based on an XML file would be implemented.
-	UseStaticEndpointDiscoveryProtocol bool
+	UseStaticEndpoint bool
 
 	//indicating how much time remote RTPSParticipants should consider this RTPSParticipant alive.
-	LeaseDuration DurationT
+	LeaseDuration common.DurationT
 
 	//The period for the RTPSParticipant to send its Discovery Message to all other discovered
 	//RTPSParticipants as well as to all Multicast ports.
-	LeaseDurationAnnouncementPeriod DurationT
+	LeaseDurationAnnouncementPeriod common.DurationT
 
 	InitialAnnouncements *InitialAnnouncementConfig
 	SimpleEDP            *SimpleEDPAttributes
@@ -107,20 +108,23 @@ type DiscoverySettings struct {
 	//function that returns a PDP object (only if EXTERNAL selected)
 	PDPFactory interface{}
 
-	DiscoveryServerClientSyncPeriod DurationT
+	DiscoveryServerClientSyncPeriod common.DurationT
+
+	//Discovery Server settings, only needed if use_CLIENT_DiscoveryProtocol=true
+	DiscoveryServers RemoteServerList
 }
 
 // NewDiscoverySettings create DiscoverySetting with default value
 func NewDiscoverySettings() *DiscoverySettings {
 	var discoverySettings DiscoverySettings
-	discoverySettings.DiscoveryProtocol = CDisSimple
-	discoverySettings.UseSimpleEndpointDiscoveryProtocol = true
-	discoverySettings.UseStaticEndpointDiscoveryProtocol = false
-	discoverySettings.LeaseDuration = DurationT{20, 0}
-	discoverySettings.LeaseDurationAnnouncementPeriod = DurationT{3, 0}
+	discoverySettings.Protocol = KDisPSimple
+	discoverySettings.UseSimpleEndpoint = true
+	discoverySettings.UseStaticEndpoint = false
+	discoverySettings.LeaseDuration = common.DurationT{Seconds: 20, Nanosec: 0}
+	discoverySettings.LeaseDurationAnnouncementPeriod = common.DurationT{Seconds: 3, Nanosec: 0}
 	discoverySettings.InitialAnnouncements = NewDefaultInitialAnnouncementConfig()
 	discoverySettings.SimpleEDP = NewSimpleEDPAttributes()
-	discoverySettings.DiscoveryServerClientSyncPeriod = DurationT{0, 450 * 1000000}
+	discoverySettings.DiscoveryServerClientSyncPeriod = common.DurationT{Seconds: 0, Nanosec: 450 * 1000000}
 
 	return &discoverySettings
 }
@@ -144,12 +148,12 @@ type BuiltinAttributes struct {
 	DiscoveryConfig                 *DiscoverySettings
 	UseWriterLivelinessProtocol     bool
 	TypeLookupConfig                *TypeLookupSettings
-	MetatrafficUnicastLocatorList   *LocatorList
-	MetatrafficMulticastLocatorList *LocatorList
-	InitialPeersList                *LocatorList
-	ReaderHostoryMemoryPolicy       MemoryManagementPolicy
+	MetatrafficUnicastLocatorList   *common.LocatorList
+	MetatrafficMulticastLocatorList *common.LocatorList
+	InitialPeersList                *common.LocatorList
+	ReaderHostoryMemoryPolicy       resources.MemoryManagementPolicy
 	ReaderPayloadSize               uint32 //Maximum payload size for builtin readers
-	WriterHistoryMemoryPolicy       MemoryManagementPolicy
+	WriterHistoryMemoryPolicy       resources.MemoryManagementPolicy
 	WriterPayloadSize               uint32 //Maximum payload size for builtin writers
 	MutationTries                   uint32 //Mutation tries if the port is being used.
 	AvoidBuiltinMulticast           bool   //Set to true to avoid multicast traffic on builtin endpoints
@@ -161,13 +165,13 @@ func NewBuiltinAttributes() *BuiltinAttributes {
 		DiscoveryConfig:                 NewDiscoverySettings(),
 		UseWriterLivelinessProtocol:     true,
 		TypeLookupConfig:                NewTypeLookupSettings(),
-		MetatrafficUnicastLocatorList:   NewLocatorList(),
-		MetatrafficMulticastLocatorList: NewLocatorList(),
-		InitialPeersList:                NewLocatorList(),
-		ReaderHostoryMemoryPolicy:       CPreallocatedWithReallocMemoryMode,
-		ReaderPayloadSize:               CBuiltinDataMaxSize,
-		WriterHistoryMemoryPolicy:       CPreallocatedWithReallocMemoryMode,
-		WriterPayloadSize:               CBuiltinDataMaxSize,
+		MetatrafficUnicastLocatorList:   common.NewLocatorList(),
+		MetatrafficMulticastLocatorList: common.NewLocatorList(),
+		InitialPeersList:                common.NewLocatorList(),
+		ReaderHostoryMemoryPolicy:       resources.KPreallocatedWithReallocMemoryMode,
+		ReaderPayloadSize:               KBuiltinDataMaxSize,
+		WriterHistoryMemoryPolicy:       resources.KPreallocatedWithReallocMemoryMode,
+		WriterPayloadSize:               KBuiltinDataMaxSize,
 		MutationTries:                   100,
 		AvoidBuiltinMulticast:           true,
 	}
@@ -176,21 +180,21 @@ func NewBuiltinAttributes() *BuiltinAttributes {
 // RTPSParticipantAttributes ...
 type RTPSParticipantAttributes struct {
 	Name                        string
-	DefaultUnicastLocatorList   *LocatorList
-	DefaultMulticastLocatorList *LocatorList
+	DefaultUnicastLocatorList   *common.LocatorList
+	DefaultMulticastLocatorList *common.LocatorList
 	SendSocketBufferSize        uint32
 	ListenSocketBufferSize      uint32
-	Prefix                      *GUIDPrefixT
+	Prefix                      *common.GUIDPrefixT
 	Builtin                     *BuiltinAttributes
-	Port                        *PortParameters
-	UserData                    []Octet
-	ParticipantID               uint32
+	Port                        *common.PortParameters
+	UserData                    []common.Octet
+	ParticipantID               int32
 
 	//!Throughput controller parameters. Leave default for uncontrolled flow.
-	ThroghputController *ThroghputControllerDescriptor
+	ThroghputController *flowcontrol.ThroghputControllerDescriptor
 
 	//!User defined transports to use alongside or in place of builtins.
-	//UserTransports []*TransportDescriptorInterface
+	UserTransports []transport.ITransportDescriptor
 
 	//!Set as false to disable the default UDPv4 implementation.
 	UseBuiltinTransports bool
@@ -198,21 +202,21 @@ type RTPSParticipantAttributes struct {
 	//!Holds allocation limits affecting collections managed by a participant.
 	Allocation *RTPSParticipantAllocationAttributes
 
-	Properties *PropertyPolicy
+	Properties *PropertyPolicyT
 }
 
 // NewRTPSParticipantAttributes ...
 func NewRTPSParticipantAttributes() *RTPSParticipantAttributes {
 	return &RTPSParticipantAttributes{
 		Name:                        "RTPSParticipant",
-		ParticipantID:               ^uint32(0),
+		ParticipantID:               -1,
 		UseBuiltinTransports:        true,
-		DefaultUnicastLocatorList:   NewLocatorList(),
-		DefaultMulticastLocatorList: NewLocatorList(),
-		Prefix:                      NewGUIDPrefix(),
+		DefaultUnicastLocatorList:   common.NewLocatorList(),
+		DefaultMulticastLocatorList: common.NewLocatorList(),
+		Prefix:                      common.NewGUIDPrefix(),
 		Builtin:                     NewBuiltinAttributes(),
-		Port:                        NewDefaultPortParameters(),
-		ThroghputController:         NewThroghputControllerDescriptor(),
+		Port:                        common.NewDefaultPortParameters(),
+		ThroghputController:         flowcontrol.NewThroghputControllerDescriptor(),
 		Allocation:                  NewRTPSParticipantAllocationAttributes(),
 		Properties:                  NewPropertyPolicy(),
 	}

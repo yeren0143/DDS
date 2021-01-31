@@ -1,9 +1,52 @@
 package data
 
+import (
+	"github.com/yeren0143/DDS/common"
+	"github.com/yeren0143/DDS/core/policy"
+	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
+	"github.com/yeren0143/DDS/fastrtps/rtps/qos"
+)
+
 /**
  * Class ReaderProxyData, used to represent all the information on a Reader
  * (both local and remote) with the purpose of implementing the discovery.
  */
 
 type ReaderProxyData struct {
+	GUID           common.GUIDT
+	remoteLocators *common.RemoteLocatorList
+	// GUID_t of the Reader converted to InstanceHandle_t
+	Key common.InstanceHandleT
+	// GUID_t of the participant converted to InstanceHandle
+	RTPSParticipantKey common.InstanceHandleT
+	typeName           string
+	topicName          string
+	userDefinedId      uint16
+	// Field to indicate if the Reader is Alive.
+	isAlive          bool
+	topicKind        common.TopicKindT
+	TypeID           policy.TypeIDV1
+	TypeObj          policy.TypeObjectV1
+	TypeInformation  *policy.TypeInformation
+	Properties       *policy.ParameterPropertyListT
+	ExpectsInlineQos bool
+	Qos              *qos.ReaderQos
+}
+
+func NewReaderProxyData(maxUnicastLocators, maxMulticastLocators uint32,
+	dataLimits *attributes.VariableLengthDataLimits) *ReaderProxyData {
+	var proxyData = ReaderProxyData{
+		ExpectsInlineQos: false,
+		remoteLocators:   common.NewRemoteLocatorList(maxUnicastLocators, maxMulticastLocators),
+		userDefinedId:    0,
+		isAlive:          true,
+		topicKind:        common.KNoKey,
+	}
+
+	// As DDS-XTypes, v1.2 (page 182) document stablishes, local default is ALLOW_TYPE_COERCION,
+	// but when remotes doesn't send TypeConsistencyQos, we must assume DISALLOW.
+	proxyData.Qos = qos.NewReaderQos()
+	proxyData.Qos.TypeConsistency.Kind = policy.KAllowTypeCoercion
+
+	return &proxyData
 }

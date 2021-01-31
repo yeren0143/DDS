@@ -85,17 +85,17 @@ func parseIP4(info *InfoIP) {
 	info.Locator.Port = 0
 	setIPv4WithIP(&info.Locator, info.Name)
 	if IsLocal(&info.Locator) {
-		info.Type = CIP4Local
+		info.Type = KIP4Local
 	}
 }
 
 type IPTYPE = int8
 
 const (
-	CIP4      IPTYPE = 0
-	CIP6      IPTYPE = 1
-	CIP4Local IPTYPE = 2
-	CIP6Local IPTYPE = 3
+	KIP4      IPTYPE = 0
+	KIP6      IPTYPE = 1
+	KIP4Local IPTYPE = 2
+	KIP6Local IPTYPE = 3
 )
 
 type InfoIP struct {
@@ -108,11 +108,11 @@ type InfoIP struct {
 type addrinfoErrno int
 
 func parseIP6(info *InfoIP) {
-	info.Locator.Kind = common.LocatorKindUDPv6
+	info.Locator.Kind = common.KLocatorKindUDPv6
 	info.Locator.Port = 0
 	setIP6WithString(&info.Locator, info.Name)
 	if IsLocal(&info.Locator) {
-		info.Type = CIP6Local
+		info.Type = KIP6Local
 	}
 }
 
@@ -175,25 +175,25 @@ func GetIPs(return_loopback bool) ([]*InfoIP, error) {
 		if family == C.AF_INET {
 
 			var info InfoIP
-			info.Type = CIP4
+			info.Type = KIP4
 			salen := C.socklen_t(syscall.SizeofSockaddrInet4)
 			info.Name = lookupAddr(ifa.ifa_addr, salen)
 			info.Dev = ifa_name
 			parseIP4(&info)
 
-			if return_loopback || info.Type != CIP4Local {
+			if return_loopback || info.Type != KIP4Local {
 				InfoIPs = append(InfoIPs, &info)
 			}
 
 		} else if family == C.AF_INET6 {
 			var info InfoIP
-			info.Type = CIP6
+			info.Type = KIP6
 			salen := C.socklen_t(syscall.SizeofSockaddrInet6)
 			info.Name = lookupAddr(ifa.ifa_addr, salen)
 			info.Dev = ifa_name
 			parseIP6(&info)
 
-			if return_loopback || info.Type != CIP6Local {
+			if return_loopback || info.Type != KIP6Local {
 				InfoIPs = append(InfoIPs, &info)
 			}
 		}
@@ -208,7 +208,7 @@ func GetIP4Address() *common.LocatorList {
 
 	ip_names, _ := GetIPs(false)
 	for _, ip := range ip_names {
-		if ip.Type == CIP4 {
+		if ip.Type == KIP4 {
 			locators.Locators = append(locators.Locators, ip.Locator)
 		}
 	}
