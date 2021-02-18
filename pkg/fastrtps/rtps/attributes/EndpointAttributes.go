@@ -10,8 +10,8 @@ type EndpointAttributes struct {
 	TopicKind            common.TopicKindT
 	ReliabilityKind      common.ReliabilityKindT
 	DurabilityKind       common.DurabilityKindT
-	persistenceGuid      common.GUIDT
-	properties           PropertyPolicyT
+	PersistenceGUID      common.GUIDT
+	Properties           PropertyPolicyT
 	UnicastLocatorList   common.LocatorList
 	MulticastLocatorList common.LocatorList
 	RemoteLocatorList    common.LocatorList
@@ -23,8 +23,12 @@ type EndpointAttributes struct {
 	entityID int16
 }
 
+func (att *EndpointAttributes) GetEntityID() int16 {
+	return att.entityID
+}
+
 var KDefaultEndpointAttributes = EndpointAttributes{
-	EndpointKind:    common.KWRITER,
+	EndpointKind:    common.KWriter,
 	TopicKind:       common.KNoKey,
 	ReliabilityKind: common.KBestEffort,
 	DurabilityKind:  common.KVolatile,

@@ -11,6 +11,6 @@ type ThroughputController struct {
 }
 
 //NewThroughputController create ThroughputController
-func NewThroughputController(descriptor *ThroghputControllerDescriptor, subject IFlowControllerSubject) *ThroughputController {
+func NewThroughputController(descriptor *ThroughputControllerDescriptor, subject IFlowControllerParent) *ThroughputController {
 	return &ThroughputController{}
 }

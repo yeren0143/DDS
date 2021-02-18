@@ -55,9 +55,7 @@ const (
 	NEXT_QOS_POLICY_ID //< Keep always the last element. For internal use only
 )
 
-var (
-	PolicyMask = uint32(NEXT_QOS_POLICY_ID)
-)
+type QosMask [NEXT_QOS_POLICY_ID]bool
 
 //Class QosPolicy, base for all QoS policies defined for Writers and Readers.
 type QosPolicy struct {

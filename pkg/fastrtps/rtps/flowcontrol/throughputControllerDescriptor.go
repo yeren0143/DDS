@@ -1,10 +1,10 @@
 package flowcontrol
 
-type ThroghputControllerDescriptor struct {
+type ThroughputControllerDescriptor struct {
 	BytesPerPeriod  uint32
 	PeriodMillisecs uint32
 }
 
-func NewThroghputControllerDescriptor() *ThroghputControllerDescriptor {
-	return &ThroghputControllerDescriptor{}
+func NewThroughputControllerDescriptor() *ThroughputControllerDescriptor {
+	return &ThroughputControllerDescriptor{}
 }

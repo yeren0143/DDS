@@ -8,8 +8,8 @@ type IFlowController interface {
 	DeRegisterAsListeningController()
 }
 
-//IFlowControllerSubject is a subject who own FlowControllerIs
-type IFlowControllerSubject interface {
+//IFlowControllerParent is a subject who own FlowControllerIs
+type IFlowControllerParent interface {
 }
 
 type flowControllerImpl struct {

@@ -20,4 +20,5 @@ require (
 	github.com/yeren0143/DDS/common v0.0.0
 	github.com/yeren0143/DDS/fastrtps/rtps/attributes v0.0.0-00010101000000-000000000000
 	github.com/yeren0143/DDS/fastrtps/rtps/resources v0.0.0
+	github.com/yeren0143/DDS/fastrtps/utils v0.0.0
 )

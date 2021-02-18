@@ -3,7 +3,7 @@ package transport
 //UDPTransportDescriptor define UDP Transport configuration
 type UDPTransportDescriptor struct {
 	socketTransportDescriptor
-	outputUDPSocket uint16
+	outputUDPSocket uint32
 	//Whether to use non-blocking calls to send_to().
 	nonBlockingSend bool
 }

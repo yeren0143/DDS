@@ -13,10 +13,6 @@ const (
 	KIPv6AddressAny           = "::"
 )
 
-// SenderSourceList is a slice of SenderResource
-//type SenderSourceList []*network.SenderResource
-type SenderSourceList []interface{}
-
 // ITransport against which to implement a transport layer, decoupled from FastRTPS internals.
 // TransportInterface expects the user to implement a logical equivalence between Locators and protocol-specific "channels".
 // This equivalence can be narrowing: For instance in UDP/IP, a port would take the role of channel, and several different
@@ -51,7 +47,7 @@ type ITransport interface {
 
 	//Must open the channel that maps to/from the given locator. This method must allocate, reserve and mark
 	//any resources that are needed for said channel.
-	OpenOutputChannel(senderList SenderSourceList, locator *common.Locator) bool
+	OpenOutputChannel(senderList SenderResourceList, locator *common.Locator) bool
 
 	OpenInputChannel(locator *common.Locator, receiver ITransportReceiver, maxMsgSize uint32) bool
 
@@ -82,4 +78,6 @@ type ITransport interface {
 
 	//return transport kind
 	Kind() int8
+
+	AddDefaultOutputLocator(defaultList *common.LocatorList)
 }

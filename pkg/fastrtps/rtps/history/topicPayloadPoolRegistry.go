@@ -1,8 +1,9 @@
 package history
 
 import (
-	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 	"sync"
+
+	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 )
 
 type TopicPayloadPoolRegistry struct {
@@ -20,6 +21,16 @@ func (registry *TopicPayloadPoolRegistry) getTopicPayloadPoolProxy(proxy *TopicP
 	}
 
 	return proxy
+}
+
+func (registry *TopicPayloadPoolRegistry) Release(pool *TopicPayloadPoolProxy) {
+	registry.mutex.Lock()
+	defer registry.mutex.Unlock()
+
+	// A reference count of 2 means the only ones referencing the pointer are the caller and the registry.
+	// This means we can release the pointer on the registry also.
+	// TODO:
+
 }
 
 func GetTopicPayloadPoolProxy(topic string, config IBasicPoolConfig) *TopicPayloadPoolProxy {
@@ -47,22 +58,10 @@ func GetTopicPayloadPoolProxy(topic string, config IBasicPoolConfig) *TopicPaylo
 	return nil
 }
 
-// func (register *TopicPayloadPoolRegistry) Get(topic string, config *BasicPoolConfig) ITopicPayloadPool {
-// 	register.mutex.Lock()
-// 	defer register.mutex.Unlock()
+func ReleaseTopicPayloadPool(pool ITopicPayloadPool) {
+	topicPool := pool.(*TopicPayloadPoolProxy)
 
-// 	entry, ok := register.poolMap[topic]
-// 	if !ok {
-// 		entry = *NewTopicPayloadPoolRegistryEntry()
-// 		register.poolMap[topic] = entry
-// 	}
-
-// 	switch config.MemoryPolicy {
-// 	case resources.KPreallocatedMemoryMode:
-// 	case resources.KPreallocatedWithReallocMemoryMode:
-// 	case resources.KDynamicReserveMemoryMode:
-// 	case resources.KDynamicReusableMemoryMode:
-// 	}
-
-// 	return nil
-// }
+	if topicPool != nil {
+		TopicPayloadPoolRegistryInstance.Release(topicPool)
+	}
+}

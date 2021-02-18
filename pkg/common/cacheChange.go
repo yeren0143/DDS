@@ -14,9 +14,11 @@ const (
 	KNotAliveDisposedUnregistered
 )
 
-// ICacheChangeOwner is a pool that created the payload of cache change
-type ICacheChangeOwner interface {
+// ICacheChangeParent is a pool that created the payload of cache change
+type ICacheChangeParent interface {
 	ReleasePayload(*CacheChangeT) bool
+	//GetPayload(size uint32, cacheChange *CacheChangeT) bool
+	//GetPayloadWithOwner(data *SerializedPayloadT, dataOwner *ICacheChangeParent, aChange *CacheChangeT) bool
 }
 
 // CacheChangeT contains information on a specific CacheChange.
@@ -34,15 +36,39 @@ type CacheChangeT struct {
 	fragmentSize         uint16
 	fragmentCount        uint32
 	firstMissingFragment uint32
-	payloadOwner         ICacheChangeOwner
+	payloadOwner         ICacheChangeParent
 }
 
-func (cache *CacheChangeT) PayloadOwner() ICacheChangeOwner {
+func (cache *CacheChangeT) PayloadOwner() ICacheChangeParent {
 	return cache.payloadOwner
 }
 
-func (cache *CacheChangeT) SetPayloadOwner(owner ICacheChangeOwner) {
+func (cache *CacheChangeT) SetPayloadOwner(owner ICacheChangeParent) {
 	cache.payloadOwner = owner
+}
+
+func (cache *CacheChangeT) GetFragmentSize() uint16 {
+	return cache.fragmentSize
+}
+
+// * Copy information form a different change into this one.
+// * All the elements are copied except data.
+func (cache *CacheChangeT) CopyNotMemcpy(ch *CacheChangeT) {
+	cache.Kind = ch.Kind
+	cache.WriterGUID = ch.WriterGUID
+	cache.InstanceHandle = ch.InstanceHandle
+	cache.SequenceNumber = ch.SequenceNumber
+	cache.SourceTimestamp = ch.SourceTimestamp
+	cache.WriteParams = ch.WriteParams
+	cache.IsRead = ch.IsRead
+	cache.SerializedPayload.Encapsulation = ch.SerializedPayload.Encapsulation
+
+	cache.SetFragmentSize(ch.fragmentSize, false)
+}
+
+func (cache *CacheChangeT) AddFragments(incomingData *SerializedPayloadT,
+	fragmentStartingNum uint32, fragmentsInSubMessage uint16) bool {
+	return false
 }
 
 func (cache *CacheChangeT) nextFragmentPointer(fragmentIndex uint32) *uint32 {

@@ -1,5 +1,7 @@
 package common
 
+import "time"
+
 // Time used to describe times
 type Time struct {
 	Seconds int32
@@ -18,6 +20,14 @@ func (t *Time) Less(value Time) bool {
 		return true
 	} else {
 		return false
+	}
+}
+
+func CurrentTime() Time {
+	timeStamp := time.Now()
+	return Time{
+		Seconds: int32(timeStamp.Unix()),
+		Nanosec: uint32(timeStamp.UnixNano() - (timeStamp.Unix())*1e9),
 	}
 }
 

@@ -1,9 +1,10 @@
 package transport
 
 import (
+	"sync"
+
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/utils"
-	"sync"
 )
 
 type ITCPTransport interface {
@@ -43,7 +44,7 @@ func (transport *tcpTransport) IsInputChannelOpen(locator *common.Locator) bool 
 	return result
 }
 
-func (transport *tcpTransport) OpenOutputChannel(senderList SenderSourceList, locator *common.Locator) bool {
+func (transport *tcpTransport) OpenOutputChannel(senderList SenderResourceList, locator *common.Locator) bool {
 	if transport.IsLocatorSupported(locator) == false {
 		return false
 	}

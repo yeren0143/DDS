@@ -2,19 +2,36 @@ package utils
 
 import (
 	"bytes"
-	"github.com/yeren0143/DDS/common"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/yeren0143/DDS/common"
 )
 
-//SetIPv4WithBytes ...
+func CreateLocator(kindin int8, address string, portin uint32) common.Locator {
+	var locator common.Locator
+	locator.Kind = kindin
+	locator.Port = portin
+	if kindin == common.KLocatorKindUDPv4 || kindin == common.KLocatorKindTCPv4 {
+		SetIPv4WithIP(&locator, address)
+	} else if kindin == common.KLocatorKindUDPv6 || kindin == common.KLocatorKindTCPv6 {
+		SetIPv6(&locator, address)
+	}
+
+	return locator
+}
+
 func SetIPv4WithBytes(locator *common.Locator, ipv4 []common.Octet) {
 	copy(locator.Address[12:], ipv4)
 }
 
-func setIPv4WithIP(locator *common.Locator, ip string) bool {
+func SetIPv6(locator *common.Locator, address string) {
+
+}
+
+func SetIPv4WithIP(locator *common.Locator, ip string) bool {
 	s := strings.Split(ip, ".")
 	ip0, _ := strconv.Atoi(s[0])
 	ip1, _ := strconv.Atoi(s[1])

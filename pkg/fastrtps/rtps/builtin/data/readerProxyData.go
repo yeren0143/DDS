@@ -1,6 +1,8 @@
 package data
 
 import (
+	"log"
+
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/core/policy"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
@@ -31,6 +33,16 @@ type ReaderProxyData struct {
 	Properties       *policy.ParameterPropertyListT
 	ExpectsInlineQos bool
 	Qos              *qos.ReaderQos
+}
+
+func (proxy *ReaderProxyData) GetSerializedSize(includeEncapsulation bool) uint32 {
+	log.Panic("not impl")
+	return 0
+}
+
+func (proxy *ReaderProxyData) WriteToCDRMessage(msg *common.CDRMessage, writeEncapsulation bool) bool {
+	log.Panic("not impl")
+	return false
 }
 
 func NewReaderProxyData(maxUnicastLocators, maxMulticastLocators uint32,

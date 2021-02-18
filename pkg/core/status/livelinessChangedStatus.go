@@ -1,5 +1,9 @@
 package status
 
+import (
+	"github.com/yeren0143/DDS/common"
+)
+
 // LivelinessChangedStatus storing the liveliness changed status
 type LivelinessChangedStatus struct {
 	// The total number of currently active publishers that write the topic read by the subscriber

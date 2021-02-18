@@ -6,7 +6,7 @@ import (
 
 // QosPolicyCount storing the id of the incompatible QoS Policy and the number of times it fails
 type QosPolicyCount struct {
-	PolicyID common.QosPolicyId
+	PolicyID policy.QosPolicyIDT
 	Count    uint32
 }
 
@@ -30,7 +30,7 @@ type IncompatibleQosStatus struct {
 	// The change in total_count since the last time the listener was called or the status was read
 	TotalCountChange uint32
 
-	LastPolicyID QosPolicyIDT
+	LastPolicyID policy.QosPolicyIDT
 	Policies     QosPolicyCountSeq
 }
 

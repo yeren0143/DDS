@@ -50,6 +50,8 @@ func createGUIDPrefix(ID uint32) *common.GUIDPrefixT {
 //NewRTPSParticipant create new rtps participant
 func NewRTPSParticipant(domainID uint32, useProtocol bool, attrs *attributes.RTPSParticipantAttributes,
 	listen *participant.RTPSParticipantListener) *participant.RTPSParticipant {
+
+	log.SetFlags(log.Ldate | log.Llongfile)
 	log.Println("cretae RTPS participant")
 
 	if attrs.Builtin.DiscoveryConfig.LeaseDuration.Less(common.KTimeInfinite) &&

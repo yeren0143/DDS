@@ -1,19 +1,20 @@
 package resources
 
 import (
-	"github.com/yeren0143/DDS/fastrtps/utils"
 	"log"
 	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/yeren0143/DDS/fastrtps/utils"
 )
 
 // ResourceEvent centralizes all operations over timed events in the same thread.
 type ResourceEvent struct {
 	stop                    int32 //Warns the internal thread can stop.
 	allowVectorManipulation bool  //Flag used to allow a thread to manipulate the timer collections when the execution thread is not using them.
-	mutex                   sync.Mutex
+	mutex                   *sync.Mutex
 	cvManipulation          *utils.TimedConditionVariable
 	cv                      *utils.TimedConditionVariable
 	timersCount             int //The total number of created timers.
@@ -25,12 +26,22 @@ type ResourceEvent struct {
 //NewResourceEvent create resource event with default value
 func NewResourceEvent() *ResourceEvent {
 	var event ResourceEvent
+	event.mutex = new(sync.Mutex)
 	event.stop = 0
 	event.allowVectorManipulation = true
 	event.timersCount = 0
-	event.cvManipulation = utils.NewTimedCond(&event.mutex)
-	event.cv = utils.NewTimedCond(&event.mutex)
+	event.cvManipulation = utils.NewTimedCond(event.mutex)
+	event.cv = utils.NewTimedCond(event.mutex)
 	return &event
+}
+
+// This method informs that a TimedEventImpl has been created.
+// This method has to be called when creating a TimedEventImpl object.
+func (resource *ResourceEvent) RegisterTimer(event *TimedEventImpl) {
+	resource.mutex.Lock()
+	defer resource.mutex.Unlock()
+	resource.timersCount++
+	resource.cv.Signal()
 }
 
 //InitThread to initialize the internal thread.
@@ -47,12 +58,13 @@ func (resource *ResourceEvent) InitThread() {
 		wg.Done()
 		resource.eventService()
 	}(resource)
+	wg.Wait()
 }
 
 //ResizeCollections Ensures internal collections can accommodate current total number of timers.
 func (resource *ResourceEvent) ResizeCollections() {
-	resource.PendingTimers.Events = make([]*TimedEvent, resource.timersCount)
-	resource.ActiveTimers.Events = make([]*TimedEvent, resource.timersCount)
+	resource.PendingTimers.Events = make([]*TimedEventImpl, resource.timersCount)
+	resource.ActiveTimers.Events = make([]*TimedEventImpl, resource.timersCount)
 }
 
 func (resource *ResourceEvent) eventService() {
@@ -62,28 +74,37 @@ func (resource *ResourceEvent) eventService() {
 		resource.doTimerActions()
 
 		resource.mutex.Lock()
-		{
-			resource.allowVectorManipulation = true
-			resource.cvManipulation.Broadcast()
+		defer resource.mutex.Unlock()
 
-			// Wait for the first timer to be triggered
-			nextTrigger := time.Time{}
-			if len(resource.ActiveTimers.Events) == 0 {
-				nextTrigger = resource.currentTime.Add(time.Second)
-			} else {
-				nextTrigger = resource.ActiveTimers.Events[0].nextTriggerTime
-			}
-
-			if nextTrigger.Before(resource.currentTime) {
-				log.Fatal("next trigger time can not brefore current time")
-			}
-			resource.cv.WaitOrTimeout(nextTrigger.Sub(resource.currentTime))
-
-			// Don't allow other threads to manipulate the timer collections
-			resource.allowVectorManipulation = false
-			resource.ResizeCollections()
+		// If the thread has already been instructed to stop, do it.
+		if atomic.LoadInt32(&resource.stop) > 0 {
+			break
 		}
-		resource.mutex.Unlock()
+
+		// If pending timers exist, there is some work to be done, so no need to wait.
+		if len(resource.PendingTimers.Events) > 0 {
+			continue
+		}
+
+		resource.allowVectorManipulation = true
+		resource.cvManipulation.Broadcast()
+
+		// Wait for the first timer to be triggered
+		nextTrigger := time.Time{}
+		if len(resource.ActiveTimers.Events) == 0 {
+			nextTrigger = resource.currentTime.Add(time.Second)
+		} else {
+			nextTrigger = resource.ActiveTimers.Events[0].nextTriggerTime
+		}
+
+		if nextTrigger.Before(resource.currentTime) {
+			log.Fatal("next trigger time can not brefore current time")
+		}
+		resource.cv.WaitOrTimeout(nextTrigger.Sub(resource.currentTime))
+
+		// Don't allow other threads to manipulate the timer collections
+		resource.allowVectorManipulation = false
+		resource.ResizeCollections()
 	}
 }
 
@@ -127,7 +148,7 @@ func (resource *ResourceEvent) doTimerActions() {
 				}
 
 				// Insert on correct position
-				events := append([]*TimedEvent{}, resource.ActiveTimers.Events[index:]...)
+				events := append([]*TimedEventImpl{}, resource.ActiveTimers.Events[index:]...)
 				resource.ActiveTimers.Events = append(resource.ActiveTimers.Events[:index], tp)
 				resource.ActiveTimers.Events = append(resource.ActiveTimers.Events, events...)
 			}
@@ -159,7 +180,7 @@ func (resource *ResourceEvent) doTimerActions() {
 		}
 
 		if index < len(resource.ActiveTimers.Events) {
-			resource.ActiveTimers.Events = append([]*TimedEvent{}, resource.ActiveTimers.Events[index:]...)
+			resource.ActiveTimers.Events = append([]*TimedEventImpl{}, resource.ActiveTimers.Events[index:]...)
 		}
 	}
 }

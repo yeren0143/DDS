@@ -68,7 +68,7 @@ func (receiver *Receiver) willAReaderAcceptMsgDirectedTo(readerID *common.Entity
 		return nil, false
 	}
 
-	if readerID != common.KEidUnknown {
+	if readerID != common.KEIDUnknown {
 		if readers, ok := receiver.associatedReaders[*readerID]; ok {
 			firstReader = readers[0]
 			return firstReader, true
@@ -172,7 +172,7 @@ func (receiver *Receiver) checkRTPSHeader(msg *common.CDRMessage) bool {
 type findAllReadersCallback func(reader.IRTPSReader)
 
 func (receiver *Receiver) findAllReaders(readerID *common.EntityIDT, callback findAllReadersCallback) {
-	if readerID != common.KEidUnknown {
+	if readerID != common.KEIDUnknown {
 		if readers, ok := receiver.associatedReaders[*readerID]; ok {
 			for _, reader := range readers {
 				callback(reader)

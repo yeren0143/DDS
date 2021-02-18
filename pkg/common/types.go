@@ -31,12 +31,14 @@ const (
 var KDefaultEndian Endianness = LITTLEEND
 
 type ReliabilityKindT int8
+
 const (
 	KReliable ReliabilityKindT = iota
 	KBestEffort
 )
 
 type DurabilityKindT int8
+
 const (
 	KVolatile DurabilityKindT = iota
 	KTransientLocal
@@ -45,12 +47,14 @@ const (
 )
 
 type EndpointKindT int8
+
 const (
-	KREADER EndpointKindT = iota
-	KWRITER
+	KReader EndpointKindT = iota
+	KWriter
 )
 
 type TopicKindT int8
+
 const (
 	KNoKey TopicKindT = iota
 	KWithKey

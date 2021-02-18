@@ -1,5 +1,9 @@
 package status
 
+import (
+	"github.com/yeren0143/DDS/common"
+)
+
 // SubscriptionMatchedStatus storing the subscription status
 type SubscriptionMatchedStatus struct {
 	MatchedStatus

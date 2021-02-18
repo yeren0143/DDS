@@ -83,7 +83,7 @@ func (eai addrinfoErrno) Timeout() bool   { return false }
 func parseIP4(info *InfoIP) {
 	info.Locator.Kind = 1
 	info.Locator.Port = 0
-	setIPv4WithIP(&info.Locator, info.Name)
+	SetIPv4WithIP(&info.Locator, info.Name)
 	if IsLocal(&info.Locator) {
 		info.Type = KIP4Local
 	}

@@ -42,6 +42,14 @@ type LocatorList struct {
 	Locators []Locator
 }
 
+func (list *LocatorList) Set(aList *LocatorList) {
+	if len(aList.Locators) == 0 {
+		return
+	}
+	list.Locators = make([]Locator, len(aList.Locators))
+	copy(list.Locators, aList.Locators)
+}
+
 //Valid ...
 func (list *LocatorList) Valid() bool {
 	for _, locator := range list.Locators {

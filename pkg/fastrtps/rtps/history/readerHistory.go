@@ -1,32 +1,34 @@
 package history
 
 import (
+	"log"
+
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
-	"log"
 )
+
+type IWriterProxyWithHistory interface {
+}
+
+type IReaderWithHistory interface {
+	ChangeRemovedByHistory(change *common.CacheChangeT, proxy IWriterProxyWithHistory) bool
+	ReleaseCache(change *common.CacheChangeT)
+	ReserveCache(size uint32) (*common.CacheChangeT, bool)
+}
 
 var _ IHistory = (*ReaderHistory)(nil)
 
-type ihistoryWriterProxy interface {
-}
-
-type IHistoryReader interface {
-	ChangeRemovedByHistory(change *common.CacheChangeT, proxy ihistoryWriterProxy) bool
-	ReleaseCache(change *common.CacheChangeT)
-	ReserveCache(changes []*common.CacheChangeT) bool
-}
-
 type ReaderHistory struct {
 	historyBase
-	reader IHistoryReader
+	Reader IReaderWithHistory
 }
 
 func NewReaderHistory(att *attributes.HistoryAttributes) *ReaderHistory {
-	return &ReaderHistory{
-		historyBase: *NewhistoryBase(att),
-	}
+	var rhist ReaderHistory
+	rhist.historyBase = *NewhistoryBase(att)
+	rhist.impl = &rhist
+	return &rhist
 }
 
 func (history *ReaderHistory) ReceivedChange(change *common.CacheChangeT) bool {
@@ -34,12 +36,12 @@ func (history *ReaderHistory) ReceivedChange(change *common.CacheChangeT) bool {
 }
 
 func (history *ReaderHistory) addChange(change *common.CacheChangeT) bool {
-	if history.reader == nil {
+	if history.Reader == nil {
 		log.Fatalln("You need to create a Reader with this History before adding any changes")
 	}
 
-	history.mutex.Lock()
-	defer history.mutex.Unlock()
+	history.Mutex.Lock()
+	defer history.Mutex.Unlock()
 
 	if history.Att.MemoryPolicy == resources.KPreallocatedMemoryMode &&
 		change.SerializedPayload.Length > history.Att.PayloadMaxSize {
@@ -84,12 +86,12 @@ func (history *ReaderHistory) MatchesChange(innerChange, outerChange *common.Cac
 // Remove a specific change from the history.
 // No Thread Safe
 // @param release specifies if the change must be returned to the pool
-func (history *ReaderHistory) RemoveChangeNts(removal int, release bool) {
-	if history.reader == nil {
+func (history *ReaderHistory) RemoveChangeNts(removal uint32, release bool) {
+	if history.Reader == nil {
 		log.Fatalln("You need to create a Reader with this History before adding any changes")
 	}
 
-	if removal >= len(history.changes) {
+	if int(removal) >= len(history.changes) {
 		log.Println("Trying to remove without a proper CacheChange_t referenced")
 		return
 	}
@@ -100,16 +102,16 @@ func (history *ReaderHistory) RemoveChangeNts(removal int, release bool) {
 	history.changes = newChanges
 	history.isHistoryFull = false
 
-	history.reader.ChangeRemovedByHistory(change, nil)
+	history.Reader.ChangeRemovedByHistory(change, nil)
 	if release {
-		history.reader.ReleaseCache(change)
+		history.Reader.ReleaseCache(change)
 	}
 }
 
 func (history *ReaderHistory) doReleaseCache(ch *common.CacheChangeT) {
-	history.reader.ReleaseCache(ch)
+	history.Reader.ReleaseCache(ch)
 }
 
-func (history *ReaderHistory) doReserveCache(changes []*common.CacheChangeT) bool {
-	return history.reader.ReserveCache(changes)
+func (history *ReaderHistory) doReserveCache(size uint32) (*common.CacheChangeT, bool) {
+	return history.Reader.ReserveCache(size)
 }

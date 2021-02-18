@@ -1,41 +1,29 @@
 package builtin
 
 import (
+	"log"
+
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/participant"
+	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
 	"github.com/yeren0143/DDS/fastrtps/rtps/network"
-	"log"
 )
 
-type IProtocolUser interface {
-	NetFactory() *network.NetFactory
-	GetAttributes() *attributes.RTPSParticipantAttributes
-	GetGuid() *common.GUIDT
-}
-
-var _ participant.IBuiltinProtocols = (*Protocols)(nil)
+//var _ participant.IPDPParent = (*Protocols)(nil)
 
 //Protocols that contains builtin endpoints implementing the discovery and liveliness protocols.
 type Protocols struct {
 	Att                             *attributes.BuiltinAttributes
-	participantImpl                 IProtocolUser
+	participantImpl                 participant.IParticipant
 	PDP                             participant.IPDP
-	WLP                             interface{}
+	WLP                             endpoint.IWlp
 	TLM                             interface{} //TypeLookupManager
 	MetatrafficMulticastLocatorList *common.LocatorList
 	MetatrafficUnicastLocatorList   *common.LocatorList
 	InitialPeersList                *common.LocatorList
 	DiscoveryServers                []*attributes.RemoteServerAttributes //Known discovery and backup server container
 }
-
-// func (protocol *Protocols) GetAttributes() *attributes.RTPSParticipantAttributes {
-// 	return protocol.Att
-// }
-
-// func (protocol *Protocols) GetGuid() *common.GUIDT {
-
-// }
 
 func (protocol *Protocols) transformServerRemoteLocators(nf *network.NetFactory) {
 	for _, rs := range protocol.DiscoveryServers {
@@ -57,8 +45,28 @@ func (protocol *Protocols) UpdateMetatrafficLocators(loclist *common.LocatorList
 	return true
 }
 
+func (protocol *Protocols) GetMetatrafficMulticastLocatorList() *common.LocatorList {
+	return protocol.MetatrafficMulticastLocatorList
+}
+
+func (protocol *Protocols) AnnounceParticipantState() {
+	if protocol.PDP != nil {
+		protocol.PDP.AnnounceParticipantState(false, false, &common.KWriteParamDefault)
+	} else {
+		log.Fatalln("Trying to use BuiltinProtocols interfaces before initBuiltinProtocols call")
+	}
+}
+
+func (protocol *Protocols) GetMetatrafficUnicastLocatorList() *common.LocatorList {
+	return protocol.MetatrafficUnicastLocatorList
+}
+
+func (protocol *Protocols) GetInitialPeers() *common.LocatorList {
+	return protocol.InitialPeersList
+}
+
 //InitBuiltinProtocol Initialize the builtin protocols.
-func (protocol *Protocols) InitBuiltinProtocol(ppart IProtocolUser, att *attributes.BuiltinAttributes) bool {
+func (protocol *Protocols) InitBuiltinProtocol(ppart participant.IParticipant, att *attributes.BuiltinAttributes) bool {
 	protocol.participantImpl = ppart
 	protocol.Att = att
 	protocol.MetatrafficMulticastLocatorList = att.MetatrafficMulticastLocatorList
@@ -66,7 +74,7 @@ func (protocol *Protocols) InitBuiltinProtocol(ppart IProtocolUser, att *attribu
 	protocol.InitialPeersList = att.InitialPeersList
 	protocol.DiscoveryServers = att.DiscoveryConfig.DiscoveryServers
 
-	protocol.transformServerRemoteLocators(ppart.NetFactory())
+	protocol.transformServerRemoteLocators(ppart.NetworkFactory())
 	allocation := ppart.GetAttributes().Allocation
 
 	//PDP

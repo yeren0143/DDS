@@ -191,7 +191,7 @@ type RTPSParticipantAttributes struct {
 	ParticipantID               int32
 
 	//!Throughput controller parameters. Leave default for uncontrolled flow.
-	ThroghputController *flowcontrol.ThroghputControllerDescriptor
+	ThroughputController *flowcontrol.ThroughputControllerDescriptor
 
 	//!User defined transports to use alongside or in place of builtins.
 	UserTransports []transport.ITransportDescriptor
@@ -216,7 +216,7 @@ func NewRTPSParticipantAttributes() *RTPSParticipantAttributes {
 		Prefix:                      common.NewGUIDPrefix(),
 		Builtin:                     NewBuiltinAttributes(),
 		Port:                        common.NewDefaultPortParameters(),
-		ThroghputController:         flowcontrol.NewThroghputControllerDescriptor(),
+		ThroughputController:        flowcontrol.NewThroughputControllerDescriptor(),
 		Allocation:                  NewRTPSParticipantAllocationAttributes(),
 		Properties:                  NewPropertyPolicy(),
 	}

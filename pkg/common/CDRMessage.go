@@ -104,6 +104,22 @@ func (message *CDRMessage) Init(buffer []Octet, size uint32) {
 	message.MsgEndian = KDefaultEndian
 }
 
+func NewCDRMessageWithPayload(payload *SerializedPayloadT) *CDRMessage {
+	var msg CDRMessage
+	msg.Wraps = true
+	if payload.Encapsulation == PL_CDR_BE {
+		msg.MsgEndian = BIGEND
+	} else {
+		msg.MsgEndian = LITTLEEND
+	}
+	msg.Pos = payload.Pos
+	msg.Length = payload.Length
+	msg.Buffer = payload.Data
+	msg.MaxSize = payload.MaxSize
+	msg.ReservedSize = payload.MaxSize
+	return &msg
+}
+
 func NewCDRMessage(size uint32) *CDRMessage {
 	return &CDRMessage{
 		Buffer:       make([]Octet, size),

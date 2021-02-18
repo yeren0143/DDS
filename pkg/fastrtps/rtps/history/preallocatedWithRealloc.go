@@ -38,10 +38,6 @@ func (pool *PreallocatedReallocTopicPayloadPool) ReserveHistory(config *PoolConf
 }
 
 func NewPreallocatedReallocTopicPayloadPool(payloadSize, poolSize uint32) *PreallocatedReallocTopicPayloadPool {
-	// return &PreallocatedReallocTopicPayloadPool{
-	// 	minPayloadSize:  payloadSize,
-	// 	minimumPoolSize: poolSize,
-	// }
 	var pool PreallocatedReallocTopicPayloadPool
 	pool.minPayloadSize = payloadSize
 	pool.minimumPoolSize = poolSize

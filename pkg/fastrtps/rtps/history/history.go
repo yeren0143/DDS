@@ -1,23 +1,63 @@
 package history
 
 import (
+	"log"
+	"sync"
+
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"sync"
 )
 
 type IHistory interface {
-	doReserveCache(changes []*common.CacheChangeT) bool
+	doReserveCache(size uint32) (*common.CacheChangeT, bool)
 	doReleaseCache(ch *common.CacheChangeT)
+	GetHistorySize() uint32
+}
+
+type historyImpl interface {
+	RemoveChangeNts(removal uint32, release bool)
 }
 
 type historyBase struct {
 	Att     attributes.HistoryAttributes
 	changes []*common.CacheChangeT
-	mutex   sync.Mutex
+	Mutex   *sync.Mutex
 
 	// Variable to know if the history is full without needing to block the History mutex.
 	isHistoryFull bool
+
+	impl historyImpl
+}
+
+func (hist *historyBase) GetHistorySize() uint32 {
+	hist.Mutex.Lock()
+	defer hist.Mutex.Unlock()
+	return uint32(len(hist.changes))
+}
+
+func (hist *historyBase) RemoveChange(ch *common.CacheChangeT) bool {
+	hist.Mutex.Lock()
+	defer hist.Mutex.Unlock()
+
+	hist.Mutex.Lock()
+	defer hist.Mutex.Unlock()
+
+	index := 0
+	for ; index < len(hist.changes); index++ {
+		if hist.changes[index] == ch {
+			break
+		}
+	}
+	if index == len(hist.changes) {
+		log.Fatalln("Trying to remove a change not in history")
+		return false
+	}
+
+	// remove using the virtual method
+	hist.impl.RemoveChangeNts(uint32(index), true)
+
+	return true
+
 }
 
 func NewhistoryBase(att *attributes.HistoryAttributes) *historyBase {

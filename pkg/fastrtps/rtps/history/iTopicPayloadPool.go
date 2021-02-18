@@ -59,6 +59,7 @@ type ITopicPayloadPool interface {
 	PayloadPoolAvailableSize() uint32
 
 	GetPayload(size uint32, cacheChange *common.CacheChangeT) bool
+	GetPayloadWithOwner(data *common.SerializedPayloadT, dataOwner *common.ICacheChangeParent, aChange *common.CacheChangeT) bool
 	ReleasePayload(cacheChange *common.CacheChangeT) bool
 }
 

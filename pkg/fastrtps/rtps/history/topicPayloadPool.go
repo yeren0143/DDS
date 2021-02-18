@@ -1,12 +1,13 @@
 package history
 
 import (
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 	"log"
 	"math"
 	"sync"
 	"unsafe"
+
+	"github.com/yeren0143/DDS/common"
+	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 )
 
 var _ ITopicPayloadPool = (*TopicPayloadPool)(nil)
@@ -24,6 +25,7 @@ type payloadNode struct {
 	dataSize   uint32
 	dataIndex  uint32
 	data       []common.Octet
+	//buffer []common.Octet
 }
 
 func (node *payloadNode) resize(size uint32) bool {
@@ -148,6 +150,37 @@ func (pool *TopicPayloadPool) shrink(maxNumPayloads uint32) bool {
 
 func (pool *TopicPayloadPool) GetPayload(size uint32, cacheChange *common.CacheChangeT) bool {
 	return pool.getPayload(size, cacheChange, false)
+}
+
+func (pool *TopicPayloadPool) GetPayloadWithOwner(data *common.SerializedPayloadT, dataOwner *common.ICacheChangeParent,
+	aChange *common.CacheChangeT) bool {
+	if aChange.WriterGUID == common.KGuidUnknown {
+		log.Panic("aChange.WriterGUID == common.KGuidUnknown")
+	}
+
+	if aChange.SequenceNumber == common.KSequenceNumberUnknown {
+		log.Panic("aChange.SequenceNumber == common.KSequenceNumberUnknown")
+	}
+
+	if *dataOwner == pool {
+		// TODO:
+		log.Panic("not impl")
+	} else {
+		if pool.GetPayload(data.Length, aChange) {
+			if aChange.SerializedPayload.Copy(data, true) {
+				pool.ReleasePayload(aChange)
+				return false
+			}
+
+			if dataOwner == nil {
+				*dataOwner = pool
+				data.Data = aChange.SerializedPayload.Data
+			}
+			return true
+		}
+	}
+
+	return false
 }
 
 func (pool *TopicPayloadPool) ReleasePayload(cacheChange *common.CacheChangeT) bool {

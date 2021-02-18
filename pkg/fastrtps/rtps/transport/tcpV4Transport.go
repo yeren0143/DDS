@@ -1,9 +1,10 @@
 package transport
 
 import (
+	"os"
+
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/utils"
-	"os"
 )
 
 var _ ITransport = (*TCPv4Transport)(nil)
@@ -42,6 +43,10 @@ func (transport *TCPv4Transport) FillLocalIP(loc *common.Locator) {
 
 func (transport *TCPv4Transport) FillMetatrafficMulticastLocator(locator *common.Locator, wellKnownPort uint32) bool {
 	return true
+}
+
+func (transport *TCPv4Transport) AddDefaultOutputLocator(defaultList *common.LocatorList) {
+
 }
 
 func (transport *TCPv4Transport) fillMetrafficUnicastLocator(locator *common.Locator, metatrafficUnicastPort uint32) bool {

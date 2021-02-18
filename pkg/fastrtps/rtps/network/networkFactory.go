@@ -1,11 +1,12 @@
 package network
 
 import (
+	"log"
+
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/transport"
 	"github.com/yeren0143/DDS/fastrtps/utils"
-	"log"
 )
 
 // NetFactory Provides the FastRTPS library with abstract resources, which
@@ -65,6 +66,13 @@ func (factory *NetFactory) GetDefaultMetatrafficUnicastLocators(locators *common
 	return result
 }
 
+func (factory *NetFactory) GetDefaultOutputLocators(defaultLocators *common.LocatorList) {
+	defaultLocators.Locators = []common.Locator{}
+	for _, trans := range factory.registeredTransports {
+		trans.AddDefaultOutputLocator(defaultLocators)
+	}
+}
+
 //GetDefaultMetatrafficMulticastLocators adds locators to the metatraffic multicast list.
 func (factory *NetFactory) GetDefaultMetatrafficMulticastLocators(locators *common.LocatorList, multicastPort uint32) bool {
 	result := false
@@ -114,6 +122,16 @@ func (factory *NetFactory) GetDefaultUnicastLocators(domainID uint32, locators *
 		result = result || transport.GetDefaultUnicastLocators(locators, uint32(wellKnownPort))
 	}
 	return result
+}
+
+// Walks over the list of transports, opening every possible channel that can send through
+// the given locator and returning a vector of Sender Resources associated with it.
+func (factory *NetFactory) BuildSendResources(senderResourceList transport.SenderResourceList, locator *common.Locator) bool {
+	returnedValue := false
+	for _, trans := range factory.registeredTransports {
+		returnedValue = returnedValue || trans.OpenOutputChannel(senderResourceList, locator)
+	}
+	return returnedValue
 }
 
 // NormalizedLocators ...

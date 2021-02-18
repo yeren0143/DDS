@@ -1,21 +1,27 @@
 package transport
 
 import (
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/utils"
 	"net"
 	"runtime"
 	"sync"
 	"syscall"
+
+	"github.com/yeren0143/DDS/common"
+	"github.com/yeren0143/DDS/fastrtps/utils"
 )
 
 type IUDPTransport interface {
+	ITransport
 	Configuration() ITransportDescriptor
-	// endPointToLocator(addr *net.UDPAddr, locator *common.Locator)
+}
+
+type udpTransportImpl interface {
+	fillLocalIP(loc *common.Locator)
 }
 
 //UDPTransport ...
 type udpTransport struct {
+	impl             udpTransportImpl
 	kind             common.LocatorEnum
 	configure        UDPv4TransportDescriptor
 	sendBufferSize   uint32
@@ -71,19 +77,28 @@ func (transport *udpTransport) IsLocatorAllowed(locator *common.Locator) bool {
 // to the corresponding local address.
 // false if the input locator is not supported/allowed by this transport, true otherwise.
 func (transport *udpTransport) TransformRemoteLocator(remoteLocator *common.Locator) (*common.Locator, bool) {
-	var resultLocator *common.Locator
+	var resultLocator common.Locator
 	if transport.IsLocatorSupported(remoteLocator) {
-		*resultLocator = *remoteLocator
-		if transport.IsLocatorSupported(resultLocator) {
+		resultLocator = *remoteLocator
+		if transport.IsLocatorSupported(&resultLocator) {
 			// is_local_locator will return false for multicast addresses as well as
 			// remote unicast ones.
-			return resultLocator, true
+			return &resultLocator, true
 		}
 
 		// If we get here, the locator is a local unicast address
-		if transport.IsLocatorAllowed(resultLocator) {
+		if transport.IsLocatorAllowed(&resultLocator) {
 			return nil, false
 		}
+
+		// The locator is in the whitelist (or the whitelist is empty)
+		var loopbackLocator common.Locator
+		transport.impl.fillLocalIP(&loopbackLocator)
+		if transport.IsLocatorAllowed(&loopbackLocator) {
+			transport.impl.fillLocalIP(&resultLocator)
+		}
+
+		return &resultLocator, true
 	}
 
 	return nil, false
@@ -158,7 +173,7 @@ func (transport *udpTransport) getIPv4s(returnLoopBack bool) []*utils.InfoIP {
 }
 
 //OpenOutputChannel Opens a socket on the given address and port (as long as they are white listed).
-func (transport *udpTransport) OpenOutputChannel(senderList SenderSourceList, locator *common.Locator) bool {
+func (transport *udpTransport) OpenOutputChannel(senderList SenderResourceList, locator *common.Locator) bool {
 	if transport.IsLocatorSupported(locator) == false {
 		return false
 	}
@@ -167,7 +182,7 @@ func (transport *udpTransport) OpenOutputChannel(senderList SenderSourceList, lo
 	// Note: This is done in this level because if we do in NetworkFactory level, we have to mantain what transport
 	// already reuses a SenderResource.
 	for _, sendRes := range senderList {
-		if _, ok := sendRes.(*udpTransport); ok {
+		if _, ok := sendRes.(*UDPSenderResource); ok {
 			return true
 		}
 	}

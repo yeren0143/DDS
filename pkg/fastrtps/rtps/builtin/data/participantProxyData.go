@@ -1,8 +1,12 @@
 package data
 
 import (
+	"log"
+	"time"
+
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
+	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 )
 
 var BUILTIN_PARTICIPANT_DATA_MAX_SIZE = uint64(100)
@@ -33,15 +37,31 @@ var DISC_BUILTIN_ENDPOINT_PARTICIPANT_SECURE_ANNOUNCER = uint64(0x00000001 << 26
 var DISC_BUILTIN_ENDPOINT_PARTICIPANT_SECURE_DETECTOR = uint64(0x00000001 << 27)
 
 type ParticipantProxyData struct {
-	ProtoVersion            common.ProtocolVersionT
-	Guid                    common.GUIDT
-	VendorIDT               common.VendorIDT
-	ExpectsInlineQos        bool
-	AviableBuiltinEndpoints common.BuiltinEndpointSet
-	MetatrafficLocators     common.RemoteLocatorList
-	DefaultLocatord         common.RemoteLocatorList
-	ManualLivelinessCount   common.CountT
-	ParticipantName         string
+	ProtoVersion             common.ProtocolVersionT
+	Guid                     common.GUIDT
+	VendorIDT                common.VendorIDT
+	ExpectsInlineQos         bool
+	AviableBuiltinEndpoints  common.BuiltinEndpointSet
+	MetatrafficLocators      common.RemoteLocatorList
+	DefaultLocatord          common.RemoteLocatorList
+	ManualLivelinessCount    common.CountT
+	ParticipantName          string
+	Key                      common.InstanceHandleT
+	ShouldCheckLeaseDuration bool
+	LeaseDurationEvent       *resources.TimedEvent
+	// Store the last timestamp it was received a RTPS message from the remote participant.
+	LastReceivedMessageTm time.Time
+	LeaseDuration         time.Duration
+}
+
+func (proxy *ParticipantProxyData) GetSerializedSize(includeEncapsulation bool) uint32 {
+	log.Panic("not impl")
+	return 0
+}
+
+func (proxy *ParticipantProxyData) WriteToCDRMessage(msg *common.CDRMessage, writeEncapsulation bool) bool {
+	log.Panic("not impl")
+	return false
 }
 
 func NewParticipantProxyData(att *attributes.RTPSParticipantAllocationAttributes) *ParticipantProxyData {

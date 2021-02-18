@@ -26,6 +26,16 @@ func (cond *TimedConditionVariable) Wait() {
 	cond.locker.Lock()
 }
 
+// test 
+func (cond *TimedConditionVariable) Lock() {
+	cond.locker.Lock()
+}
+
+func (cond *TimedConditionVariable) Unlock() {
+	cond.locker.Unlock()
+}
+
+
 //WaitOrTimeout ...
 func (cond *TimedConditionVariable) WaitOrTimeout(d time.Duration) bool {
 	tmo := time.NewTimer(d)

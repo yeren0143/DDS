@@ -9,6 +9,15 @@ var (
 	KInstanceHandleUnknown = InstanceHandleT{}
 )
 
+func (instance *InstanceHandleT) IsDefined() bool {
+	for i := 0; i < 16; i++ {
+		if instance.Value[i] != 0 {
+			return true
+		}
+	}
+	return false
+}
+
 func CreateInstanceHandle(guid GUIDT) InstanceHandleT {
 	var instance InstanceHandleT
 	for i := 0; i < 12; i++ {

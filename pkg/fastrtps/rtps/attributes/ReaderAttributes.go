@@ -26,20 +26,20 @@ type ReaderAttributes struct {
 	// Times associated with this reader (only for stateful readers)
 	Times ReaderTimes
 
-	livelinessKind          policy.LivelinessQosPolicyKind
-	livelinessLeaseDuration common.DurationT
+	LivelinessKind          policy.LivelinessQosPolicyKind
+	LivelinessLeaseDuration common.DurationT
 	// Indicates if the reader expects Inline qos, default value 0.
-	expectsInlineQos bool
+	ExpectsInlineQos bool
 
 	DisablePositiveAcks      bool
-	matchedWritersAllocation utils.ResourceLimitedContainerConfig
+	MatchedWritersAllocation utils.ResourceLimitedContainerConfig
 }
 
 var KDefaultReaderAttributes = ReaderAttributes{
-	livelinessKind:           policy.AUTOMATIC_LIVELINESS_QOS,
-	livelinessLeaseDuration:  common.KTimeInfinite,
-	expectsInlineQos:         false,
+	LivelinessKind:           policy.AUTOMATIC_LIVELINESS_QOS,
+	LivelinessLeaseDuration:  common.KTimeInfinite,
+	ExpectsInlineQos:         false,
 	DisablePositiveAcks:      false,
 	EndpointAtt:              KDefaultEndpointAttributes,
-	matchedWritersAllocation: utils.KDefaultResourceLimitedContainerConfig,
+	MatchedWritersAllocation: utils.KDefaultResourceLimitedContainerConfig,
 }

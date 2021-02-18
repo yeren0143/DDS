@@ -1,19 +1,23 @@
 package transport
 
 import (
+	"log"
+
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/utils"
-	"log"
+
 	//"net"
-	"golang.org/x/sys/unix"
 	"runtime"
 	"sort"
 	"strings"
 	"syscall"
+
+	"golang.org/x/sys/unix"
 )
 
-var _ ITransport = (*UDPv4Transport)(nil)
+// var _ ITransport = (*UDPv4Transport)(nil)
 var _ IUDPTransport = (*UDPv4Transport)(nil)
+var _ udpTransportImpl = (*UDPv4Transport)(nil)
 
 //UDPv4Transport is a default UDPv4 implementation.
 //  - Opening an output channel by passing a locator will open a socket per interface on the given port.
@@ -98,6 +102,11 @@ func (udp *UDPv4Transport) Init() bool {
 	return true
 }
 
+func (udp *UDPv4Transport) AddDefaultOutputLocator(defaultList *common.LocatorList) {
+	loc := utils.CreateLocator(common.KLocatorKindUDPv4, "239.255.0.1", udp.configure.outputUDPSocket)
+	defaultList.PushBack(&loc)
+}
+
 /**
 * Structure info_IP with information about a specific IP obtained from a NIC.
  */
@@ -129,6 +138,11 @@ func (udp *UDPv4Transport) getIPv4UniqueInterfaces(returnLoopBack bool) []*utils
 	wraps := &locatorsWrap{locNames}
 	sort.Sort(wraps)
 	return wraps.locators
+}
+
+func (udp *UDPv4Transport) fillLocalIP(loc *common.Locator) {
+	utils.SetIPv4WithIP(loc, "127.0.0.1")
+	loc.Kind = common.KLocatorKindUDPv4
 }
 
 //OpenInputChannel Starts listening on the specified port, and if the specified address is in the
@@ -227,15 +241,6 @@ func (udp *UDPv4Transport) CreateInputChannelResource(sInterface string, locator
 	return channelResource
 }
 
-// func (udp *UDPv4Transport) endPointToLocator(addr *common.Locator, locator *common.Locator) {
-// 	locator.Port = uint32(addr.Port)
-// 	locator.Address = addr.A
-// 	for i := 0; i < 16; i++ {
-// 		locator.Address[i] = addr.IP[i]
-// 	}
-// 	locator.Kind = common.KLocatorKindUDPv4
-// }
-
 func (udp *UDPv4Transport) OpenAndBindInputSocket(sIP string, port uint16, isMulticast bool) int {
 	socketMC, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, 0)
 	if err != nil {
@@ -249,7 +254,7 @@ func (udp *UDPv4Transport) OpenAndBindInputSocket(sIP string, port uint16, isMul
 		// 	log.Fatalf("reuse port error: %v\n", err)
 		// }
 		if err := syscall.SetsockoptInt(socketMC, syscall.SOL_SOCKET, unix.SO_REUSEADDR, 1); err != nil {
-			log.Fatalln("%v", err)
+			log.Fatalln(err)
 		}
 	}
 

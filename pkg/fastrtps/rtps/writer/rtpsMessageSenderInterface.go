@@ -2,12 +2,11 @@ package writer
 
 import (
 	"github.com/yeren0143/DDS/common"
-	"time"
 )
 
-// RTPSMessageSenderInterface is an interface used in RTPSMessageGroup to handle destinations management
+// IRTPSMessageSender is an interface used in RTPSMessageGroup to handle destinations management
 // and message sending
-type RTPSMessageSenderInterface interface {
+type IRTPSMessageSender interface {
 	// Check if the destinations managed by this sender interface have changed.
 	DestinationHaveChanged() bool
 
@@ -19,10 +18,10 @@ type RTPSMessageSenderInterface interface {
 
 	// Get the GUID prefix of all the destination participants.
 	// a const reference to a vector with the GUID prefix of all destination participants.
-	RemoteParticipants() *[]common.GUIDPrefixT
+	RemoteParticipants() []common.GUIDPrefixT
 
 	// Get the GUID of all destinations.
-	RemoteGUIDs() *[]common.GUIDT
+	RemoteGUIDs() []common.GUIDT
 
-	Send(msg *common.CDRMessage, maxBlockingTimePoint *time.Time)
+	Send(msg *common.CDRMessage, maxBlockingTimePoint common.Time) bool
 }

@@ -16,6 +16,7 @@ type basicPoolConfig struct {
 }
 
 var _ IBasicPoolConfig = (*PoolConfig)(nil)
+
 type PoolConfig struct {
 	basicPoolConfig
 
