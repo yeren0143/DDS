@@ -6,6 +6,7 @@ import (
 
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/core/policy"
+	"github.com/yeren0143/DDS/fastrtps/message"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
 	"github.com/yeren0143/DDS/fastrtps/rtps/history"
@@ -22,6 +23,7 @@ var _ history.IReaderWithHistory = (IRTPSReader)(nil)
 // IRtpsReader manages the reception of data from its matched writers.
 type IRTPSReader interface {
 	endpoint.IEndpoint
+	message.IRtpsMsgReader
 
 	// Processes a new DATA message. Previously the message must have been accepted by
 	// function acceptMsgDirectedTo.
@@ -60,10 +62,12 @@ type IRTPSReader interface {
 
 	ReleaseCache(change *common.CacheChangeT)
 	ReserveCache(size uint32) (*common.CacheChangeT, bool)
+
+	ExpectsInlineQos() bool
 }
 
-// reader who devired from IRtpsReader must implement iRtpsImpl
-type iRtpsImpl interface {
+// reader who devired from IRtpsReader must implement ireaderImpl
+type ireaderImpl interface {
 	mayRemoveHistoryRecord(removedByLease bool) bool
 	setLastNotified(persistenceGUID *common.GUIDT, seq *common.SequenceNumberT)
 	init(payloadPool history.IPayloadPool, changePool history.IChangePool)
@@ -71,7 +75,7 @@ type iRtpsImpl interface {
 
 type rtpsReaderBase struct {
 	endpoint.EndpointBase
-	impl                           iRtpsImpl
+	impl                           ireaderImpl
 	trustedWriterEntityID          common.EntityIDT
 	acceptMessagesToUnknownReaders bool // Accept msg to unknwon readers (default=true)
 	acceptMessageFromUnKnowWriters bool
@@ -87,6 +91,10 @@ type rtpsReaderBase struct {
 
 func (reader *rtpsReaderBase) AcceptMessagesToUnknownReaders() bool {
 	return reader.acceptMessagesToUnknownReaders
+}
+
+func (reader *rtpsReaderBase) ExpectsInlineQos() bool {
+	return reader.expectsInlineQos
 }
 
 func (reader *rtpsReaderBase) mayRemoveHistoryRecord(removedByLease bool) bool {

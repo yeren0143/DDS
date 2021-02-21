@@ -1,12 +1,13 @@
 package message
 
 import (
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/fastrtps/rtps/reader"
-	"github.com/yeren0143/DDS/fastrtps/rtps/writer"
 	"log"
 	"sync"
+
+	"github.com/yeren0143/DDS/common"
+	"github.com/yeren0143/DDS/core/policy"
+	//"github.com/yeren0143/DDS/fastrtps/rtps/reader"
+	//"github.com/yeren0143/DDS/fastrtps/rtps/writer"
 )
 
 const (
@@ -23,16 +24,18 @@ type processDataFragmentMessageFunction func(*common.EntityIDT, *common.CacheCha
 
 // Receiver process the received messages.
 type Receiver struct {
-	participant       IReceiverOwner
-	sourceVersion     common.ProtocolVersionT
-	sourceVendorID    common.VendorIDT
-	sourceGUIDPrefix  common.GUIDPrefixT
-	destGUIDPrefix    common.GUIDPrefixT
-	haveTimeStamp     bool
-	timeStamp         common.Time
-	mutex             sync.Mutex
-	associatedWriters []writer.IRTPSWriter
-	associatedReaders map[common.EntityIDT][]reader.IRTPSReader
+	participant      IReceiverOwner
+	sourceVersion    common.ProtocolVersionT
+	sourceVendorID   common.VendorIDT
+	sourceGUIDPrefix common.GUIDPrefixT
+	destGUIDPrefix   common.GUIDPrefixT
+	haveTimeStamp    bool
+	timeStamp        common.Time
+	mutex            sync.Mutex
+	//associatedWriters []writer.IRTPSWriter
+	//associatedReaders map[common.EntityIDT][]reader.IRTPSReader
+	associatedWriters []IRtpsMsgWriter
+	associatedReaders map[common.EntityIDT][]IRtpsMsgReader
 	dataMsgFunc       processDataMessageFunction
 	dataFragMsgFunc   processDataFragmentMessageFunction
 }
@@ -61,8 +64,8 @@ func (receiver *Receiver) reset() {
 	receiver.timeStamp = common.KTimeInvalid
 }
 
-func (receiver *Receiver) willAReaderAcceptMsgDirectedTo(readerID *common.EntityIDT) (reader.IRTPSReader, bool) {
-	var firstReader reader.IRTPSReader
+func (receiver *Receiver) willAReaderAcceptMsgDirectedTo(readerID *common.EntityIDT) (IRtpsMsgReader, bool) {
+	var firstReader IRtpsMsgReader
 	if len(receiver.associatedReaders) == 0 {
 		log.Printf("Data received when NO readers are listening")
 		return nil, false
@@ -169,7 +172,7 @@ func (receiver *Receiver) checkRTPSHeader(msg *common.CDRMessage) bool {
 	return true
 }
 
-type findAllReadersCallback func(reader.IRTPSReader)
+type findAllReadersCallback func(IRtpsMsgReader)
 
 func (receiver *Receiver) findAllReaders(readerID *common.EntityIDT, callback findAllReadersCallback) {
 	if readerID != common.KEIDUnknown {
@@ -218,7 +221,7 @@ func (receiver *Receiver) procSubmsgHeartbeat(msg *common.CDRMessage, smh *Subme
 	receiver.mutex.Lock()
 	defer receiver.mutex.Unlock()
 	// Look for the correct reader and writers:
-	callback := func(reader reader.IRTPSReader) {
+	callback := func(reader IRtpsMsgReader) {
 		reader.ProcessHeartbeatMsg(&writerGUID, HBCount, &firstSN, &lastSN, finalFlag, livelinessFlag)
 	}
 	receiver.findAllReaders(&readerGUID.EntityID, callback)
@@ -605,7 +608,7 @@ func (receiver *Receiver) procSubmsgGap(msg *common.CDRMessage, smh *SubmessageH
 	receiver.mutex.Lock()
 	defer receiver.mutex.Unlock()
 
-	callback := func(reader reader.IRTPSReader) {
+	callback := func(reader IRtpsMsgReader) {
 		reader.ProcessGapMsg(&writerGUID, &gapStart, gapList)
 	}
 	receiver.findAllReaders(&writerGUID.EntityID, callback)

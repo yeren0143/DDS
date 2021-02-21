@@ -12,7 +12,7 @@ import (
 )
 
 var _ IRTPSReader = (*StatelessReader)(nil)
-var _ iRtpsImpl = (*StatelessReader)(nil)
+var _ ireaderImpl = (*StatelessReader)(nil)
 
 // Class StatelessReader, specialization of the RTPSReader for Best Effort Readers.
 type StatelessReader struct {

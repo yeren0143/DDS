@@ -43,7 +43,7 @@ type ParticipantProxyData struct {
 	ExpectsInlineQos         bool
 	AviableBuiltinEndpoints  common.BuiltinEndpointSet
 	MetatrafficLocators      common.RemoteLocatorList
-	DefaultLocatord          common.RemoteLocatorList
+	DefaultLocators          common.RemoteLocatorList
 	ManualLivelinessCount    common.CountT
 	ParticipantName          string
 	Key                      common.InstanceHandleT

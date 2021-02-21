@@ -45,6 +45,10 @@ func (statelessWriter *StatelessWriter) getBuiltinGuid() {
 
 }
 
+func (statelessWriter *StatelessWriter) SendAnyUnsentChanges() {
+	
+}
+
 func (statelessWriter *StatelessWriter) init(parent endpoint.IEndpointParent, att *attributes.WriterAttributes) {
 	statelessWriter.getBuiltinGuid()
 

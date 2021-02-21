@@ -6,6 +6,7 @@ import (
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/core/policy"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
+	"github.com/yeren0143/DDS/fastrtps/rtps/network"
 	"github.com/yeren0143/DDS/fastrtps/rtps/qos"
 )
 
@@ -43,6 +44,19 @@ func (proxy *ReaderProxyData) GetSerializedSize(includeEncapsulation bool) uint3
 func (proxy *ReaderProxyData) WriteToCDRMessage(msg *common.CDRMessage, writeEncapsulation bool) bool {
 	log.Panic("not impl")
 	return false
+}
+
+func (proxy *ReaderProxyData) SetLocators(locators *common.RemoteLocatorList) {
+	copy(proxy.remoteLocators.Unicast, locators.Unicast)
+	copy(proxy.remoteLocators.Multicast, locators.Multicast)
+}
+
+func (proxy *ReaderProxyData) SetMulticastLocators(locators *common.LocatorList, networkFactory *network.NetFactory) {
+
+}
+
+func (proxy *ReaderProxyData) SetAnnouncedUnicastLocators(locators *common.LocatorList) {
+
 }
 
 func NewReaderProxyData(maxUnicastLocators, maxMulticastLocators uint32,

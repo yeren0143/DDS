@@ -11,7 +11,7 @@ import (
 	"github.com/yeren0143/DDS/fastrtps/message"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/participant"
+	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
 	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
 	"github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol"
 	"github.com/yeren0143/DDS/fastrtps/rtps/history"
@@ -36,7 +36,7 @@ type ReceiverControlBlock struct {
 }
 
 //var _ builtin.IProtocolParent = (*RTPSParticipant)(nil)
-var _ participant.IParticipant = (*RTPSParticipant)(nil)
+var _ protocol.IParticipant = (*RTPSParticipant)(nil)
 var _ endpoint.IEndpointParent = (*RTPSParticipant)(nil)
 
 //RTPSParticipant allows the creation and removal of writers and readers. It manages the send and receive threads.
@@ -55,6 +55,7 @@ type RTPSParticipant struct {
 	UserReaderList            []reader.IRTPSReader
 	Controllers               []flowcontrol.IFlowController
 	networkFactory            *network.NetFactory
+	asyncThread               *writer.AsyncWriterThread
 	Listener                  *RTPSParticipantListener
 	IntraProcessOnly          bool
 	hasShmTransport           bool
@@ -435,7 +436,7 @@ func (participant *RTPSParticipant) createWriter(param *attributes.WriterAttribu
 	participant.mutex.Lock()
 	defer participant.mutex.Unlock()
 	if isBuiltin {
-
+		participant.asyncThread.Wakeup(swriter)
 	} else {
 		participant.UserWriterList = append(participant.UserWriterList, swriter)
 	}
@@ -721,6 +722,8 @@ func NewParticipant(domainID uint32, pparam *attributes.RTPSParticipantAttribute
 	participant.createReceiverResources(participant.Att.Builtin.MetatrafficUnicastLocatorList, true, false)
 	participant.createReceiverResources(participant.Att.DefaultUnicastLocatorList, true, false)
 	participant.createReceiverResources(participant.Att.DefaultMulticastLocatorList, true, false)
+
+	participant.asyncThread = writer.NewAsyncWriterThread()
 
 	allowGrowingBuffers := participant.Att.Allocation.SendBuffers.Dynamic
 	numSendBuffers := participant.Att.Allocation.SendBuffers.PreAllocatedNum

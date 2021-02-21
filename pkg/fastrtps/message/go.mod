@@ -14,6 +14,6 @@ replace (
 require (
 	github.com/yeren0143/DDS/common v0.0.0
 	github.com/yeren0143/DDS/core/policy v0.0.0-00010101000000-000000000000
-	github.com/yeren0143/DDS/fastrtps/rtps/reader v0.0.0-00010101000000-000000000000
-	github.com/yeren0143/DDS/fastrtps/rtps/writer v0.0.0-00010101000000-000000000000
+	//github.com/yeren0143/DDS/fastrtps/rtps/reader v0.0.0-00010101000000-000000000000
+	//github.com/yeren0143/DDS/fastrtps/rtps/writer v0.0.0-00010101000000-000000000000
 )

@@ -8,11 +8,12 @@ import (
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
+	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
 	"github.com/yeren0143/DDS/fastrtps/rtps/history"
 	"github.com/yeren0143/DDS/fastrtps/rtps/writer"
 )
 
-var _ IPDP = (*PDPSimple)(nil)
+var _ protocol.IPDP = (*PDPSimple)(nil)
 var _ IpdpBaseImpl = (*PDPSimple)(nil)
 
 type PDPSimple struct {
@@ -35,7 +36,7 @@ func (pdp *PDPSimple) CreateParticipantProxyData(p *data.ParticipantProxyData, w
 	return nil
 }
 
-func (pdp *PDPSimple) Init(participant IParticipant) bool {
+func (pdp *PDPSimple) Init(participant protocol.IParticipant) bool {
 	// The DATA(p) must be processed after EDP endpoint creation
 	if !pdp.initPDP(participant) {
 		return false
@@ -43,7 +44,7 @@ func (pdp *PDPSimple) Init(participant IParticipant) bool {
 
 	//INIT EDP
 	if pdp.discovery.DiscoveryConfig.UseStaticEndpoint {
-
+		log.Fatalln("not impl")
 	}
 
 	return false

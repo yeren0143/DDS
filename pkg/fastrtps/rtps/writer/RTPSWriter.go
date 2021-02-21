@@ -5,6 +5,7 @@ import (
 
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/core/policy"
+	"github.com/yeren0143/DDS/fastrtps/message"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
 	"github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol"
@@ -24,7 +25,9 @@ type writerCallback = func() uint32
 // RTPSWriter manages the sending of data to the readers. Is always associated with a HistoryCache.
 type IRTPSWriter interface {
 	endpoint.IEndpoint
+	message.IRtpsMsgWriter
 	IRTPSMessageSender
+
 
 	// Process an incoming ACKNACK submessage.
 	// result true if the writer could process the submessage. Only valid when returned value is true.
@@ -49,6 +52,8 @@ type IRTPSWriter interface {
 	UnsentChangeAddedToHistory(aChange *common.CacheChangeT, maxBlockingTime common.Time)
 
 	AddFlowController(controller flowcontrol.IFlowController)
+
+	SendAnyUnsentChanges()
 }
 
 type rtpsWriterBase struct {

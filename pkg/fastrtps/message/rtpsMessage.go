@@ -36,3 +36,30 @@ type SubmessageHeaderT struct {
 	Flags            common.SubmessageFlag
 	IsLast           bool
 }
+
+type IRtpsMsgReader interface {
+	AcceptMessagesToUnknownReaders() bool
+	ProcessHeartbeatMsg(writerGUID *common.GUIDT,
+		hbCount uint32,
+		firstSN *common.SequenceNumberT,
+		lastSN *common.SequenceNumberT,
+		finalFlag bool,
+		livelinessFlag bool) bool
+
+	ProcessGapMsg(writerGUID *common.GUIDT,
+		gapStart *common.SequenceNumberT,
+		gapList *common.SequenceNumberSet) bool
+}
+
+type IRtpsMsgWriter interface {
+	// Process an incoming ACKNACK submessage.
+	// result true if the writer could process the submessage. Only valid when returned value is true.
+	// valid true when the submessage was destinated to this writer, false otherwise.
+	ProcessAcknack(writerGUID, readerGUID *common.GUIDT, ackCount uint32,
+		snSet *common.SequenceNumberSet, finalFlag bool) (result, valid bool)
+
+	// result true if the writer could process the submessage. Only valid when returned value is true
+	// true when the submessage was destinated to this writer, false otherwise.
+	ProcessNackFrag(writerGUID, readerGUID *common.GUIDT, ackCount uint32,
+		seqNum *common.SequenceNumberT, fragmentsState *common.FragmentNumberSet) (result, valid bool)
+}

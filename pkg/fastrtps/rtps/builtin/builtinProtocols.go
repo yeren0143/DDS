@@ -6,6 +6,7 @@ import (
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/participant"
+	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
 	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
 	"github.com/yeren0143/DDS/fastrtps/rtps/network"
 )
@@ -15,8 +16,8 @@ import (
 //Protocols that contains builtin endpoints implementing the discovery and liveliness protocols.
 type Protocols struct {
 	Att                             *attributes.BuiltinAttributes
-	participantImpl                 participant.IParticipant
-	PDP                             participant.IPDP
+	participantImpl                 protocol.IParticipant
+	PDP                             protocol.IPDP
 	WLP                             endpoint.IWlp
 	TLM                             interface{} //TypeLookupManager
 	MetatrafficMulticastLocatorList *common.LocatorList
@@ -66,7 +67,7 @@ func (protocol *Protocols) GetInitialPeers() *common.LocatorList {
 }
 
 //InitBuiltinProtocol Initialize the builtin protocols.
-func (protocol *Protocols) InitBuiltinProtocol(ppart participant.IParticipant, att *attributes.BuiltinAttributes) bool {
+func (protocol *Protocols) InitBuiltinProtocol(ppart protocol.IParticipant, att *attributes.BuiltinAttributes) bool {
 	protocol.participantImpl = ppart
 	protocol.Att = att
 	protocol.MetatrafficMulticastLocatorList = att.MetatrafficMulticastLocatorList

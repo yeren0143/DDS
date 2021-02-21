@@ -10,58 +10,58 @@ import (
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
+	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
 	"github.com/yeren0143/DDS/fastrtps/rtps/history"
-	"github.com/yeren0143/DDS/fastrtps/rtps/network"
 	"github.com/yeren0143/DDS/fastrtps/rtps/reader"
 	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 	"github.com/yeren0143/DDS/fastrtps/rtps/writer"
 	"github.com/yeren0143/DDS/fastrtps/utils"
 )
 
-type IParticipant interface {
-	GetAttributes() *attributes.RTPSParticipantAttributes
-	GetGuid() *common.GUIDT
-	CreateReader(param *attributes.ReaderAttributes, payload history.IPayloadPool,
-		hist *history.ReaderHistory, listen reader.IReaderListener,
-		entityID *common.EntityIDT, isBuiltin bool, enable bool) (bool, reader.IRTPSReader)
-	CreateWriter(param *attributes.WriterAttributes, payload history.IPayloadPool,
-		hist *history.WriterHistory, listen writer.IWriterListener,
-		entityID *common.EntityIDT, isBuiltin bool) (writer.IRTPSWriter, bool)
-	NetworkFactory() *network.NetFactory
-	GetEventResource() *resources.ResourceEvent
-}
+// type IParticipant interface {
+// 	GetAttributes() *attributes.RTPSParticipantAttributes
+// 	GetGuid() *common.GUIDT
+// 	CreateReader(param *attributes.ReaderAttributes, payload history.IPayloadPool,
+// 		hist *history.ReaderHistory, listen reader.IReaderListener,
+// 		entityID *common.EntityIDT, isBuiltin bool, enable bool) (bool, reader.IRTPSReader)
+// 	CreateWriter(param *attributes.WriterAttributes, payload history.IPayloadPool,
+// 		hist *history.WriterHistory, listen writer.IWriterListener,
+// 		entityID *common.EntityIDT, isBuiltin bool) (writer.IRTPSWriter, bool)
+// 	NetworkFactory() *network.NetFactory
+// 	GetEventResource() *resources.ResourceEvent
+// }
 
-type IPDP interface {
-	Init(participant IParticipant) bool
+// type IPDP interface {
+// 	Init(participant protocol.IParticipant) bool
 
-	/**
-	 * Creates an initializes a new participant proxy from a DATA(p) raw info
-	 * @param p from DATA msg deserialization
-	 * @param writer_guid GUID of originating writer
-	 * @return new ParticipantProxyData * or nullptr on failure
-	 */
-	CreateParticipantProxyData(p *data.ParticipantProxyData, writer_guid *common.GUIDT) *data.ParticipantProxyData
+// 	/**
+// 	 * Creates an initializes a new participant proxy from a DATA(p) raw info
+// 	 * @param p from DATA msg deserialization
+// 	 * @param writer_guid GUID of originating writer
+// 	 * @return new ParticipantProxyData * or nullptr on failure
+// 	 */
+// 	CreateParticipantProxyData(p *data.ParticipantProxyData, writer_guid *common.GUIDT) *data.ParticipantProxyData
 
-	// Create the SPDP Writer and Reader
-	// True if correct
-	CreatePDPEndpoints() bool
+// 	// Create the SPDP Writer and Reader
+// 	// True if correct
+// 	CreatePDPEndpoints() bool
 
-	// This method assigns remote endpoints to the builtin endpoints defined in this protocol.
-	// It also calls the corresponding methods in EDP and WLP.
-	// * @param pdata Pointer to the RTPSParticipantProxyData object.
-	AssignRemoteEndpoints(pdata *data.ParticipantProxyData)
+// 	// This method assigns remote endpoints to the builtin endpoints defined in this protocol.
+// 	// It also calls the corresponding methods in EDP and WLP.
+// 	// * @param pdata Pointer to the RTPSParticipantProxyData object.
+// 	AssignRemoteEndpoints(pdata *data.ParticipantProxyData)
 
-	// Override to match additional endpoints to PDP. Like EDP or WLP.
-	// @param pdata Pointer to the ParticipantProxyData object.
-	NotifyAboveRemoteEndpoints(pdata *data.ParticipantProxyData)
+// 	// Override to match additional endpoints to PDP. Like EDP or WLP.
+// 	// @param pdata Pointer to the ParticipantProxyData object.
+// 	NotifyAboveRemoteEndpoints(pdata *data.ParticipantProxyData)
 
-	// Remove remote endpoints from the participant discovery protocol
-	// @param pdata Pointer to the ParticipantProxyData to remove
-	RemoveRemoteEndpoints(pdata *data.ParticipantProxyData)
+// 	// Remove remote endpoints from the participant discovery protocol
+// 	// @param pdata Pointer to the ParticipantProxyData to remove
+// 	RemoveRemoteEndpoints(pdata *data.ParticipantProxyData)
 
-	// Force the sending of our local DPD to all remote RTPSParticipants and multicast Locators.
-	AnnounceParticipantState(newChange bool, dispose bool, wparams *common.WriteParamsT)
-}
+// 	// Force the sending of our local DPD to all remote RTPSParticipants and multicast Locators.
+// 	AnnounceParticipantState(newChange bool, dispose bool, wparams *common.WriteParamsT)
+// }
 
 type IPDPParent interface {
 	UpdateMetatrafficLocators(loclist *common.LocatorList) bool
@@ -92,7 +92,7 @@ type WriterProxyDataVector struct {
 
 type pdpBase struct {
 	builtin         IPDPParent
-	rtpsParticipant IParticipant
+	rtpsParticipant protocol.IParticipant
 	discovery       *attributes.BuiltinAttributes
 	writer          writer.IRTPSWriter
 	reader          reader.IRTPSReader
@@ -207,7 +207,7 @@ func (pdp *pdpBase) GetLocalParticipantProxyData() *data.ParticipantProxyData {
 	return pdp.participantProxies.Proxies[0]
 }
 
-func (pdp *pdpBase) initPDP(participant IParticipant) bool {
+func (pdp *pdpBase) initPDP(participant protocol.IParticipant) bool {
 	log.Println("Beginning")
 	pdp.rtpsParticipant = participant
 	pdp.discovery = participant.GetAttributes().Builtin
@@ -244,8 +244,20 @@ func (pdp *pdpBase) initPDP(participant IParticipant) bool {
 	}
 	pdp.resendParticipantInfoEvent = resources.NewTimedEvent(pdp.rtpsParticipant.GetEventResource(), &callback, 0)
 
-	log.Fatalln("not impl")
-	return false
+	pdp.setInitialAnnouncementInterval()
+	return true
+}
+
+func (pdp *pdpBase) setInitialAnnouncementInterval() {
+	if pdp.initialAnnouncements.Count > 0 && pdp.initialAnnouncements.Period.Less(common.KTimeZero) {
+		// Force a small interval (1ms) between initial announcements
+		log.Println("Initial announcement period is not strictly positive. Changing to 1ms.")
+		pdp.initialAnnouncements.Period = common.DurationT{
+			Seconds: 0,
+			Nanosec: 1000000,
+		}
+	}
+	pdp.setNextAnnouncementInterval()
 }
 
 func (pdp *pdpBase) setNextAnnouncementInterval() {

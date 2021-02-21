@@ -1,6 +1,7 @@
 package participant
 
 import (
+	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
 	"github.com/yeren0143/DDS/fastrtps/rtps/reader"
 )
 
@@ -15,6 +16,6 @@ type PDPListener struct {
 	reader.ReaderListenerBase
 }
 
-func newPDPListener(parent IPDP) *PDPListener {
+func newPDPListener(parent protocol.IPDP) *PDPListener {
 	return &PDPListener{}
 }
