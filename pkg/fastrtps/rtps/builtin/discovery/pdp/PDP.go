@@ -1,4 +1,4 @@
-package participant
+package pdp
 
 import (
 	"log"
@@ -10,6 +10,7 @@ import (
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
+	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/edp"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
 	"github.com/yeren0143/DDS/fastrtps/rtps/history"
 	"github.com/yeren0143/DDS/fastrtps/rtps/reader"
@@ -96,6 +97,7 @@ type pdpBase struct {
 	discovery       *attributes.BuiltinAttributes
 	writer          writer.IRTPSWriter
 	reader          reader.IRTPSReader
+	EDP             edp.IEDP
 	// Number of participant proxy data objects created
 	participantProxiesNumber uint32
 	// Registered RTPSParticipants (including the local one, that is the first one.)
@@ -287,6 +289,13 @@ func (pdp *pdpBase) checkRemoteParticipantLiveliness(remoteParticipant *data.Par
 			return
 		}
 	}
+}
+
+func (pdp *pdpBase) AddReaderProxyData(readerGUID, participantGUID *common.GUIDT, 
+	initializer protocol.ReaderProxyDataInitFunc) *data.ReaderProxyData {
+	log.Println("Adding reader proxy data ", *readerGUID)
+	log.Fatalln("not impl")
+	return nil
 }
 
 func (pdp *pdpBase) addParticipantProxyData(participantGUID *common.GUIDT, withLeaseDuration bool) *data.ParticipantProxyData {

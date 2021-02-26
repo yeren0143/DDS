@@ -9,7 +9,7 @@ replace (
 	github.com/yeren0143/DDS/fastrtps/message => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/message
 	github.com/yeren0143/DDS/fastrtps/rtps/attributes => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/attributes
 	github.com/yeren0143/DDS/fastrtps/rtps/builtin/data => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/builtin/data
-	github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/endpoint => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/builtin/discovery/endpoint
+	github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/edp => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/builtin/discovery/edp
 	github.com/yeren0143/DDS/fastrtps/rtps/endpoint => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/endpoint
 	github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/flowcontrol
 	github.com/yeren0143/DDS/fastrtps/rtps/history => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/history
@@ -23,13 +23,3 @@ replace (
 	github.com/yeren0143/DDS/types => /home/jiayin/Desktop/DDS/DDS_go/pkg/types
 )
 
-require (
-	github.com/yeren0143/DDS/common v0.0.0
-	github.com/yeren0143/DDS/fastrtps/rtps/attributes v0.0.0-00010101000000-000000000000
-	github.com/yeren0143/DDS/fastrtps/rtps/builtin/data v0.0.0-00010101000000-000000000000
-	github.com/yeren0143/DDS/fastrtps/rtps/history v0.0.0-00010101000000-000000000000
-	github.com/yeren0143/DDS/fastrtps/rtps/network v0.0.0-00010101000000-000000000000
-	github.com/yeren0143/DDS/fastrtps/rtps/reader v0.0.0-00010101000000-000000000000
-	github.com/yeren0143/DDS/fastrtps/rtps/resources v0.0.0
-	github.com/yeren0143/DDS/fastrtps/rtps/writer v0.0.0-00010101000000-000000000000
-)

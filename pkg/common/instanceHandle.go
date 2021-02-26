@@ -18,6 +18,16 @@ func (instance *InstanceHandleT) IsDefined() bool {
 	return false
 }
 
+func (instance *InstanceHandleT) InitWithGUID(guid *GUIDT) {
+	for i:= 0; i < 16; i++ {
+		if i < 12 {
+			instance.Value[i] = guid.Prefix.Value[i]
+		} else {
+			instance.Value[i] = guid.EntityID.Value[i - 12]
+		}
+	}
+}
+
 func CreateInstanceHandle(guid GUIDT) InstanceHandleT {
 	var instance InstanceHandleT
 	for i := 0; i < 12; i++ {

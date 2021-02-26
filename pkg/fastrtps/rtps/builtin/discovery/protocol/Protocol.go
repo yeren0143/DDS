@@ -24,6 +24,7 @@ type IParticipant interface {
 	GetEventResource() *resources.ResourceEvent
 }
 
+type ReaderProxyDataInitFunc = func(*data.ReaderProxyData, bool, *data.ParticipantProxyData) bool
 type IPDP interface {
 	Init(participant IParticipant) bool
 
@@ -54,4 +55,6 @@ type IPDP interface {
 
 	// Force the sending of our local DPD to all remote RTPSParticipants and multicast Locators.
 	AnnounceParticipantState(newChange bool, dispose bool, wparams *common.WriteParamsT)
+
+	AddReaderProxyData(readerGUID, participantGUID *common.GUIDT, initializer ReaderProxyDataInitFunc) *data.ReaderProxyData
 }

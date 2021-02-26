@@ -5,7 +5,7 @@ import (
 
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/participant"
+	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/pdp"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
 	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
 	"github.com/yeren0143/DDS/fastrtps/rtps/network"
@@ -84,7 +84,7 @@ func (protocol *Protocols) InitBuiltinProtocol(ppart protocol.IParticipant, att 
 		log.Fatalln("No participant discovery protocol specified")
 		return true
 	case attributes.KDisPSimple:
-		protocol.PDP = participant.NewPDPSimple(protocol, allocation)
+		protocol.PDP = pdp.NewPDPSimple(protocol, allocation)
 	case attributes.KDisPExternal:
 		log.Fatalln("Flag only present for debugging purposes")
 		return false

@@ -1,4 +1,4 @@
-package participant
+package pdp
 
 import (
 	"log"
@@ -8,6 +8,7 @@ import (
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
+	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/edp"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
 	"github.com/yeren0143/DDS/fastrtps/rtps/history"
 	"github.com/yeren0143/DDS/fastrtps/rtps/writer"
@@ -45,9 +46,18 @@ func (pdp *PDPSimple) Init(participant protocol.IParticipant) bool {
 	//INIT EDP
 	if pdp.discovery.DiscoveryConfig.UseStaticEndpoint {
 		log.Fatalln("not impl")
+	} else if pdp.discovery.DiscoveryConfig.UseSimpleEndpoint {
+		pdp.EDP = edp.NewEDPSimple(pdp, pdp.rtpsParticipant)
+		if !pdp.EDP.InitEDP(pdp.discovery) {
+			log.Fatalln("Endpoint discovery configuration failed")
+			return false
+		}
+	} else {
+		log.Fatalln("No EndpointDiscoveryProtocol defined")
+		return false
 	}
 
-	return false
+	return true
 }
 
 func (pdp *PDPSimple) CreatePDPEndpoints() bool {

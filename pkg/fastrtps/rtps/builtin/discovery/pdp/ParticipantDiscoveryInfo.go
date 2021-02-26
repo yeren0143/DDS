@@ -1,4 +1,4 @@
-package participant
+package pdp
 
 import "github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
 

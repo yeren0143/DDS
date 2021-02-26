@@ -12,5 +12,5 @@ replace (
 	github.com/yeren0143/DDS/fastrtps/rtps/transport => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/transport
 	github.com/yeren0143/DDS/fastrtps/utils => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/utils
 	github.com/yeren0143/DDS/types => /home/jiayin/Desktop/DDS/DDS_go/pkg/types
-	github.com/yeren0143/DDS/rtps/builtin/discovery/participant => /home/jiayin/Desktop/DDS/DDS_go/pkg/rtps/builtin/discovery/participant
+	github.com/yeren0143/DDS/rtps/builtin/discovery/pdp => /home/jiayin/Desktop/DDS/DDS_go/pkg/rtps/builtin/discovery/pdp
 )

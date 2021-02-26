@@ -1,8 +1,9 @@
 package attributes
 
 import (
-	"github.com/yeren0143/DDS/fastrtps/utils"
 	"math"
+
+	"github.com/yeren0143/DDS/fastrtps/utils"
 )
 
 //RemoteLocatorsAllocationAttributes specified remote locators allocation attributes
@@ -14,7 +15,7 @@ type RemoteLocatorsAllocationAttributes struct {
 	 * recommended to use the highest number of local addresses found on all the systems
 	 * belonging to the same domain as this participant.
 	 */
-	MaxUnicastLocators uint64
+	MaxUnicastLocators uint32
 
 	/** Maximum number of multicast locators per remote entity.
 	 *
@@ -23,7 +24,7 @@ type RemoteLocatorsAllocationAttributes struct {
 	 * default value of 1 is usually enough, as it doesn't make sense to add more
 	 * than one multicast locator per entity.
 	 */
-	MaxMulticastLocators uint64
+	MaxMulticastLocators uint32
 }
 
 //NewRemoteLocatorsAllocationAttributes create locators allocation attributes

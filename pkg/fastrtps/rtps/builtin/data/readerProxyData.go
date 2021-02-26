@@ -41,6 +41,10 @@ func (proxy *ReaderProxyData) GetSerializedSize(includeEncapsulation bool) uint3
 	return 0
 }
 
+func (proxy *ReaderProxyData) SetAlive(isAlive bool) {
+	proxy.isAlive = isAlive
+}
+
 func (proxy *ReaderProxyData) WriteToCDRMessage(msg *common.CDRMessage, writeEncapsulation bool) bool {
 	log.Panic("not impl")
 	return false

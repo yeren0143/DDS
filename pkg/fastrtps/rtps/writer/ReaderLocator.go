@@ -54,7 +54,7 @@ func (readerLocator *ReaderLocator) Send(msg *common.CDRMessage, maxBlockingTime
 	return true
 }
 
-func NewReaderLocator(owner IRTPSWriter, maxUnicastLocatos, maxMulticastLocators uint64) *ReaderLocator {
+func NewReaderLocator(owner IRTPSWriter, maxUnicastLocatos, maxMulticastLocators uint32) *ReaderLocator {
 	var readerLocator ReaderLocator
 	readerLocator.owner = owner
 	readerLocator.participantOwner = owner.GetRtpsParticipant()
