@@ -10,6 +10,7 @@ import (
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
 	"github.com/yeren0143/DDS/fastrtps/rtps/history"
+	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 	"github.com/yeren0143/DDS/fastrtps/utils"
 )
 
@@ -70,7 +71,7 @@ type IRTPSReader interface {
 type ireaderImpl interface {
 	mayRemoveHistoryRecord(removedByLease bool) bool
 	setLastNotified(persistenceGUID *common.GUIDT, seq *common.SequenceNumberT)
-	init(payloadPool history.IPayloadPool, changePool history.IChangePool)
+	init(exactReader IRTPSReader, payloadPool history.IPayloadPool, changePool history.IChangePool)
 }
 
 type rtpsReaderBase struct {
@@ -87,6 +88,20 @@ type rtpsReaderBase struct {
 	historyState                   *ReaderHistoryState
 	livelinessKind                 policy.LivelinessQosPolicyKind
 	livelinessLeaseDuration        common.DurationT
+}
+
+func (reader *rtpsReaderBase) init(exactReader IRTPSReader, payloadPool history.IPayloadPool, changePool history.IChangePool) {
+	reader.PayloadPool = payloadPool
+	reader.ChangePool = changePool
+	reader.FixedPayloadSize = 0
+	if reader.readerHistory.Att.MemoryPolicy == resources.KPreallocatedMemoryMode {
+		reader.FixedPayloadSize = reader.readerHistory.Att.PayloadMaxSize
+	}
+
+	reader.readerHistory.Reader = exactReader
+	reader.readerHistory.Mutex = &reader.Mutex
+
+	log.Println("RTPSReader created correctly")
 }
 
 func (reader *rtpsReaderBase) AcceptMessagesToUnknownReaders() bool {

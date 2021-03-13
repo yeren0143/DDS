@@ -10,6 +10,7 @@ import (
 	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
 	"github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol"
 	"github.com/yeren0143/DDS/fastrtps/rtps/history"
+	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 )
 
 var _ history.IWriterWithHistory = (IRTPSWriter)(nil)
@@ -27,7 +28,6 @@ type IRTPSWriter interface {
 	endpoint.IEndpoint
 	message.IRtpsMsgWriter
 	IRTPSMessageSender
-
 
 	// Process an incoming ACKNACK submessage.
 	// result true if the writer could process the submessage. Only valid when returned value is true.
@@ -158,6 +158,13 @@ func (writerBase *rtpsWriterBase) NewChange(dataCdrSerializedSize writerCallback
 
 func (writerBase *rtpsWriterBase) init(payloadPool history.IPayloadPool, changePool history.IChangePool) {
 	writerBase.PayloadPool = payloadPool
+	writerBase.ChangePool = changePool
+	writerBase.FixedPayloadSize = 0
+	if writerBase.hist.Att.MemoryPolicy == resources.KPreallocatedMemoryMode {
+		writerBase.FixedPayloadSize = writerBase.hist.Att.PayloadMaxSize
+	}
+	// writerBase.hist.Writer = writerBase
+	// writerBase.hist.Mutex = &writerBase.Mutex
 	log.Println("RTPSWriter created")
 }
 

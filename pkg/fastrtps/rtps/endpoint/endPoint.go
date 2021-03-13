@@ -7,6 +7,7 @@ import (
 	"github.com/yeren0143/DDS/core/policy"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/history"
+	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 )
 
 type IWlp interface {
@@ -19,14 +20,10 @@ type IEndpointParent interface {
 	Wlp() IWlp
 	GetAttributes() *attributes.RTPSParticipantAttributes
 	CreateSenderResources(locator *common.Locator)
+	GetMinNetworkSendBufferSize() uint32
+	GetEventResource() *resources.ResourceEvent
 	SendSync(msg *common.CDRMessage, locators []common.Locator, maxBlockingTimePoint common.Time) bool
 }
-
-// type IWriterParent interface {
-// 	GetAttributes() *attributes.RTPSParticipantAttributes
-// 	Wlp() endpoint.IWlp
-// 	SendSync(msg *common.CDRMessage, locators []common.Locator, maxBlockingTimePoint common.Time) bool
-// }
 
 type IEndpoint interface {
 	GetGUID() *common.GUIDT

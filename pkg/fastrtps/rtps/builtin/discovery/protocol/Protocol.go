@@ -19,7 +19,7 @@ type IParticipant interface {
 		entityID *common.EntityIDT, isBuiltin bool, enable bool) (bool, reader.IRTPSReader)
 	CreateWriter(param *attributes.WriterAttributes, payload history.IPayloadPool,
 		hist *history.WriterHistory, listen writer.IWriterListener,
-		entityID *common.EntityIDT, isBuiltin bool) (writer.IRTPSWriter, bool)
+		entityID *common.EntityIDT, isBuiltin bool) (bool, writer.IRTPSWriter)
 	NetworkFactory() *network.NetFactory
 	GetEventResource() *resources.ResourceEvent
 }
@@ -55,6 +55,13 @@ type IPDP interface {
 
 	// Force the sending of our local DPD to all remote RTPSParticipants and multicast Locators.
 	AnnounceParticipantState(newChange bool, dispose bool, wparams *common.WriteParamsT)
+
+	// This method returns the BuiltinAttributes of the local participant.
+	BuiltinAttributes() *attributes.BuiltinAttributes
+
+	GetRTPSParticipant() IParticipant
+
+	GetLocalParticipantProxyData() *data.ParticipantProxyData
 
 	AddReaderProxyData(readerGUID, participantGUID *common.GUIDT, initializer ReaderProxyDataInitFunc) *data.ReaderProxyData
 }

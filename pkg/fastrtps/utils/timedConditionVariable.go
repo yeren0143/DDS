@@ -8,65 +8,80 @@ import (
 //TimedConditionVariable implementation
 type TimedConditionVariable struct {
 	locker sync.Locker
+	cond   *sync.Cond
 	ch     chan bool
 }
 
 //NewTimedCond ...
 func NewTimedCond(l sync.Locker) *TimedConditionVariable {
 	return &TimedConditionVariable{
-		ch:     make(chan bool),
 		locker: l,
+		cond:   sync.NewCond(l),
+		ch:     make(chan bool),
 	}
 }
 
 //Wait ...
-func (cond *TimedConditionVariable) Wait() {
-	cond.locker.Unlock()
-	<-cond.ch
-	cond.locker.Lock()
+func (timedCond *TimedConditionVariable) Wait() {
+	// cond.locker.Unlock()
+	// <-cond.ch
+	// cond.locker.Lock()
+	timedCond.cond.Wait()
 }
 
-// test 
-func (cond *TimedConditionVariable) Lock() {
-	cond.locker.Lock()
-}
+// // test
+// func (cond *TimedConditionVariable) Lock() {
+// 	cond.locker.Lock()
+// }
 
-func (cond *TimedConditionVariable) Unlock() {
-	cond.locker.Unlock()
-}
-
+// func (cond *TimedConditionVariable) Unlock() {
+// 	cond.locker.Unlock()
+// 	cond.ch <- true
+// }
 
 //WaitOrTimeout ...
-func (cond *TimedConditionVariable) WaitOrTimeout(d time.Duration) bool {
+func (timedCond *TimedConditionVariable) WaitOrTimeout(d time.Duration) bool {
+	// tmo := time.NewTimer(d)
+	// cond.locker.Unlock()
+	// var ret bool
+	// select {
+	// case <-tmo.C:
+	// 	ret = false
+	// case <-cond.ch:
+	// 	ret = true
+	// }
+
+	// if !tmo.Stop() {
+	// 	select {
+	// 	case <-tmo.C:
+	// 	default:
+	// 	}
+	// }
+	// cond.locker.Lock()
+
 	tmo := time.NewTimer(d)
-	cond.locker.Unlock()
 	var ret bool
 	select {
 	case <-tmo.C:
 		ret = false
-	case <-cond.ch:
+		timedCond.locker.Unlock()
+		timedCond.locker.Lock()
+	case <-timedCond.ch:
 		ret = true
 	}
-
-	if !tmo.Stop() {
-		select {
-		case <-tmo.C:
-		default:
-		}
-	}
-	cond.locker.Lock()
 
 	return ret
 }
 
 //Signal ...
-func (cond *TimedConditionVariable) Signal() {
-	cond.signal()
+func (timedCond *TimedConditionVariable) Signal() {
+	timedCond.cond.Signal()
+	timedCond.signal()
 }
 
-func (cond *TimedConditionVariable) signal() bool {
+func (timedCond *TimedConditionVariable) signal() bool {
 	select {
-	case cond.ch <- true:
+	case timedCond.ch <- true:
 		return true
 	default:
 		return false
@@ -74,10 +89,11 @@ func (cond *TimedConditionVariable) signal() bool {
 }
 
 //Broadcast ...
-func (cond *TimedConditionVariable) Broadcast() {
+func (timedCond *TimedConditionVariable) Broadcast() {
+	timedCond.cond.Broadcast()
 	for {
 		// Stop when we run out of waiters
-		if !cond.signal() {
+		if !timedCond.signal() {
 			return
 		}
 	}

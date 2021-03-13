@@ -1,11 +1,14 @@
 package writer
 
 import (
+	"log"
+
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/core/policy"
 	"github.com/yeren0143/DDS/core/status"
 )
 
+// Class WriterListener with virtual method so the user can implement callbacks to certain events.
 type IWriterListener interface {
 	OnWriterMatched(awriter IRTPSWriter, info *common.MatchingInfo)
 
@@ -24,4 +27,23 @@ type IWriterListener interface {
 
 	// Method called when the livelivess of a writer is lost
 	OnLivelinessLost(awriter IRTPSWriter, status *status.LivelinessLostStatus)
+}
+
+type WriterListenerBase struct {
+}
+
+func (listener *WriterListenerBase) OnWriterMatched(awriter IRTPSWriter, info *common.MatchingInfo) {
+	log.Println("nothing doing in base class")
+}
+
+func (listener *WriterListenerBase) OnOfferedIncompatibleQos(awriter IRTPSWriter, qos policy.QosMask) {
+	log.Println("nothing doing in base class")
+}
+
+func (listener *WriterListenerBase) OnWriterChangeReceivedByAll(awriter IRTPSWriter, aChange *common.CacheChangeT) {
+	log.Println("nothing doing in base class")
+}
+
+func (listener *WriterListenerBase) OnLivelinessLost(awriter IRTPSWriter, status *status.LivelinessLostStatus) {
+	log.Println("nothing doing in base class")
 }

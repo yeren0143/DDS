@@ -46,7 +46,7 @@ func (statelessWriter *StatelessWriter) getBuiltinGuid() {
 }
 
 func (statelessWriter *StatelessWriter) SendAnyUnsentChanges() {
-	
+
 }
 
 func (statelessWriter *StatelessWriter) init(parent endpoint.IEndpointParent, att *attributes.WriterAttributes) {
@@ -65,6 +65,8 @@ func NewStatelessWriter(parent endpoint.IEndpointParent, guid *common.GUIDT,
 	var awriter StatelessWriter
 	awriter.rtpsWriterBase = *newRtpsWriterBase(parent, guid, att, payloadPool, changePool, hist, wlisten)
 	//changeSize := history.ResourceLimitsFromHistory(hist.Att)
+	awriter.hist.Writer = &awriter
+	awriter.hist.Mutex = &awriter.Mutex
 	awriter.init(parent, att)
 	return &awriter
 }

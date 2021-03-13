@@ -264,7 +264,6 @@ func (udp *UDPv4Transport) OpenAndBindInputSocket(sIP string, port uint16, isMul
 	}
 
 	return socketMC
-
 }
 
 func (udp *UDPv4Transport) OpenAndBindInputSockets(locator *common.Locator, receiver ITransportReceiver,

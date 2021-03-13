@@ -36,7 +36,7 @@ func (config *PoolConfig) GetPayloadInitialSize() uint32 {
 	return config.PayloadInitialSize
 }
 
-func FromHistoryAttributes(history *attributes.HistoryAttributes) PoolConfig {
+func FromHistoryAttributes(history *attributes.HistoryAttributes) *PoolConfig {
 	var config PoolConfig
 	config.basicPoolConfig = basicPoolConfig{
 		MemoryPolicy:       history.MemoryPolicy,
@@ -62,5 +62,5 @@ func FromHistoryAttributes(history *attributes.HistoryAttributes) PoolConfig {
 		config.MaximumSize = history.MaximumReservedCaches + 1
 	}
 
-	return config
+	return &config
 }

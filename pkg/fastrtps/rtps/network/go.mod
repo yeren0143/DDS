@@ -16,3 +16,11 @@ replace (
 	github.com/yeren0143/DDS/fastrtps/utils => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/utils
 	github.com/yeren0143/DDS/types => /home/jiayin/Desktop/DDS/DDS_go/pkg/types
 )
+
+require (
+	github.com/yeren0143/DDS/common v0.0.0
+	github.com/yeren0143/DDS/fastrtps/message v0.0.0-00010101000000-000000000000
+	github.com/yeren0143/DDS/fastrtps/rtps/attributes v0.0.0-00010101000000-000000000000
+	github.com/yeren0143/DDS/fastrtps/rtps/transport v0.0.0-00010101000000-000000000000
+	github.com/yeren0143/DDS/fastrtps/utils v0.0.0
+)

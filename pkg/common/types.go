@@ -38,7 +38,6 @@ const (
 )
 
 type DurabilityKindT int8
-
 const (
 	KVolatile DurabilityKindT = iota
 	KTransientLocal
@@ -47,14 +46,12 @@ const (
 )
 
 type EndpointKindT int8
-
 const (
 	KReader EndpointKindT = iota
 	KWriter
 )
 
 type TopicKindT int8
-
 const (
 	KNoKey TopicKindT = iota
 	KWithKey

@@ -57,6 +57,10 @@ func (factory *NetFactory) GetMaxMessageSizeBetweenTransports() uint32 {
 	return factory.maxMessageSizeBetweenTransports
 }
 
+func (factory *NetFactory) GetMinSendBufferSize() uint32 {
+	return factory.minSendBufferSize
+}
+
 //GetDefaultMetatrafficUnicastLocators adds locators to the metatraffic unicast list.
 func (factory *NetFactory) GetDefaultMetatrafficUnicastLocators(locators *common.LocatorList, port uint32) bool {
 	result := false

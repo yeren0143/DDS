@@ -23,6 +23,10 @@ func (t *Time) Less(value Time) bool {
 	}
 }
 
+func (t *Time) MilliSeconds() int64 {
+	return int64(t.Seconds * 1000) + int64(t.Nanosec) / 1000
+}
+
 func CurrentTime() Time {
 	timeStamp := time.Now()
 	return Time{

@@ -78,8 +78,8 @@ func (pdp *PDPSimple) CreatePDPEndpoints() bool {
 	}
 
 	readerPoolCfg := history.FromHistoryAttributes(&hatt)
-	pdp.readerPayloadPool = history.GetTopicPayloadPoolProxy("DCPSParticipant", &readerPoolCfg)
-	pdp.readerPayloadPool.ReserveHistory(&readerPoolCfg, true)
+	pdp.readerPayloadPool = history.GetTopicPayloadPoolProxy("DCPSParticipant", readerPoolCfg)
+	pdp.readerPayloadPool.ReserveHistory(readerPoolCfg, true)
 
 	pdp.pdpReaderHistory = history.NewReaderHistory(&hatt)
 	var ratt attributes.ReaderAttributes
@@ -103,7 +103,7 @@ func (pdp *PDPSimple) CreatePDPEndpoints() bool {
 		log.Fatal("SimplePDP Reader creation failed")
 		pdp.pdpReaderHistory = nil
 		pdp.listener = nil
-		pdp.readerPayloadPool.ReleaseHistory(&readerPoolCfg, true)
+		pdp.readerPayloadPool.ReleaseHistory(readerPoolCfg, true)
 		history.ReleaseTopicPayloadPool(pdp.readerPayloadPool)
 		pdp.readerPayloadPool = nil
 		return false
@@ -116,8 +116,8 @@ func (pdp *PDPSimple) CreatePDPEndpoints() bool {
 	hatt.MemoryPolicy = pdp.builtin.GetBuiltinAttributes().WriterHistoryMemoryPolicy
 
 	writerPoolCfg := history.FromHistoryAttributes(&hatt)
-	pdp.writerPayloadPool = history.GetTopicPayloadPoolProxy("DCPSParticipant", &writerPoolCfg)
-	pdp.writerPayloadPool.ReserveHistory(&writerPoolCfg, false)
+	pdp.writerPayloadPool = history.GetTopicPayloadPoolProxy("DCPSParticipant", writerPoolCfg)
+	pdp.writerPayloadPool.ReserveHistory(writerPoolCfg, false)
 
 	pdp.pdpWriterHistory = history.NewWriterHistory(&hatt)
 	watt := attributes.NewWriterAttributes()
@@ -134,7 +134,7 @@ func (pdp *PDPSimple) CreatePDPEndpoints() bool {
 	}
 
 	//var wout writer.IRTPSWriter
-	wout, ok := pdp.rtpsParticipant.CreateWriter(watt, pdp.writerPayloadPool, pdp.pdpWriterHistory, nil,
+	ok, wout := pdp.rtpsParticipant.CreateWriter(watt, pdp.writerPayloadPool, pdp.pdpWriterHistory, nil,
 		common.KEntityIDSPDPWriter, true)
 	if ok {
 		pdp.writer = wout
@@ -153,7 +153,7 @@ func (pdp *PDPSimple) CreatePDPEndpoints() bool {
 	} else {
 		log.Fatalln("SimplePDP Writer creation failed")
 		pdp.pdpWriterHistory = nil
-		pdp.writerPayloadPool.ReleaseHistory(&writerPoolCfg, false)
+		pdp.writerPayloadPool.ReleaseHistory(writerPoolCfg, false)
 		history.ReleaseTopicPayloadPool(pdp.writerPayloadPool)
 		pdp.writerPayloadPool = nil
 		return false

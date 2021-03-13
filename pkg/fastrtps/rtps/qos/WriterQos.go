@@ -7,6 +7,5 @@ package qos
  * Please consult each of them to check for implementation details and default values.
  * @ingroup FASTRTPS_ATTRIBUTES_MODULE
  */
- type WriterQos struct {
-	 
- }
+type WriterQos struct {
+}

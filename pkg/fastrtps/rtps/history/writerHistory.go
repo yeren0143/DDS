@@ -23,7 +23,7 @@ var _ historyImpl = (*WriterHistory)(nil)
 type WriterHistory struct {
 	historyBase
 	lastCacheChangeSeqNum common.SequenceNumberT
-	pwriter               IWriterWithHistory
+	Writer                IWriterWithHistory
 }
 
 func (wHistory *WriterHistory) AddChange(aChange *common.CacheChangeT, wparams *common.WriteParamsT) bool {
@@ -32,7 +32,7 @@ func (wHistory *WriterHistory) AddChange(aChange *common.CacheChangeT, wparams *
 
 // Remove the CacheChange_t with the minimum sequenceNumber.
 func (wHistory *WriterHistory) RemoveMinChange() bool {
-	if wHistory.pwriter == nil || wHistory.Mutex == nil {
+	if wHistory.Writer == nil || wHistory.Mutex == nil {
 		log.Fatalln("You need to create a Writer with this History before removing any changes")
 		return false
 	}
@@ -47,16 +47,16 @@ func (wHistory *WriterHistory) RemoveMinChange() bool {
 
 func (wHistory *WriterHistory) addChange(aChange *common.CacheChangeT, wparams *common.WriteParamsT,
 	maxBlockingTime common.Time) bool {
-	if wHistory.pwriter == nil || wHistory.Mutex == nil {
+	if wHistory.Writer == nil || wHistory.Mutex == nil {
 		log.Fatalln("You need to create a Writer with this History before adding any changes")
 		return false
 	}
 
 	wHistory.Mutex.Lock()
 	defer wHistory.Mutex.Unlock()
-	if aChange.WriterGUID != *wHistory.pwriter.GetGUID() {
+	if aChange.WriterGUID != *wHistory.Writer.GetGUID() {
 		log.Fatalln("Change writerGUID ", aChange.WriterGUID,
-			" different than Writer GUID ", wHistory.pwriter.GetGUID())
+			" different than Writer GUID ", wHistory.Writer.GetGUID())
 		return false
 	}
 	if wHistory.Att.MemoryPolicy == resources.KPreallocatedMemoryMode &&
@@ -88,19 +88,19 @@ func (wHistory *WriterHistory) addChange(aChange *common.CacheChangeT, wparams *
 
 	log.Println("Change ", aChange.SequenceNumber, " added with ",
 		aChange.SerializedPayload.Length, " bytes")
-	wHistory.pwriter.UnsentChangeAddedToHistory(aChange, maxBlockingTime)
+	wHistory.Writer.UnsentChangeAddedToHistory(aChange, maxBlockingTime)
 	return true
 }
 
 func (wHistory *WriterHistory) doReleaseCache(ch *common.CacheChangeT) {
-	wHistory.pwriter.ReleaseChange(ch)
+	wHistory.Writer.ReleaseChange(ch)
 }
 
 func (wHistory *WriterHistory) doReserveCache(size uint32) (*common.CacheChangeT, bool) {
 	callback := func() uint32 {
 		return size
 	}
-	aChange := wHistory.pwriter.NewChange(callback, common.KAlive, common.KInstanceHandleUnknown)
+	aChange := wHistory.Writer.NewChange(callback, common.KAlive, common.KInstanceHandleUnknown)
 	return aChange, aChange != nil
 }
 

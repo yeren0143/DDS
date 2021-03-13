@@ -8,7 +8,6 @@ import (
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
 	"github.com/yeren0143/DDS/fastrtps/rtps/history"
-	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 )
 
 var _ IRTPSReader = (*StatelessReader)(nil)
@@ -235,19 +234,19 @@ func (statelessReader *StatelessReader) ProcessDataFragMsg(aChange *common.Cache
 	return true
 }
 
-func (statelessReader *StatelessReader) init(payloadPool history.IPayloadPool, changePool history.IChangePool) {
-	statelessReader.PayloadPool = payloadPool
-	statelessReader.ChangePool = changePool
-	statelessReader.FixedPayloadSize = 0
-	if statelessReader.readerHistory.Att.MemoryPolicy == resources.KPreallocatedMemoryMode {
-		statelessReader.FixedPayloadSize = statelessReader.readerHistory.Att.PayloadMaxSize
-	}
+// func (statelessReader *StatelessReader) init(payloadPool history.IPayloadPool, changePool history.IChangePool) {
+// 	statelessReader.PayloadPool = payloadPool
+// 	statelessReader.ChangePool = changePool
+// 	statelessReader.FixedPayloadSize = 0
+// 	if statelessReader.readerHistory.Att.MemoryPolicy == resources.KPreallocatedMemoryMode {
+// 		statelessReader.FixedPayloadSize = statelessReader.readerHistory.Att.PayloadMaxSize
+// 	}
 
-	statelessReader.readerHistory.Reader = statelessReader
-	statelessReader.readerHistory.Mutex = &statelessReader.Mutex
+// 	statelessReader.readerHistory.Reader = statelessReader
+// 	statelessReader.readerHistory.Mutex = &statelessReader.Mutex
 
-	log.Println("RTPSReader created correctly")
-}
+// 	log.Println("RTPSReader created correctly")
+// }
 
 func NewStatelessReader(parent endpoint.IEndpointParent, guid *common.GUIDT, att *attributes.ReaderAttributes,
 	payloadPool history.IPayloadPool, hist *history.ReaderHistory, rlisten IReaderListener) *StatelessReader {
@@ -256,6 +255,6 @@ func NewStatelessReader(parent endpoint.IEndpointParent, guid *common.GUIDT, att
 	retReader.rtpsReaderBase = *NewRtpsReaderBase(parent, guid, att, payloadPool, aChangePool, hist, rlisten)
 	retReader.rtpsReaderBase.impl = &retReader
 	retReader.matchedWriters = make([]remoteWriterInfoT, att.MatchedWritersAllocation.Initial)
-	retReader.init(payloadPool, aChangePool)
+	retReader.init(&retReader, payloadPool, aChangePool)
 	return &retReader
 }

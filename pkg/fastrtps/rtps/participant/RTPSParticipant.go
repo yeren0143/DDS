@@ -45,7 +45,7 @@ type RTPSParticipant struct {
 	Att                       *attributes.RTPSParticipantAttributes
 	GUID                      common.GUIDT
 	PersistenceGUID           common.GUIDT // Persistence guid of the RTPSParticipant
-	EventThr                  resources.ResourceEvent
+	eventThr                  *resources.ResourceEvent
 	BuiltinProtocols          *builtin.Protocols
 	ResSemaphore              *utils.Semaphore // Semaphore to wait for the listen thread creation.
 	IDCounter                 uint32           // Id counter to correctly assign the ids to writers and readers.
@@ -106,7 +106,7 @@ func (participant *RTPSParticipant) AssertRemoteParticipantLiveliness(remoteGUID
 
 //Enable Create receiver resources and start builtin protocols
 func (participant *RTPSParticipant) Enable() {
-	if participant.BuiltinProtocols.InitBuiltinProtocol(participant, participant.Att.Builtin) == false {
+	if !participant.BuiltinProtocols.InitBuiltinProtocol(participant, participant.Att.Builtin) {
 		log.Fatal("The builtin protocols were not correctly initialized")
 	}
 
@@ -145,8 +145,44 @@ func (participant *RTPSParticipant) applyLocatorAdaptRule(loc *common.Locator) *
 	and consequently assignEndpoint2LocatorList
 	@param pend - Pointer to the endpoint which triggered the creation of the Receivers
 */
-func createAndAssociateReceiverswithEndpoint(pend endpoint.IEndpoint) bool {
-	return false
+func (participant *RTPSParticipant) createAndAssociateReceiverswithEndpoint(pend endpoint.IEndpoint) bool {
+	att := pend.GetAttributes()
+	if att.UnicastLocatorList.Length() == 0 && att.MulticastLocatorList.Length() == 0 {
+		att.UnicastLocatorList.Append(participant.Att.DefaultUnicastLocatorList)
+	}
+	participant.createReceiverResources(&att.UnicastLocatorList, false, true)
+	participant.createReceiverResources(&att.MulticastLocatorList, false, true)
+
+	// Associate the Endpoint with ReceiverControlBlock
+	participant.assignEndpointListenResources(pend)
+
+	return true
+}
+
+// Assign an endpoint to the ReceiverResources, based on its LocatorLists.
+// RECEIVER RESOURCE METHODS
+func (participant *RTPSParticipant) assignEndpointListenResources(endp endpoint.IEndpoint) bool {
+	/* No need to check for emptiness on the lists, as it was already done on part function
+	   In case are using the default list of Locators they have already been embedded to the parameters
+	*/
+	participant.assignEndpoint2LocatorList(endp, &endp.GetAttributes().UnicastLocatorList)
+	participant.assignEndpoint2LocatorList(endp, &endp.GetAttributes().MulticastLocatorList)
+	return true
+}
+
+// Assign an endpoint to the ReceiverResources as specified specifically on parameter list
+func (participant *RTPSParticipant) assignEndpoint2LocatorList(endp endpoint.IEndpoint, list *common.LocatorList) bool {
+	for _, item := range list.Locators {
+		participant.receiverResourceListMutex.Lock()
+		for rcvControlBlock := range participant.receiverResourceList {
+			if rcvControlBlock.ReceiverRes.SupportsLocator(&item) {
+				rcvControlBlock.MsgReceiver.AssociateEndpoint(endp)
+			}
+		}
+		participant.receiverResourceListMutex.Unlock()
+	}
+
+	return true
 }
 
 func (participant *RTPSParticipant) createReceiverResources(locatorList *common.LocatorList,
@@ -328,32 +364,39 @@ type createWriterCallback = func(guid *common.GUIDT, param *attributes.WriterAtt
 
 func (participant *RTPSParticipant) CreateWriter(param *attributes.WriterAttributes, payloadPool history.IPayloadPool,
 	hist *history.WriterHistory, listen writer.IWriterListener,
-	entityID *common.EntityIDT, isBuiltin bool) (writer.IRTPSWriter, bool) {
+	entityID *common.EntityIDT, isBuiltin bool) (bool, writer.IRTPSWriter) {
 	if payloadPool == nil {
 		log.Fatalln("Trying to create writer with null payload pool")
-		return nil, false
+		return false, nil
 	}
 
 	callback := func(guid *common.GUIDT, pparam *attributes.WriterAttributes,
 		persistenceSrv persistence.IPersistenceService, isReliable bool) writer.IRTPSWriter {
 		if isReliable {
 			if persistenceSrv != nil {
+				log.Fatalln("notImpl")
 				return nil
 			} else {
-				return nil
+				return writer.NewStatefulWriter(participant, guid, pparam,
+					payloadPool, hist, listen)
 			}
 		} else {
 			if persistenceSrv != nil {
+				log.Fatalln("notImpl")
 				return nil
 			} else {
 				poolConfig := history.FromHistoryAttributes(&hist.Att)
-				cacheChange := history.NewCacheChangePool(&poolConfig)
+				cacheChange := history.NewCacheChangePool(poolConfig)
 				return writer.NewStatelessWriter(participant, guid, param, payloadPool, cacheChange, hist, listen)
 			}
 		}
 	}
 
 	return participant.createWriter(param, entityID, isBuiltin, callback)
+}
+
+func (participant *RTPSParticipant) GetMinNetworkSendBufferSize() uint32 {
+	return participant.networkFactory.GetMinSendBufferSize()
 }
 
 // Create non-existent SendResources based on the Locator list of the entity
@@ -375,7 +418,7 @@ func (participant *RTPSParticipant) createSendResources(pend endpoint.IEndpoint)
 }
 
 func (participant *RTPSParticipant) createWriter(param *attributes.WriterAttributes,
-	entityID *common.EntityIDT, isBuiltin bool, callback createWriterCallback) (writer.IRTPSWriter, bool) {
+	entityID *common.EntityIDT, isBuiltin bool, callback createWriterCallback) (bool, writer.IRTPSWriter) {
 	var reliabilityType string
 	if param.EndpointAtt.ReliabilityKind == common.KReliable {
 		reliabilityType = "RELIABLE"
@@ -386,7 +429,7 @@ func (participant *RTPSParticipant) createWriter(param *attributes.WriterAttribu
 	ok, entID := participant.preprocessEndpointAttributes("writer", entityID, &param.EndpointAtt,
 		common.KWriter, 0x03, 0x02)
 	if !ok {
-		return nil, false
+		return false, nil
 	}
 	throughputCtrl := &param.ThroughputController
 	attThroughputCtrl := participant.Att.ThroughputController
@@ -395,7 +438,7 @@ func (participant *RTPSParticipant) createWriter(param *attributes.WriterAttribu
 	invalid = invalid && (param.PubMode != attributes.KAsynchronousWriter)
 	if invalid {
 		log.Fatalln("Writer has to be configured to publish asynchronously, because a flowcontroller was configured")
-		return nil, false
+		return false, nil
 	}
 
 	// Special case for DiscoveryProtocol::BACKUP, which abuses persistence guid
@@ -411,7 +454,7 @@ func (participant *RTPSParticipant) createWriter(param *attributes.WriterAttribu
 	// Get persistence service
 	ok, persistence := participant.getPersistenceService("writer", isBuiltin, &param.EndpointAtt)
 	if !ok {
-		return nil, false
+		return false, nil
 	}
 	participant.normalizeEndpointLocators(&param.EndpointAtt)
 	guid := common.GUIDT{
@@ -423,13 +466,15 @@ func (participant *RTPSParticipant) createWriter(param *attributes.WriterAttribu
 	// restore attributes
 	param.EndpointAtt.PersistenceGUID = formerPersistenceGUID
 	if swriter == nil {
-		return nil, false
+		log.Fatalln("create writer failed")
+		return false, nil
 	}
 
 	participant.createSendResources(swriter)
 	if param.EndpointAtt.ReliabilityKind == common.KReliable {
-		if !createAndAssociateReceiverswithEndpoint(swriter) {
-			return nil, false
+		if !participant.createAndAssociateReceiverswithEndpoint(swriter) {
+			log.Fatalln("createAndAssociateReceiverswithEndpoint failed")
+			return false, nil
 		}
 	}
 
@@ -448,7 +493,7 @@ func (participant *RTPSParticipant) createWriter(param *attributes.WriterAttribu
 		swriter.AddFlowController(controller)
 	}
 
-	return swriter, true
+	return true, swriter
 }
 
 func (participant *RTPSParticipant) createReader(param *attributes.ReaderAttributes,
@@ -508,7 +553,7 @@ func (participant *RTPSParticipant) createReader(param *attributes.ReaderAttribu
 	}
 
 	if enable {
-		if !createAndAssociateReceiverswithEndpoint(sReader) {
+		if !participant.createAndAssociateReceiverswithEndpoint(sReader) {
 			return false, nil
 		}
 	}
@@ -536,6 +581,11 @@ func (participant *RTPSParticipant) CreateReader(param *attributes.ReaderAttribu
 		persistenceServ persistence.IPersistenceService, isReliable bool) reader.IRTPSReader {
 
 		if isReliable {
+			if persistenceServ != nil {
+
+			} else {
+				return reader.NewStatefulReader(participant, guid, param, payloadPool, hist, listen)
+			}
 
 		} else {
 			if persistenceServ != nil {
@@ -552,7 +602,7 @@ func (participant *RTPSParticipant) CreateReader(param *attributes.ReaderAttribu
 }
 
 func (participant *RTPSParticipant) GetEventResource() *resources.ResourceEvent {
-	return &participant.EventThr
+	return participant.eventThr
 }
 
 // NewParticipant create new rtps participant
@@ -566,7 +616,7 @@ func NewParticipant(domainID uint32, pparam *attributes.RTPSParticipantAttribute
 		BuiltinProtocols:     nil,
 		ResSemaphore:         utils.NewSemaphore(0),
 		networkFactory:       network.NewNetworkFactory(),
-		EventThr:             *resources.NewResourceEvent(),
+		eventThr:             resources.NewResourceEvent(),
 		IDCounter:            0,
 		Listener:             listen,
 		checkFn:              nil,
@@ -633,7 +683,8 @@ func NewParticipant(domainID uint32, pparam *attributes.RTPSParticipantAttribute
 		}
 	}
 
-	participant.EventThr.InitThread()
+	participant.eventThr.InitThread()
+	log.Println("finish participant eventThr initThread.")
 
 	if participant.NetworkFactoryHasRegisteredTransports() == false {
 		return nil

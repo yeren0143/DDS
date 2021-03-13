@@ -24,3 +24,5 @@ type HistoryAttributes struct {
 	 */
 	MaximumReservedCaches uint32
 }
+
+var KDefaultHistoryAttributes = HistoryAttributes{}

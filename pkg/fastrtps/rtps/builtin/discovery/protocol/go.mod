@@ -23,3 +23,13 @@ replace (
 	github.com/yeren0143/DDS/types => /home/jiayin/Desktop/DDS/DDS_go/pkg/types
 )
 
+require (
+	github.com/yeren0143/DDS/common v0.0.0
+	github.com/yeren0143/DDS/fastrtps/rtps/attributes v0.0.0-00010101000000-000000000000
+	github.com/yeren0143/DDS/fastrtps/rtps/builtin/data v0.0.0-00010101000000-000000000000
+	github.com/yeren0143/DDS/fastrtps/rtps/history v0.0.0-00010101000000-000000000000
+	github.com/yeren0143/DDS/fastrtps/rtps/network v0.0.0-00010101000000-000000000000
+	github.com/yeren0143/DDS/fastrtps/rtps/reader v0.0.0-00010101000000-000000000000
+	github.com/yeren0143/DDS/fastrtps/rtps/resources v0.0.0
+	github.com/yeren0143/DDS/fastrtps/rtps/writer v0.0.0-00010101000000-000000000000
+)

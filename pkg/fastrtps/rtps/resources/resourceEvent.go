@@ -52,19 +52,15 @@ func (resource *ResourceEvent) InitThread() {
 	resource.allowVectorManipulation = false
 	resource.ResizeCollections()
 
-	wg := sync.WaitGroup{}
-	wg.Add(1)
 	go func(resource *ResourceEvent) {
-		wg.Done()
 		resource.eventService()
 	}(resource)
-	wg.Wait()
+
+	log.Println("InitThread finished")
 }
 
 //ResizeCollections Ensures internal collections can accommodate current total number of timers.
 func (resource *ResourceEvent) ResizeCollections() {
-	resource.PendingTimers.Events = make([]*TimedEventImpl, resource.timersCount)
-	resource.ActiveTimers.Events = make([]*TimedEventImpl, resource.timersCount)
 }
 
 func (resource *ResourceEvent) eventService() {
@@ -74,7 +70,6 @@ func (resource *ResourceEvent) eventService() {
 		resource.doTimerActions()
 
 		resource.mutex.Lock()
-		defer resource.mutex.Unlock()
 
 		// If the thread has already been instructed to stop, do it.
 		if atomic.LoadInt32(&resource.stop) > 0 {
@@ -100,11 +95,15 @@ func (resource *ResourceEvent) eventService() {
 		if nextTrigger.Before(resource.currentTime) {
 			log.Fatal("next trigger time can not brefore current time")
 		}
-		resource.cv.WaitOrTimeout(nextTrigger.Sub(resource.currentTime))
+
+		// test test
+		//resource.cv.WaitOrTimeout(nextTrigger.Sub(resource.currentTime))
 
 		// Don't allow other threads to manipulate the timer collections
 		resource.allowVectorManipulation = false
 		resource.ResizeCollections()
+
+		resource.mutex.Unlock()
 	}
 }
 
@@ -124,15 +123,22 @@ func (resource *ResourceEvent) doTimerActions() {
 	didSomeThing := false
 
 	//Process pending orders
-	resource.mutex.Lock()
+	// TODO: 可重入锁
 	{
+		resource.mutex.Lock()
+
 		sort.Sort(&resource.ActiveTimers)
 		for _, tp := range resource.PendingTimers.Events {
+			// Remove item from active timers
 			for i, activeTp := range resource.ActiveTimers.Events {
+				log.Println("looping resource.ActiveTimers.Events")
 				if activeTp == tp {
-					copy(resource.ActiveTimers.Events[i+1:], resource.ActiveTimers.Events[i+2:])
-					resource.ActiveTimers.Events[len(resource.ActiveTimers.Events)-1] = nil
-					resource.ActiveTimers.Events = resource.ActiveTimers.Events[:len(resource.ActiveTimers.Events)-1]
+					events := resource.ActiveTimers.Events
+					if i == len(events)-1 {
+						resource.ActiveTimers.Events = events[:len(events)-1]
+					} else {
+						resource.ActiveTimers.Events = append(events[:i], events[i+1:]...)
+					}
 					break
 				}
 			}
@@ -154,8 +160,9 @@ func (resource *ResourceEvent) doTimerActions() {
 			}
 		}
 		resource.PendingTimers = TimeEventVector{}
+
+		resource.mutex.Unlock()
 	}
-	resource.mutex.Unlock()
 
 	// Trigger active timers
 	for _, tp := range resource.ActiveTimers.Events {

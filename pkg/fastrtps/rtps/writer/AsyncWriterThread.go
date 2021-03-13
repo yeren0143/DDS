@@ -1,6 +1,7 @@
 package writer
 
 import (
+	"log"
 	"sync"
 
 	"github.com/yeren0143/DDS/fastrtps/utils"
@@ -15,7 +16,6 @@ type AsyncWriterThread struct {
 	interestTree           *AsyncInterestTree
 	running                bool
 	runScheduled           bool
-	routeRunning           bool
 }
 
 func (thread *AsyncWriterThread) run() {
@@ -29,7 +29,7 @@ func (thread *AsyncWriterThread) run() {
 
 			thread.interestTree.mutexActive.Lock()
 			curr := thread.interestTree.nextActiveNts()
-			
+
 			for ; curr != nil; curr = thread.interestTree.nextActiveNts() {
 				curr.SendAnyUnsentChanges()
 			}
@@ -48,19 +48,17 @@ func (thread *AsyncWriterThread) Wakeup(awriter IRTPSWriter) {
 		thread.conditionVariableMutex.Lock()
 		defer thread.conditionVariableMutex.Unlock()
 		thread.runScheduled = true
-		if !thread.routeRunning {
+		if !thread.running {
 			thread.running = true
-			wg := sync.WaitGroup{}
-			wg.Add(1)
 			go func() {
-				wg.Done()
 				thread.run()
 			}()
-			wg.Wait()
 		} else {
 			thread.cv.Broadcast()
 		}
 	}
+
+	log.Println("Wakeup finished")
 }
 
 func NewAsyncWriterThread() *AsyncWriterThread {

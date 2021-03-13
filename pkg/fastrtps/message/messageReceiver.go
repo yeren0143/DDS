@@ -6,6 +6,7 @@ import (
 
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/core/policy"
+	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
 	//"github.com/yeren0143/DDS/fastrtps/rtps/reader"
 	//"github.com/yeren0143/DDS/fastrtps/rtps/writer"
 )
@@ -42,13 +43,14 @@ type Receiver struct {
 
 func NewMessageReceiver(holder IReceiverOwner, rcvBufferSize uint32) *Receiver {
 	receiver := Receiver{
-		participant:      holder,
-		sourceVersion:    common.KProtocolVersion,
-		sourceVendorID:   common.KVendorIDTUnknown,
-		sourceGUIDPrefix: common.KGuidPrefixUnknown,
-		destGUIDPrefix:   common.KGuidPrefixUnknown,
-		haveTimeStamp:    false,
-		timeStamp:        common.KTimeInvalid,
+		participant:       holder,
+		sourceVersion:     common.KProtocolVersion,
+		sourceVendorID:    common.KVendorIDTUnknown,
+		sourceGUIDPrefix:  common.KGuidPrefixUnknown,
+		destGUIDPrefix:    common.KGuidPrefixUnknown,
+		haveTimeStamp:     false,
+		timeStamp:         common.KTimeInvalid,
+		associatedReaders: make(map[common.EntityIDT][]IRtpsMsgReader),
 	}
 	log.Printf("Created with CDRMessage of size: %v", rcvBufferSize)
 
@@ -93,7 +95,41 @@ func (receiver *Receiver) willAReaderAcceptMsgDirectedTo(readerID *common.Entity
 	log.Printf("No Reader accepts this message (directed to: %v )", readerID)
 
 	return nil, false
+}
 
+func (receiver *Receiver) AssociateEndpoint(toAdd endpoint.IEndpoint) {
+	receiver.mutex.Lock()
+	defer receiver.mutex.Unlock()
+	if toAdd.GetAttributes().EndpointKind == common.KWriter {
+		awriter, ok := toAdd.(IRtpsMsgWriter)
+		if !ok {
+			log.Fatalln("associateEndpoint with fault type")
+		}
+		for _, it := range receiver.associatedWriters {
+			if awriter == it {
+				return
+			}
+		}
+		receiver.associatedWriters = append(receiver.associatedWriters, awriter)
+	} else {
+		areader, ok := toAdd.(IRtpsMsgReader)
+		if !ok {
+			log.Fatalln("associateEndpoint with fault type")
+		}
+		entID := toAdd.GetGUID().EntityID
+		if readers, ok := receiver.associatedReaders[entID]; ok {
+			for _, item := range readers {
+				if item == areader {
+					return
+				}
+			}
+			readers = append(readers, areader)
+		} else {
+			var readers []IRtpsMsgReader
+			readers = append(readers, areader)
+			receiver.associatedReaders[entID] = readers
+		}
+	}
 }
 
 func (receiver *Receiver) readSubmessageHeader(msg *common.CDRMessage, smh *SubmessageHeaderT) bool {

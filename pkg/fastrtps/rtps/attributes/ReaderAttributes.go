@@ -35,11 +35,18 @@ type ReaderAttributes struct {
 	MatchedWritersAllocation utils.ResourceLimitedContainerConfig
 }
 
-var KDefaultReaderAttributes = ReaderAttributes{
-	LivelinessKind:           policy.AUTOMATIC_LIVELINESS_QOS,
-	LivelinessLeaseDuration:  common.KTimeInfinite,
-	ExpectsInlineQos:         false,
-	DisablePositiveAcks:      false,
-	EndpointAtt:              KDefaultEndpointAttributes,
-	MatchedWritersAllocation: utils.KDefaultResourceLimitedContainerConfig,
+func NewReaderAttributes() *ReaderAttributes {
+	readerAtt := ReaderAttributes{
+		LivelinessKind:           policy.AUTOMATIC_LIVELINESS_QOS,
+		LivelinessLeaseDuration:  common.KTimeInfinite,
+		ExpectsInlineQos:         false,
+		DisablePositiveAcks:      false,
+		EndpointAtt:              KDefaultEndpointAttributes,
+		MatchedWritersAllocation: utils.KDefaultResourceLimitedContainerConfig,
+	}
+
+	readerAtt.EndpointAtt.EndpointKind = common.KReader
+	readerAtt.EndpointAtt.DurabilityKind = common.KVolatile
+	readerAtt.EndpointAtt.ReliabilityKind = common.KBestEffort
+	return &readerAtt
 }

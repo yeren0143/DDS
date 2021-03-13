@@ -32,7 +32,7 @@ func (resource *UDPChannelResource) Receive(receiverMsg *common.CDRMessage, remo
 		}
 
 		sockaddr4, ok := sockaddr.(*syscall.SockaddrInet4)
-		log.Printf("receive msg from addr(%v), port(%v)", sockaddr4.Addr, sockaddr4.Port)
+		// log.Printf("receive msg from addr(%v), port(%v)", sockaddr4.Addr, sockaddr4.Port)
 		if ok {
 			receiverMsg.Length = uint32(numBytes)
 			//resource.transport.endPointToLocator(remoteAddr, remoteLocator)
