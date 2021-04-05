@@ -1,6 +1,8 @@
 package writer
 
 import (
+	"log"
+
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
@@ -25,10 +27,28 @@ func (statelessWriter *StatelessWriter) UnsentChangeAddedToHistory(aChange *comm
 	maxBlockingTime common.Time) {
 	statelessWriter.Mutex.Lock()
 	defer statelessWriter.Mutex.Unlock()
+
+	// Request to send all changes to all readers
+	if statelessWriter.hist.GetHistorySize() > 0 {
+		// Mark all changes as pending
+		// statelessWriter.unsentChanges = make([]ChangeForReader, statelessWriter.hist.GetHistorySize())
+		// copy(statelessWriter.unsentChanges, statelessWriter.hist.Changes...)
+		log.Fatalln("not impl")
+	}
+	log.Fatalln("not impl")
 }
 
 func (statelessWriter *StatelessWriter) AddFlowController(controller flowcontrol.IFlowController) {
 	statelessWriter.flowControllers = append(statelessWriter.flowControllers, controller)
+}
+
+func (statelessWriter *StatelessWriter) UnsentChangesReset() {
+	statelessWriter.Mutex.Lock()
+	defer statelessWriter.Mutex.Unlock()
+
+	// Request to send all changes to all readers
+	log.Fatalln("not Impl")
+
 }
 
 func (statelessWriter *StatelessWriter) SetFixedLocators(locators common.LocatorList) bool {

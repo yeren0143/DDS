@@ -173,7 +173,8 @@ var KDefaultLatencyBudgetQosPolicy = LatencyBudgetQosPolicy{
 	},
 }
 
-type LivelinessQosPolicyKind uint8
+type LivelinessQosPolicyKind = uint8
+
 const (
 	// The infrastructure will automatically signal liveliness
 	// for the DataWriters at least as often as required by the lease_duration.
@@ -339,24 +340,45 @@ var KDefaultDestinationOrderQosPolicy = DestinationOrderQosPolicy{
 type GenericDataQosPolicy struct {
 	ParameterT
 	QosPolicy
+	Data []common.Octet
 }
 
-func NewGenericDataQosPolicy(pid ParameterIDT, length uint32) *GenericDataQosPolicy {
-	return &GenericDataQosPolicy{
-		ParameterT: *NewParameterT(pid, length),
-		QosPolicy: QosPolicy{
-			HasChanged: false,
-			SendAlways: false,
-		},
+func NewGenericDataQosPolicy(pid ParameterIDT, data []common.Octet) *GenericDataQosPolicy {
+	var dataQosPolicy GenericDataQosPolicy
+	dataQosPolicy.ParameterT = *NewParameterT(pid, 0)
+	dataQosPolicy.QosPolicy = QosPolicy{
+		HasChanged: false,
+		SendAlways: false,
 	}
+
+	if len(data) > 0 {
+		dataQosPolicy.Data = make([]common.Octet, len(data))
+		copy(dataQosPolicy.Data, data)
+	}
+
+	return &dataQosPolicy
 }
 
 type UserDataQosPolicy struct {
 	GenericDataQosPolicy
 }
 
-func NewUserDataQosPolicy() *UserDataQosPolicy {
-	return &UserDataQosPolicy{}
+func (userData *UserDataQosPolicy) Size() uint32 {
+	return uint32(len(userData.Data))
+}
+
+func NewUserDataQosPolicy(pid ParameterIDT, data []common.Octet) *UserDataQosPolicy {
+	var dataQosPolicy UserDataQosPolicy
+	dataQosPolicy.ParameterT = *NewParameterT(pid, 0)
+	dataQosPolicy.QosPolicy = QosPolicy{
+		HasChanged: false,
+		SendAlways: false,
+	}
+	if len(data) > 0 {
+		dataQosPolicy.Data = make([]common.Octet, len(data))
+		copy(dataQosPolicy.Data, data)
+	}
+	return &dataQosPolicy
 }
 
 type TopicDataQosPolicy struct {
@@ -364,7 +386,7 @@ type TopicDataQosPolicy struct {
 }
 
 var KDefaultTopicDataQosPolicy = TopicDataQosPolicy{
-	GenericDataQosPolicy: *NewGenericDataQosPolicy(KPidTopicData, 0),
+	GenericDataQosPolicy: *NewGenericDataQosPolicy(KPidTopicData, []common.Octet{}),
 }
 
 type GroupDataQosPolicy struct {
@@ -372,7 +394,7 @@ type GroupDataQosPolicy struct {
 }
 
 var KGroupDataQosPolicy = GroupDataQosPolicy{
-	GenericDataQosPolicy: *NewGenericDataQosPolicy(KPidGroupData, 0),
+	GenericDataQosPolicy: *NewGenericDataQosPolicy(KPidGroupData, []common.Octet{}),
 }
 
 /**

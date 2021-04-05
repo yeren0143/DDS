@@ -4,10 +4,10 @@ import (
 	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 )
 
-var _ topicPayloadPoolImpl = (*PreallocatedTopicPayloadPool)(nil)
+var _ iTopicPayloadPoolImpl = (*PreallocatedTopicPayloadPool)(nil)
 
 type PreallocatedReallocTopicPayloadPool struct {
-	TopicPayloadPool
+	TopicPayloadPoolBase
 	minPayloadSize  uint32
 	minimumPoolSize uint32
 }
@@ -21,11 +21,11 @@ func (pool *PreallocatedReallocTopicPayloadPool) ReleaseHistory(config *PoolConf
 	pool.minimumPoolSize -= config.InitialSize
 	pool.mutex.Unlock()
 
-	return pool.TopicPayloadPool.ReleaseHistory(config, isReader)
+	return pool.TopicPayloadPoolBase.ReleaseHistory(config, isReader)
 }
 
 func (pool *PreallocatedReallocTopicPayloadPool) ReserveHistory(config *PoolConfig, isReader bool) bool {
-	if !pool.TopicPayloadPool.ReserveHistory(config, isReader) {
+	if !pool.TopicPayloadPoolBase.ReserveHistory(config, isReader) {
 		return false
 	}
 

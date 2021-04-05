@@ -14,9 +14,9 @@ import (
 type ResourceEvent struct {
 	stop                    int32 //Warns the internal thread can stop.
 	allowVectorManipulation bool  //Flag used to allow a thread to manipulate the timer collections when the execution thread is not using them.
-	mutex                   *sync.Mutex
-	cvManipulation          *utils.TimedConditionVariable
-	cv                      *utils.TimedConditionVariable
+	mutex                   sync.Mutex
+	cvManipulation          utils.TimedConditionVariable
+	cv                      utils.TimedConditionVariable
 	timersCount             int //The total number of created timers.
 	PendingTimers           TimeEventVector
 	ActiveTimers            TimeEventVector
@@ -26,12 +26,12 @@ type ResourceEvent struct {
 //NewResourceEvent create resource event with default value
 func NewResourceEvent() *ResourceEvent {
 	var event ResourceEvent
-	event.mutex = new(sync.Mutex)
+	// event.mutex = new(sync.Mutex)
 	event.stop = 0
 	event.allowVectorManipulation = true
 	event.timersCount = 0
-	event.cvManipulation = utils.NewTimedCond(event.mutex)
-	event.cv = utils.NewTimedCond(event.mutex)
+	event.cvManipulation = *utils.NewTimedCond(&event.mutex)
+	event.cv = *utils.NewTimedCond(&event.mutex)
 	return &event
 }
 
@@ -42,6 +42,28 @@ func (resource *ResourceEvent) RegisterTimer(event *TimedEventImpl) {
 	defer resource.mutex.Unlock()
 	resource.timersCount++
 	resource.cv.Signal()
+}
+
+// Registers a new TimedEventImpl object in the internal queue to be processed.
+// Non thread safe.
+// return True value if the insertion was successful. In other case, it return False.
+func (resource *ResourceEvent) registerTimerNts(event *TimedEventImpl) bool {
+	if !resource.PendingTimers.Has(event) {
+		resource.PendingTimers.Push(event)
+		return true
+	}
+	return false
+}
+
+// This method notifies to ResourceEvent that the TimedEventImpl object has operations to be
+// scheduled. These operations can be the cancellation of the timer or starting another async_wait.
+//
+func (resource *ResourceEvent) Notify(event *TimedEventImpl) {
+	resource.mutex.Lock()
+	defer resource.mutex.Unlock()
+	if resource.registerTimerNts(event) {
+		resource.cv.Signal()
+	}
 }
 
 //InitThread to initialize the internal thread.

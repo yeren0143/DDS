@@ -74,7 +74,7 @@ type ireaderImpl interface {
 	init(exactReader IRTPSReader, payloadPool history.IPayloadPool, changePool history.IChangePool)
 }
 
-type rtpsReaderBase struct {
+type RTPSReader struct {
 	endpoint.EndpointBase
 	impl                           ireaderImpl
 	trustedWriterEntityID          common.EntityIDT
@@ -90,7 +90,7 @@ type rtpsReaderBase struct {
 	livelinessLeaseDuration        common.DurationT
 }
 
-func (reader *rtpsReaderBase) init(exactReader IRTPSReader, payloadPool history.IPayloadPool, changePool history.IChangePool) {
+func (reader *RTPSReader) init(exactReader IRTPSReader, payloadPool history.IPayloadPool, changePool history.IChangePool) {
 	reader.PayloadPool = payloadPool
 	reader.ChangePool = changePool
 	reader.FixedPayloadSize = 0
@@ -104,40 +104,28 @@ func (reader *rtpsReaderBase) init(exactReader IRTPSReader, payloadPool history.
 	log.Println("RTPSReader created correctly")
 }
 
-func (reader *rtpsReaderBase) AcceptMessagesToUnknownReaders() bool {
+func (reader *RTPSReader) AcceptMessagesToUnknownReaders() bool {
 	return reader.acceptMessagesToUnknownReaders
 }
 
-func (reader *rtpsReaderBase) ExpectsInlineQos() bool {
+func (reader *RTPSReader) ExpectsInlineQos() bool {
 	return reader.expectsInlineQos
 }
 
-func (reader *rtpsReaderBase) mayRemoveHistoryRecord(removedByLease bool) bool {
+func (reader *RTPSReader) mayRemoveHistoryRecord(removedByLease bool) bool {
 	return !removedByLease
 }
 
-func (reader *rtpsReaderBase) setLastNotified(persistenceGUID *common.GUIDT, seq *common.SequenceNumberT) {
+func (reader *RTPSReader) setLastNotified(persistenceGUID *common.GUIDT, seq *common.SequenceNumberT) {
 	reader.historyState.HistoryRecord[*persistenceGUID] = *seq
 }
 
-// func (reader *rtpsReaderBase) GetAttributes() *attributes.EndpointAttributes {
-// 	return &reader.Att
-// }
-
-// func (reader *rtpsReaderBase) GetMutex() *sync.Mutex {
-// 	return reader.GetMutex()
-// }
-
-// func (reader *rtpsReaderBase) GetGUID() *common.GUIDT {
-// 	return &reader.GUID
-// }
-
-func (reader *rtpsReaderBase) SetTrustedWriter(writerEnt *common.EntityIDT) {
+func (reader *RTPSReader) SetTrustedWriter(writerEnt *common.EntityIDT) {
 	reader.acceptMessagesToUnknownReaders = false
 	reader.trustedWriterEntityID = *writerEnt
 }
 
-func (reader *rtpsReaderBase) ReleaseCache(change *common.CacheChangeT) {
+func (reader *RTPSReader) ReleaseCache(change *common.CacheChangeT) {
 	reader.Mutex.Lock()
 	defer reader.Mutex.Unlock()
 
@@ -148,7 +136,7 @@ func (reader *rtpsReaderBase) ReleaseCache(change *common.CacheChangeT) {
 }
 
 // Update the last notified sequence for a RTPS guid
-func (reader *rtpsReaderBase) updateLastNotified(guid *common.GUIDT, seq *common.SequenceNumberT) common.SequenceNumberT {
+func (reader *RTPSReader) updateLastNotified(guid *common.GUIDT, seq *common.SequenceNumberT) common.SequenceNumberT {
 	var retVal common.SequenceNumberT
 	reader.Mutex.Lock()
 	defer reader.Mutex.Unlock()
@@ -171,7 +159,7 @@ func (reader *rtpsReaderBase) updateLastNotified(guid *common.GUIDT, seq *common
 	return retVal
 }
 
-func (reader *rtpsReaderBase) ReserveCache(dataCdrSerializedSize uint32) (*common.CacheChangeT, bool) {
+func (reader *RTPSReader) ReserveCache(dataCdrSerializedSize uint32) (*common.CacheChangeT, bool) {
 	reader.Mutex.Lock()
 	reader.Mutex.Unlock()
 
@@ -194,11 +182,11 @@ func (reader *rtpsReaderBase) ReserveCache(dataCdrSerializedSize uint32) (*commo
 	return reservedChange, true
 }
 
-func NewRtpsReaderBase(parent endpoint.IEndpointParent, guid *common.GUIDT, att *attributes.ReaderAttributes,
+func NewRtpsReader(parent endpoint.IEndpointParent, guid *common.GUIDT, att *attributes.ReaderAttributes,
 	payloadPool history.IPayloadPool, changePool history.IChangePool, hist *history.ReaderHistory,
-	rlisten IReaderListener) *rtpsReaderBase {
+	rlisten IReaderListener) *RTPSReader {
 
-	var retReader rtpsReaderBase
+	var retReader RTPSReader
 	retReader.EndpointBase = *endpoint.NewEndPointBase(parent, guid, &att.EndpointAtt)
 	retReader.readerHistory = hist
 	retReader.listener = rlisten

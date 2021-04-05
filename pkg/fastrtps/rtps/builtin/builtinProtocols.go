@@ -7,11 +7,10 @@ import (
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/pdp"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
+	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/liveliness"
 	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
 	"github.com/yeren0143/DDS/fastrtps/rtps/network"
 )
-
-//var _ participant.IPDPParent = (*Protocols)(nil)
 
 //Protocols that contains builtin endpoints implementing the discovery and liveliness protocols.
 type Protocols struct {
@@ -24,6 +23,10 @@ type Protocols struct {
 	MetatrafficUnicastLocatorList   *common.LocatorList
 	InitialPeersList                *common.LocatorList
 	DiscoveryServers                []*attributes.RemoteServerAttributes //Known discovery and backup server container
+}
+
+func (protocol *Protocols) GetMetatrafficUnicastLocators() *common.LocatorList {
+	return protocol.MetatrafficUnicastLocatorList
 }
 
 func (protocol *Protocols) transformServerRemoteLocators(nf *network.NetFactory) {
@@ -41,6 +44,10 @@ func (protocol *Protocols) GetBuiltinAttributes() *attributes.BuiltinAttributes 
 	return protocol.Att
 }
 
+func (protocol *Protocols) GetParticipant() protocol.IParticipant {
+	return protocol.participantImpl
+}
+
 func (protocol *Protocols) UpdateMetatrafficLocators(loclist *common.LocatorList) bool {
 	*protocol.MetatrafficUnicastLocatorList = *loclist
 	return true
@@ -52,7 +59,8 @@ func (protocol *Protocols) GetMetatrafficMulticastLocatorList() *common.LocatorL
 
 func (protocol *Protocols) AnnounceParticipantState() {
 	if protocol.PDP != nil {
-		protocol.PDP.AnnounceParticipantState(false, false, &common.KWriteParamDefault)
+		writeParam := common.KWriteParamDefault
+		protocol.PDP.AnnounceParticipantState(false, false, &writeParam)
 	} else {
 		log.Fatalln("Trying to use BuiltinProtocols interfaces before initBuiltinProtocols call")
 	}
@@ -101,7 +109,20 @@ func (protocol *Protocols) InitBuiltinProtocol(ppart protocol.IParticipant, att 
 	}
 
 	// WLP
-	log.Fatalln("WLP not impl")
+	if protocol.Att.UseWriterLivelinessProtocol {
+		protocol.WLP = liveliness.NewWLP(protocol)
+		protocol.WLP.InitWL(protocol.participantImpl)
+	}
+
+	// TypeLookupManager
+	if protocol.Att.TypeLookupConfig.UseClient || protocol.Att.TypeLookupConfig.UseServer {
+		log.Fatalln("not impl")
+	}
+
+	writeParam := common.KWriteParamDefault
+	protocol.PDP.AnnounceParticipantState(true, false, &writeParam)
+	protocol.PDP.ResetParticipantAnnouncement()
+	protocol.PDP.Enable()
 
 	return true
 }

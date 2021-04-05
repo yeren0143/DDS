@@ -56,6 +56,127 @@ type CDRMessage struct {
 	MsgEndian Endianness
 }
 
+func (msg *CDRMessage) AddInt32(lo int32) bool {
+	if msg.Pos+4 > msg.MaxSize {
+		return false
+	}
+
+	o0 := Octet(lo & 0x000000FF)
+	o1 := Octet(lo & 0x0000FF00)
+	o2 := Octet(lo & 0x00FF0000)
+	o3 := Octet(lo >> 30)
+
+	if msg.MsgEndian == KDefaultEndian {
+		msg.Buffer[msg.Pos] = o3
+		msg.Buffer[msg.Pos+1] = o2
+		msg.Buffer[msg.Pos+2] = o1
+		msg.Buffer[msg.Pos+3] = o0
+	} else {
+		msg.Buffer[msg.Pos] = o0
+		msg.Buffer[msg.Pos+1] = o1
+		msg.Buffer[msg.Pos+2] = o2
+		msg.Buffer[msg.Pos+3] = o3
+	}
+
+	msg.Pos += 4
+	msg.Length += 4
+	return true
+}
+
+func (msg *CDRMessage) AddUInt32(lo uint32) bool {
+	if msg.Pos+4 > msg.MaxSize {
+		return false
+	}
+
+	o0 := Octet(lo & 0x000000FF)
+	o1 := Octet(lo & 0x0000FF00)
+	o2 := Octet(lo & 0x00FF0000)
+	o3 := Octet(lo & 0xFF000000)
+
+	if msg.MsgEndian == KDefaultEndian {
+		msg.Buffer[msg.Pos] = o3
+		msg.Buffer[msg.Pos+1] = o2
+		msg.Buffer[msg.Pos+2] = o1
+		msg.Buffer[msg.Pos+3] = o0
+	} else {
+		msg.Buffer[msg.Pos] = o0
+		msg.Buffer[msg.Pos+1] = o1
+		msg.Buffer[msg.Pos+2] = o2
+		msg.Buffer[msg.Pos+3] = o3
+	}
+
+	msg.Pos += 4
+	msg.Length += 4
+	return true
+}
+
+func (msg *CDRMessage) AddInt64(lolo int64) bool {
+	if msg.Pos+8 > msg.MaxSize {
+		return false
+	}
+
+	o0 := Octet(lolo & 0x00000000000000FF)
+	o1 := Octet(lolo & 0x000000000000FF00)
+	o2 := Octet(lolo & 0x0000000000FF0000)
+	o3 := Octet(lolo & 0x00000000FF000000)
+	o4 := Octet(lolo & 0x000000FF00000000)
+	o5 := Octet(lolo & 0x0000FF0000000000)
+	o6 := Octet(lolo & 0x00FF000000000000)
+	o7 := Octet(lolo >> 62)
+
+	if msg.MsgEndian == KDefaultEndian {
+		msg.Buffer[msg.Pos] = o7
+		msg.Buffer[msg.Pos+1] = o6
+		msg.Buffer[msg.Pos+2] = o5
+		msg.Buffer[msg.Pos+3] = o4
+		msg.Buffer[msg.Pos] = o3
+		msg.Buffer[msg.Pos+1] = o2
+		msg.Buffer[msg.Pos+2] = o1
+		msg.Buffer[msg.Pos+3] = o0
+	} else {
+		msg.Buffer[msg.Pos] = o0
+		msg.Buffer[msg.Pos+1] = o1
+		msg.Buffer[msg.Pos+2] = o2
+		msg.Buffer[msg.Pos+3] = o3
+		msg.Buffer[msg.Pos] = o4
+		msg.Buffer[msg.Pos+1] = o5
+		msg.Buffer[msg.Pos+2] = o6
+		msg.Buffer[msg.Pos+3] = o7
+	}
+
+	msg.Pos += 8
+	msg.Length += 8
+	return true
+}
+
+func (msg *CDRMessage) AddString(instr string) bool {
+	strSiz := len(instr) + 1
+	valid := msg.AddUInt32(uint32(strSiz))
+	valid = valid && msg.AddData([]byte(instr))
+	for ; (strSiz & 3) > 0; strSiz++ {
+		valid = valid && msg.AddOctet('0')
+	}
+	return valid
+}
+
+func (msg *CDRMessage) AddUInt16(us uint16) bool {
+	if msg.Pos+2 > msg.MaxSize {
+		return false
+	}
+	left := Octet(us & 0x00FF)
+	right := Octet(us & 0xFF00)
+	if msg.MsgEndian == KDefaultEndian {
+		msg.Buffer[msg.Pos] = left
+		msg.Buffer[msg.Pos+1] = right
+	} else {
+		msg.Buffer[msg.Pos] = right
+		msg.Buffer[msg.Pos+1] = left
+	}
+	msg.Pos += 2
+	msg.Length += 2
+	return true
+}
+
 func (message *CDRMessage) AddData(data []Octet) bool {
 	if message.Pos+uint32(len(data)) > message.MaxSize {
 		return false
@@ -77,6 +198,13 @@ func (message *CDRMessage) AddOctet(data Octet) bool {
 	message.Buffer[message.Pos] = data
 	message.Pos++
 	message.Length++
+	return true
+}
+
+func (message *CDRMessage) AddLocator(loc *Locator) bool {
+	message.AddInt32(int32(loc.Kind))
+	message.AddUInt32(loc.Port)
+	message.AddData(loc.Address[:16])
 	return true
 }
 

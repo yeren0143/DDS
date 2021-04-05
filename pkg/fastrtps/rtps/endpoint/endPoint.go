@@ -11,6 +11,7 @@ import (
 )
 
 type IWlp interface {
+	InitWL(p interface{}) bool
 	AddWriter(guid *common.GUIDT, kind policy.LivelinessQosPolicyKind, leaseDuration *common.DurationT) bool
 	RemoveWriter(guid *common.GUIDT, kind policy.LivelinessQosPolicyKind, leaseDuration *common.DurationT) bool
 	AssertLiveliness(writerGuid *common.GUIDT, kind policy.LivelinessQosPolicyKind, leaseDuration *common.DurationT) bool

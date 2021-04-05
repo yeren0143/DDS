@@ -60,6 +60,20 @@ func (pdp *PDPSimple) Init(participant protocol.IParticipant) bool {
 	return true
 }
 
+// Force the sending of our local DPD to all remote RTPSParticipants and multicast Locators.
+func (pdp *PDPSimple) AnnounceParticipantState(newChange, dispose bool, wparams *common.WriteParamsT) {
+	pdp.pdpBase.AnnounceParticipantState(newChange, dispose, wparams)
+
+	if !(dispose || newChange) {
+		statelessWriter, ok := pdp.writer.(*writer.StatelessWriter)
+		if ok {
+			statelessWriter.UnsentChangesReset()
+		} else {
+			log.Fatalln("Using PDPSimple protocol with a reliable writer")
+		}
+	}
+}
+
 func (pdp *PDPSimple) CreatePDPEndpoints() bool {
 	log.Println("CreatePDPEndpoints Beginning")
 
@@ -92,7 +106,7 @@ func (pdp *PDPSimple) CreatePDPEndpoints() bool {
 
 	pdp.listener = newPDPListener(pdp)
 	var ok bool
-	ok, pdp.reader = pdp.rtpsParticipant.CreateReader(&ratt, pdp.readerPayloadPool,
+	pdp.reader, ok = pdp.rtpsParticipant.CreateReader(&ratt, pdp.readerPayloadPool,
 		pdp.pdpReaderHistory, pdp.listener,
 		common.KEidSEDPBuiltinTopicReader, true, false)
 	if ok {

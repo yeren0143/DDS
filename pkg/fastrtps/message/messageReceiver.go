@@ -25,16 +25,14 @@ type processDataFragmentMessageFunction func(*common.EntityIDT, *common.CacheCha
 
 // Receiver process the received messages.
 type Receiver struct {
-	participant      IReceiverOwner
-	sourceVersion    common.ProtocolVersionT
-	sourceVendorID   common.VendorIDT
-	sourceGUIDPrefix common.GUIDPrefixT
-	destGUIDPrefix   common.GUIDPrefixT
-	haveTimeStamp    bool
-	timeStamp        common.Time
-	mutex            sync.Mutex
-	//associatedWriters []writer.IRTPSWriter
-	//associatedReaders map[common.EntityIDT][]reader.IRTPSReader
+	participant       IReceiverOwner
+	sourceVersion     common.ProtocolVersionT
+	sourceVendorID    common.VendorIDT
+	sourceGUIDPrefix  common.GUIDPrefixT
+	destGUIDPrefix    common.GUIDPrefixT
+	haveTimeStamp     bool
+	timeStamp         common.Time
+	mutex             sync.Mutex
 	associatedWriters []IRtpsMsgWriter
 	associatedReaders map[common.EntityIDT][]IRtpsMsgReader
 	dataMsgFunc       processDataMessageFunction
@@ -74,9 +72,13 @@ func (receiver *Receiver) willAReaderAcceptMsgDirectedTo(readerID *common.Entity
 	}
 
 	if readerID != common.KEIDUnknown {
-		if readers, ok := receiver.associatedReaders[*readerID]; ok {
+		readers, ok := receiver.associatedReaders[*readerID]
+		if ok {
 			firstReader = readers[0]
 			return firstReader, true
+		} else {
+			log.Printf("associated readers: %v", receiver.associatedReaders)
+			log.Fatalln("find associatedReaders failed")
 		}
 	} else {
 		for _, readers := range receiver.associatedReaders {
@@ -391,6 +393,7 @@ func (receiver *Receiver) procSubmsgDataFrag(msg *common.CDRMessage, smh *Submes
 		   }
 		   msg->msg_endian = previous_endian;
 		*/
+		log.Fatalln("not Impl")
 	}
 
 	// Set sourcetimestamp

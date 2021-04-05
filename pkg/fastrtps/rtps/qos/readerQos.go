@@ -1,6 +1,7 @@
 package qos
 
 import (
+	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/core/policy"
 )
 
@@ -70,7 +71,7 @@ func NewReaderQos() *ReaderQos {
 	var qos = ReaderQos{
 		Deadline:            policy.KDefaultDeadlineQosPolicy,
 		LatencyBudget:       policy.KDefaultLatencyBudgetQosPolicy,
-		UserData:            *policy.NewUserDataQosPolicy(),
+		UserData:            *policy.NewUserDataQosPolicy(policy.KPidUserData, []common.Octet{}),
 		TimeBasedFilter:     policy.KDefaultTimeBasedFilterQosPolicy,
 		Presentation:        policy.KDefaultPresentationQosPolicy,
 		Partition:           policy.KDefaultPartitionQosPolicy,

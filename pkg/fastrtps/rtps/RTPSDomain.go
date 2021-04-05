@@ -47,15 +47,22 @@ func createGUIDPrefix(ID uint32) *common.GUIDPrefixT {
 	return &guid
 }
 
-//NewRTPSParticipant create new rtps participant
-func NewRTPSParticipant(domainID uint32, useProtocol bool, attrs *attributes.RTPSParticipantAttributes,
+func ClientServerEnvironmentCreationOverride(domainID uint32, enable bool, attrs *attributes.RTPSParticipantAttributes,
+	listen *participant.RTPSParticipantListener) *participant.RTPSParticipant {
+	data := os.Getenv("DEFAULT_ROS2_MASTER_URI")
+	if len(data) == 0 {
+		return nil
+	}
+
+	log.Fatalln("not Impl")
+	return nil
+}
+
+func createParticipant(domainID uint32, useProtocol bool, att *attributes.RTPSParticipantAttributes,
 	listen *participant.RTPSParticipantListener) *participant.RTPSParticipant {
 
-	log.SetFlags(log.Ldate | log.Llongfile)
-	log.Println("cretae RTPS participant")
-
-	if attrs.Builtin.DiscoveryConfig.LeaseDuration.Less(common.KTimeInfinite) &&
-		!attrs.Builtin.DiscoveryConfig.LeaseDurationAnnouncementPeriod.Less(attrs.Builtin.DiscoveryConfig.LeaseDuration) {
+	if att.Builtin.DiscoveryConfig.LeaseDuration.Less(common.KTimeInfinite) &&
+		!att.Builtin.DiscoveryConfig.LeaseDurationAnnouncementPeriod.Less(att.Builtin.DiscoveryConfig.LeaseDuration) {
 
 		log.Fatal("RTPSParticipant Attributes: LeaseDuration should be >= leaseDuration announcement period")
 		return nil
@@ -64,7 +71,7 @@ func NewRTPSParticipant(domainID uint32, useProtocol bool, attrs *attributes.RTP
 	var id uint32
 	gLock.Lock()
 	{
-		if attrs.ParticipantID < 0 {
+		if att.ParticipantID < 0 {
 			id = getNewID()
 			_, found := gRTPSParticipantIDs[id]
 			for found {
@@ -73,7 +80,7 @@ func NewRTPSParticipant(domainID uint32, useProtocol bool, attrs *attributes.RTP
 			}
 			gRTPSParticipantIDs[id] = true
 		} else {
-			id = uint32(attrs.ParticipantID)
+			id = uint32(att.ParticipantID)
 			if _, found := gRTPSParticipantIDs[id]; found {
 				log.Fatal("RTPSParticipant with the same ID already exists")
 				gLock.Unlock()
@@ -83,23 +90,23 @@ func NewRTPSParticipant(domainID uint32, useProtocol bool, attrs *attributes.RTP
 	}
 	gLock.Unlock()
 
-	if attrs.DefaultUnicastLocatorList.Valid() == false {
+	if att.DefaultUnicastLocatorList.Valid() == false {
 		log.Fatal("Default Unicast Locator List contains invalid Locator")
 		return nil
 	}
 
-	if attrs.DefaultMulticastLocatorList.Valid() == false {
+	if att.DefaultMulticastLocatorList.Valid() == false {
 		log.Fatal("Default Multicast Locator List contains invalid Locator")
 		return nil
 	}
 
-	attrs.ParticipantID = int32(id)
+	att.ParticipantID = int32(id)
 	loc := utils.GetIP4Address()
 
-	if loc.Empty() && attrs.Builtin.InitialPeersList.Empty() {
+	if loc.Empty() && att.Builtin.InitialPeersList.Empty() {
 		var local common.Locator
 		utils.SetIPv4WithBytes(&local, []common.Octet{127, 0, 0, 1})
-		attrs.Builtin.InitialPeersList.PushBack(&local)
+		att.Builtin.InitialPeersList.PushBack(&local)
 	}
 
 	guidP := createGUIDPrefix(id)
@@ -107,10 +114,10 @@ func NewRTPSParticipant(domainID uint32, useProtocol bool, attrs *attributes.RTP
 	// If we force the participant to have a specific prefix we must define a different persistence GuidPrefix_t that
 	// would ensure builtin endpoints are able to differentiate between a communication loss and a participant recovery
 	var rtpsParticipant *participant.RTPSParticipant
-	if *attrs.Prefix != common.KUnknownGUIDPrefix {
-		rtpsParticipant = participant.NewParticipant(domainID, attrs, attrs.Prefix, guidP, listen)
+	if *att.Prefix != common.KUnknownGUIDPrefix {
+		rtpsParticipant = participant.NewParticipant(domainID, att, att.Prefix, guidP, listen)
 	} else {
-		rtpsParticipant = participant.NewParticipant(domainID, attrs, guidP, &common.KUnknownGUIDPrefix, listen)
+		rtpsParticipant = participant.NewParticipant(domainID, att, guidP, &common.KUnknownGUIDPrefix, listen)
 	}
 
 	if rtpsParticipant == nil {
@@ -120,10 +127,10 @@ func NewRTPSParticipant(domainID uint32, useProtocol bool, attrs *attributes.RTP
 	// Above constructors create the sender resources. If a given listening port cannot be allocated an iterative
 	// mechanism will allocate another by default. Change the default listening port is unacceptable for server
 	// discovery.
-	if (attrs.Builtin.DiscoveryConfig.Protocol == attributes.KDisPServer ||
-		attrs.Builtin.DiscoveryConfig.Protocol == attributes.KDisPBackup) &&
-		rtpsParticipant.DidMutationTookPlaceOnMeta(attrs.Builtin.MetatrafficMulticastLocatorList,
-			attrs.Builtin.MetatrafficUnicastLocatorList) {
+	if (att.Builtin.DiscoveryConfig.Protocol == attributes.KDisPServer ||
+		att.Builtin.DiscoveryConfig.Protocol == attributes.KDisPBackup) &&
+		rtpsParticipant.DidMutationTookPlaceOnMeta(att.Builtin.MetatrafficMulticastLocatorList,
+			att.Builtin.MetatrafficUnicastLocatorList) {
 		log.Fatal("Server wasn't able to allocate the specified listening port")
 		return nil
 	}
@@ -135,9 +142,7 @@ func NewRTPSParticipant(domainID uint32, useProtocol bool, attrs *attributes.RTP
 	}
 
 	gLock.Lock()
-	{
-		gParticipantList = append(gParticipantList, rtpsParticipant)
-	}
+	gParticipantList = append(gParticipantList, rtpsParticipant)
 	gLock.Unlock()
 
 	if useProtocol {
@@ -145,4 +150,29 @@ func NewRTPSParticipant(domainID uint32, useProtocol bool, attrs *attributes.RTP
 	}
 
 	return rtpsParticipant
+}
+
+//NewRTPSParticipant create new rtps participant
+func NewRTPSParticipant(att *attributes.ParticipantAttributes,
+	listen *participant.RTPSParticipantListener) *participant.RTPSParticipant {
+
+	log.Println("cretae RTPS participant")
+
+	// If DEFAULT_ROS2_MASTER_URI is specified then try to create default client if
+	// that already exists.
+	part := ClientServerEnvironmentCreationOverride(att.DomainID, false, att.RTPS, listen)
+
+	if part == nil {
+		part = createParticipant(att.DomainID, false, att.RTPS, listen)
+	}
+
+	if part == nil {
+		log.Fatalln("Problem creating RTPSParticipant")
+		return nil
+	}
+
+	// Enable participant
+	part.Enable()
+
+	return part
 }

@@ -15,7 +15,7 @@ var _ IRTPSReader = (*StatefulReader)(nil)
 
 // Class StatefulReader, specialization of RTPSReader than stores the state of the matched writers.
 type StatefulReader struct {
-	rtpsReaderBase
+	RTPSReader
 	acknackCount  uint32
 	nackfragCount uint32
 	readerTimes   attributes.ReaderTimes
@@ -103,8 +103,8 @@ func NewStatefulReader(parent endpoint.IEndpointParent, guid *common.GUIDT, att 
 	retReader.disablePositiveAcks = att.DisablePositiveAcks
 	retReader.isAlive = true
 	var aChangePool history.IChangePool
-	retReader.rtpsReaderBase = *NewRtpsReaderBase(parent, guid, att, payloadPool, aChangePool, hist, rlisten)
-	retReader.rtpsReaderBase.impl = &retReader
+	retReader.RTPSReader = *NewRtpsReader(parent, guid, att, payloadPool, aChangePool, hist, rlisten)
+	retReader.RTPSReader.impl = &retReader
 
 	retReader.initWithParticipant(parent, att)
 

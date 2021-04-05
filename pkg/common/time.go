@@ -24,7 +24,7 @@ func (t *Time) Less(value Time) bool {
 }
 
 func (t *Time) MilliSeconds() int64 {
-	return int64(t.Seconds * 1000) + int64(t.Nanosec) / 1000
+	return int64(t.Seconds*1000) + int64(t.Nanosec)/1000
 }
 
 func CurrentTime() Time {
@@ -32,6 +32,13 @@ func CurrentTime() Time {
 	return Time{
 		Seconds: int32(timeStamp.Unix()),
 		Nanosec: uint32(timeStamp.UnixNano() - (timeStamp.Unix())*1e9),
+	}
+}
+
+func NewTime(duration *time.Duration) *Time {
+	return &Time{
+		Seconds: int32(duration.Milliseconds()),
+		Nanosec: uint32(duration.Nanoseconds() - duration.Milliseconds()),
 	}
 }
 

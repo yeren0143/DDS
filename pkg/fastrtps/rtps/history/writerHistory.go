@@ -39,7 +39,7 @@ func (wHistory *WriterHistory) RemoveMinChange() bool {
 
 	wHistory.Mutex.Lock()
 	defer wHistory.Mutex.Unlock()
-	if len(wHistory.changes) > 0 && wHistory.RemoveChange(wHistory.changes[0]) {
+	if len(wHistory.Changes) > 0 && wHistory.RemoveChange(wHistory.Changes[0]) {
 		return true
 	}
 	return false
@@ -81,8 +81,8 @@ func (wHistory *WriterHistory) addChange(aChange *common.CacheChangeT, wparams *
 	wparams.SampleIdentity.SequenceNumber = aChange.SequenceNumber
 	wparams.ReleatedSampleIdentity = wparams.SampleIdentity
 
-	wHistory.changes = append(wHistory.changes, aChange)
-	if len(wHistory.changes) == int(wHistory.Att.MaximumReservedCaches) {
+	wHistory.Changes = append(wHistory.Changes, aChange)
+	if len(wHistory.Changes) == int(wHistory.Att.MaximumReservedCaches) {
 		wHistory.isHistoryFull = true
 	}
 
@@ -107,9 +107,9 @@ func (wHistory *WriterHistory) doReserveCache(size uint32) (*common.CacheChangeT
 func (wHistory *WriterHistory) RemoveChangeNts(removal uint32, release bool) {
 	wHistory.isHistoryFull = false
 	if release {
-		wHistory.doReleaseCache(wHistory.changes[removal])
+		wHistory.doReleaseCache(wHistory.Changes[removal])
 	}
-	wHistory.changes = append(wHistory.changes[:removal], wHistory.changes[removal+1:]...)
+	wHistory.Changes = append(wHistory.Changes[:removal], wHistory.Changes[removal+1:]...)
 }
 
 func NewWriterHistory(att *attributes.HistoryAttributes) *WriterHistory {

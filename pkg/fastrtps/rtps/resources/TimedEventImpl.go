@@ -29,6 +29,11 @@ func (timeEvent *TimedEventImpl) NextTriggerTime() time.Time {
 	return timeEvent.nextTriggerTime
 }
 
+func (timeEvent *TimedEventImpl) GoReady() bool {
+	expected := KInactive
+	return atomic.CompareAndSwapInt32(&timeEvent.stateCode, expected, KReady)
+}
+
 func (timeEvent *TimedEventImpl) UpdateInterval(interval time.Duration) bool {
 	timeEvent.mutex.Lock()
 	defer timeEvent.mutex.Unlock()

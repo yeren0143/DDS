@@ -115,6 +115,13 @@ func (participant *RTPSParticipant) Enable() {
 	}
 }
 
+func (participant *RTPSParticipant) EnableReader(areader reader.IRTPSReader) bool {
+	if !participant.assignEndpointListenResources(areader) {
+		return false
+	}
+	return true
+}
+
 func (participant *RTPSParticipant) IsIntraprocessOnly() bool {
 	return participant.IntraProcessOnly
 }
@@ -497,7 +504,7 @@ func (participant *RTPSParticipant) createWriter(param *attributes.WriterAttribu
 }
 
 func (participant *RTPSParticipant) createReader(param *attributes.ReaderAttributes,
-	entityID *common.EntityIDT, isBuiltin, enable bool, callback createReaderCallback) (bool, reader.IRTPSReader) {
+	entityID *common.EntityIDT, isBuiltin, enable bool, callback createReaderCallback) (reader.IRTPSReader, bool) {
 
 	var reliableType string
 	if param.EndpointAtt.ReliabilityKind == common.KReliable {
@@ -508,7 +515,7 @@ func (participant *RTPSParticipant) createReader(param *attributes.ReaderAttribu
 	log.Printf("Creating reader of type %v", reliableType)
 	ok, entID := participant.preprocessEndpointAttributes("reader", entityID, &param.EndpointAtt, common.KReader, 0x04, 0x07)
 	if !ok {
-		return false, nil
+		return nil, false
 	}
 
 	// Special case for DiscoveryProtocol::BACKUP, which abuses persistence guid
@@ -526,7 +533,7 @@ func (participant *RTPSParticipant) createReader(param *attributes.ReaderAttribu
 	// Get persistence service
 	ok, persistence := participant.getPersistenceService("reader", isBuiltin, &param.EndpointAtt)
 	if !ok {
-		return false, nil
+		return nil, false
 	}
 
 	participant.normalizeEndpointLocators(&param.EndpointAtt)
@@ -540,7 +547,7 @@ func (participant *RTPSParticipant) createReader(param *attributes.ReaderAttribu
 	param.EndpointAtt.PersistenceGUID = formerPersistenceGUID
 
 	if sReader == nil {
-		return false, nil
+		return nil, false
 	}
 
 	if param.EndpointAtt.ReliabilityKind == common.KReliable {
@@ -554,7 +561,7 @@ func (participant *RTPSParticipant) createReader(param *attributes.ReaderAttribu
 
 	if enable {
 		if !participant.createAndAssociateReceiverswithEndpoint(sReader) {
-			return false, nil
+			return nil, false
 		}
 	}
 
@@ -565,16 +572,16 @@ func (participant *RTPSParticipant) createReader(param *attributes.ReaderAttribu
 		participant.UserReaderList = append(participant.UserReaderList, sReader)
 	}
 
-	return true, sReader
+	return sReader, true
 }
 
 func (participant *RTPSParticipant) CreateReader(param *attributes.ReaderAttributes,
 	payloadPool history.IPayloadPool, hist *history.ReaderHistory, listen reader.IReaderListener,
-	entityID *common.EntityIDT, isBuiltin bool, enable bool) (bool, reader.IRTPSReader) {
+	entityID *common.EntityIDT, isBuiltin bool, enable bool) (reader.IRTPSReader, bool) {
 
 	if payloadPool == nil {
 		log.Fatalln("Trying to create reader with null payload pool")
-		return false, nil
+		return nil, false
 	}
 
 	callback := func(guid *common.GUIDT, param *attributes.ReaderAttributes,
@@ -582,14 +589,14 @@ func (participant *RTPSParticipant) CreateReader(param *attributes.ReaderAttribu
 
 		if isReliable {
 			if persistenceServ != nil {
-
+				log.Fatalln("notImpl")
 			} else {
 				return reader.NewStatefulReader(participant, guid, param, payloadPool, hist, listen)
 			}
 
 		} else {
 			if persistenceServ != nil {
-
+				log.Fatalln("notImpl")
 			} else {
 				return reader.NewStatelessReader(participant, guid, param, payloadPool, hist, listen)
 			}

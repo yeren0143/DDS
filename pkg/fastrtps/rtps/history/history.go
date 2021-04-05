@@ -20,7 +20,7 @@ type historyImpl interface {
 
 type historyBase struct {
 	Att     attributes.HistoryAttributes
-	changes []*common.CacheChangeT
+	Changes []*common.CacheChangeT
 	Mutex   *sync.Mutex
 
 	// Variable to know if the history is full without needing to block the History mutex.
@@ -32,7 +32,7 @@ type historyBase struct {
 func (hist *historyBase) GetHistorySize() uint32 {
 	hist.Mutex.Lock()
 	defer hist.Mutex.Unlock()
-	return uint32(len(hist.changes))
+	return uint32(len(hist.Changes))
 }
 
 func (hist *historyBase) RemoveChange(ch *common.CacheChangeT) bool {
@@ -43,12 +43,12 @@ func (hist *historyBase) RemoveChange(ch *common.CacheChangeT) bool {
 	defer hist.Mutex.Unlock()
 
 	index := 0
-	for ; index < len(hist.changes); index++ {
-		if hist.changes[index] == ch {
+	for ; index < len(hist.Changes); index++ {
+		if hist.Changes[index] == ch {
 			break
 		}
 	}
-	if index == len(hist.changes) {
+	if index == len(hist.Changes) {
 		log.Fatalln("Trying to remove a change not in history")
 		return false
 	}
@@ -63,10 +63,10 @@ func (hist *historyBase) RemoveChange(ch *common.CacheChangeT) bool {
 func NewhistoryBase(att *attributes.HistoryAttributes) *historyBase {
 	var his historyBase
 	his.Att = *att
-	initialSize := att.InitialReservedCaches
-	if initialSize < 0 {
-		initialSize = 0
-	}
-	his.changes = make([]*common.CacheChangeT, initialSize)
+	// initialSize := att.InitialReservedCaches
+	// if initialSize < 0 {
+	// 	initialSize = 0
+	// }
+	// his.Changes = make([]*common.CacheChangeT, initialSize)
 	return &his
 }

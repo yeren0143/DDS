@@ -19,16 +19,27 @@ func (instance *InstanceHandleT) IsDefined() bool {
 }
 
 func (instance *InstanceHandleT) InitWithGUID(guid *GUIDT) {
-	for i:= 0; i < 16; i++ {
+	for i := 0; i < 16; i++ {
 		if i < 12 {
 			instance.Value[i] = guid.Prefix.Value[i]
 		} else {
-			instance.Value[i] = guid.EntityID.Value[i - 12]
+			instance.Value[i] = guid.EntityID.Value[i-12]
 		}
 	}
 }
 
-func CreateInstanceHandle(guid GUIDT) InstanceHandleT {
+func (instance *InstanceHandleT) Convert2GUID() GUIDT {
+	var guid GUIDT
+	for i := 0; i < 12; i++ {
+		guid.Prefix.Value[i] = instance.Value[i]
+	}
+	for i := 12; i < 16; i++ {
+		guid.EntityID.Value[i-12] = instance.Value[i]
+	}
+	return guid
+}
+
+func CreateInstanceHandle(guid *GUIDT) InstanceHandleT {
 	var instance InstanceHandleT
 	for i := 0; i < 12; i++ {
 		instance.Value[i] = guid.Prefix.Value[i]
@@ -38,15 +49,4 @@ func CreateInstanceHandle(guid GUIDT) InstanceHandleT {
 	}
 
 	return instance
-}
-
-func IHandle2GUID(ihandle *InstanceHandleT) GUIDT {
-	var guid GUIDT
-	for i := 0; i < 12; i++ {
-		guid.Prefix.Value[i] = ihandle.Value[i]
-	}
-	for i := 12; i < 16; i++ {
-		guid.EntityID.Value[i-12] = ihandle.Value[i]
-	}
-	return guid
 }

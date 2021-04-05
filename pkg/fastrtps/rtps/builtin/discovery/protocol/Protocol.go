@@ -16,12 +16,13 @@ type IParticipant interface {
 	GetGuid() *common.GUIDT
 	CreateReader(param *attributes.ReaderAttributes, payload history.IPayloadPool,
 		hist *history.ReaderHistory, listen reader.IReaderListener,
-		entityID *common.EntityIDT, isBuiltin bool, enable bool) (bool, reader.IRTPSReader)
+		entityID *common.EntityIDT, isBuiltin bool, enable bool) (reader.IRTPSReader, bool)
 	CreateWriter(param *attributes.WriterAttributes, payload history.IPayloadPool,
 		hist *history.WriterHistory, listen writer.IWriterListener,
 		entityID *common.EntityIDT, isBuiltin bool) (bool, writer.IRTPSWriter)
 	NetworkFactory() *network.NetFactory
 	GetEventResource() *resources.ResourceEvent
+	EnableReader(areader reader.IRTPSReader) bool
 }
 
 type ReaderProxyDataInitFunc = func(*data.ReaderProxyData, bool, *data.ParticipantProxyData) bool
@@ -55,6 +56,11 @@ type IPDP interface {
 
 	// Force the sending of our local DPD to all remote RTPSParticipants and multicast Locators.
 	AnnounceParticipantState(newChange bool, dispose bool, wparams *common.WriteParamsT)
+
+	// Reset the RTPSParticipantAnnouncement (only used in tests).
+	ResetParticipantAnnouncement()
+
+	Enable() bool
 
 	// This method returns the BuiltinAttributes of the local participant.
 	BuiltinAttributes() *attributes.BuiltinAttributes

@@ -15,7 +15,7 @@ var _ ireaderImpl = (*StatelessReader)(nil)
 
 // Class StatelessReader, specialization of the RTPSReader for Best Effort Readers.
 type StatelessReader struct {
-	rtpsReaderBase
+	RTPSReader
 	matchedWriters []remoteWriterInfoT
 }
 
@@ -251,9 +251,10 @@ func (statelessReader *StatelessReader) ProcessDataFragMsg(aChange *common.Cache
 func NewStatelessReader(parent endpoint.IEndpointParent, guid *common.GUIDT, att *attributes.ReaderAttributes,
 	payloadPool history.IPayloadPool, hist *history.ReaderHistory, rlisten IReaderListener) *StatelessReader {
 	var retReader StatelessReader
-	var aChangePool history.IChangePool
-	retReader.rtpsReaderBase = *NewRtpsReaderBase(parent, guid, att, payloadPool, aChangePool, hist, rlisten)
-	retReader.rtpsReaderBase.impl = &retReader
+	poolCfg := history.FromHistoryAttributes(&hist.Att)
+	aChangePool := history.NewCacheChangePool(poolCfg)
+	retReader.RTPSReader = *NewRtpsReader(parent, guid, att, payloadPool, aChangePool, hist, rlisten)
+	retReader.RTPSReader.impl = &retReader
 	retReader.matchedWriters = make([]remoteWriterInfoT, att.MatchedWritersAllocation.Initial)
 	retReader.init(&retReader, payloadPool, aChangePool)
 	return &retReader

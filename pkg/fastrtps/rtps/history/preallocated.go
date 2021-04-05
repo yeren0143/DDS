@@ -5,23 +5,30 @@ import (
 	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 )
 
-var _ topicPayloadPoolImpl = (*PreallocatedTopicPayloadPool)(nil)
+var _ iTopicPayloadPoolImpl = (*PreallocatedTopicPayloadPool)(nil)
 
 type PreallocatedTopicPayloadPool struct {
-	TopicPayloadPool
+	TopicPayloadPoolBase
 	payloadSize     uint32
 	minimumPoolSize uint32
 }
 
 func NewPreallocatedTopicPayloadPool(payloadSize, minimumPoolSize uint32) *PreallocatedTopicPayloadPool {
-	return &PreallocatedTopicPayloadPool{
+	// return &PreallocatedTopicPayloadPool{
+	// 	payloadSize:     payloadSize,
+	// 	minimumPoolSize: minimumPoolSize,
+	// }
+	payloadPool := PreallocatedTopicPayloadPool{
 		payloadSize:     payloadSize,
 		minimumPoolSize: minimumPoolSize,
 	}
+	payloadPool.TopicPayloadPoolBase = *NewTopicPayloadPoolBase(&payloadPool)
+
+	return &payloadPool
 }
 
 func (payloadPool *PreallocatedTopicPayloadPool) memoryPolicy() resources.MemoryManagementPolicy {
-	return resources.KPreallocatedWithReallocMemoryMode
+	return resources.KPreallocatedMemoryMode
 }
 
 func (payloadPool *PreallocatedTopicPayloadPool) GetPayload(size uint32, cacheChange *common.CacheChangeT) bool {

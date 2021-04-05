@@ -10,22 +10,14 @@ import (
 	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 )
 
-var _ ITopicPayloadPool = (*TopicPayloadPool)(nil)
-var _ IPayloadPool = (*TopicPayloadPool)(nil)
-
-// type nodeInfo struct {
-// 	refCounter uint32
-// 	dataSize   uint32
-// 	dataIndex  uint32
-// 	data       []common.Octet
-// }
+var _ ITopicPayloadPool = (*TopicPayloadPoolBase)(nil)
+var _ IPayloadPool = (*TopicPayloadPoolBase)(nil)
 
 type payloadNode struct {
 	refCounter uint32
 	dataSize   uint32
 	dataIndex  uint32
 	data       []common.Octet
-	//buffer []common.Octet
 }
 
 func (node *payloadNode) resize(size uint32) bool {
@@ -58,23 +50,23 @@ func dereference(data []common.Octet) bool {
 	return false
 }
 
-type topicPayloadPoolImpl interface {
+type iTopicPayloadPoolImpl interface {
 	memoryPolicy() resources.MemoryManagementPolicy
 	// updateMaximumSize(config *PoolConfig, reserve bool)
 	//GetPayload(size uint32, cache *common.CacheChangeT, resizeable bool) bool
 }
 
-type TopicPayloadPool struct {
+type TopicPayloadPoolBase struct {
 	maxPoolSize            uint32 // Maximum size of the pool
 	infiniteHistoriesCount uint32 // Number of infinite histories reserved
 	finiteMaxPoolSize      uint32 //Maximum size of the pool if no infinite histories were reserved
 	freePayloads           []*payloadNode
 	allPayloads            []*payloadNode
-	impl                   topicPayloadPoolImpl
+	impl                   iTopicPayloadPoolImpl
 	mutex                  sync.Mutex
 }
 
-func (pool *TopicPayloadPool) Reserve(minNumPayloads, size uint32) {
+func (pool *TopicPayloadPoolBase) Reserve(minNumPayloads, size uint32) {
 	if minNumPayloads > pool.maxPoolSize {
 		log.Fatalln("assert (min_num_payloads <= max_pool_size_) failed")
 		return
@@ -86,7 +78,7 @@ func (pool *TopicPayloadPool) Reserve(minNumPayloads, size uint32) {
 	}
 }
 
-func (pool *TopicPayloadPool) ReserveHistory(cfg *PoolConfig, isReader bool) bool {
+func (pool *TopicPayloadPoolBase) ReserveHistory(cfg *PoolConfig, isReader bool) bool {
 	if cfg.MemoryPolicy != pool.impl.memoryPolicy() {
 		log.Fatalln("cfg.MemoryPolicy != pool.impl.memoryPolicy()")
 	}
@@ -98,7 +90,7 @@ func (pool *TopicPayloadPool) ReserveHistory(cfg *PoolConfig, isReader bool) boo
 	return true
 }
 
-func (pool *TopicPayloadPool) updateMaximumSize(config *PoolConfig, reserve bool) {
+func (pool *TopicPayloadPoolBase) updateMaximumSize(config *PoolConfig, reserve bool) {
 	if reserve {
 		if config.MaximumSize == 0 {
 			pool.maxPoolSize = math.MaxUint32
@@ -133,7 +125,7 @@ func (pool *TopicPayloadPool) updateMaximumSize(config *PoolConfig, reserve bool
 
 }
 
-func (pool *TopicPayloadPool) shrink(maxNumPayloads uint32) bool {
+func (pool *TopicPayloadPoolBase) shrink(maxNumPayloads uint32) bool {
 	for maxNumPayloads < uint32(len(pool.allPayloads)) {
 		length := len(pool.freePayloads)
 		payload := pool.freePayloads[length-1]
@@ -148,11 +140,11 @@ func (pool *TopicPayloadPool) shrink(maxNumPayloads uint32) bool {
 	return true
 }
 
-func (pool *TopicPayloadPool) GetPayload(size uint32, cacheChange *common.CacheChangeT) bool {
+func (pool *TopicPayloadPoolBase) GetPayload(size uint32, cacheChange *common.CacheChangeT) bool {
 	return pool.getPayload(size, cacheChange, false)
 }
 
-func (pool *TopicPayloadPool) GetPayloadWithOwner(data *common.SerializedPayloadT, dataOwner *common.ICacheChangeParent,
+func (pool *TopicPayloadPoolBase) GetPayloadWithOwner(data *common.SerializedPayloadT, dataOwner *common.ICacheChangeParent,
 	aChange *common.CacheChangeT) bool {
 	if aChange.WriterGUID == common.KGuidUnknown {
 		log.Panic("aChange.WriterGUID == common.KGuidUnknown")
@@ -183,7 +175,7 @@ func (pool *TopicPayloadPool) GetPayloadWithOwner(data *common.SerializedPayload
 	return false
 }
 
-func (pool *TopicPayloadPool) ReleasePayload(cacheChange *common.CacheChangeT) bool {
+func (pool *TopicPayloadPoolBase) ReleasePayload(cacheChange *common.CacheChangeT) bool {
 	if cacheChange.PayloadOwner() != pool {
 		log.Fatalln("cacheChange.PayloadOwner() != pool")
 	}
@@ -205,7 +197,7 @@ func (pool *TopicPayloadPool) ReleasePayload(cacheChange *common.CacheChangeT) b
 	return true
 }
 
-func (pool *TopicPayloadPool) ReleaseHistory(cfg *PoolConfig, isReader bool) bool {
+func (pool *TopicPayloadPoolBase) ReleaseHistory(cfg *PoolConfig, isReader bool) bool {
 	if cfg.MemoryPolicy != pool.impl.memoryPolicy() {
 		return false
 	}
@@ -217,15 +209,15 @@ func (pool *TopicPayloadPool) ReleaseHistory(cfg *PoolConfig, isReader bool) boo
 	return pool.shrink(pool.maxPoolSize)
 }
 
-func (pool *TopicPayloadPool) PayloadPoolAllocatedSize() uint32 {
+func (pool *TopicPayloadPoolBase) PayloadPoolAllocatedSize() uint32 {
 	return uint32(len(pool.allPayloads))
 }
 
-func (pool *TopicPayloadPool) PayloadPoolAvailableSize() uint32 {
+func (pool *TopicPayloadPoolBase) PayloadPoolAvailableSize() uint32 {
 	return uint32(len(pool.freePayloads))
 }
 
-func (pool *TopicPayloadPool) allocate(size uint32) *payloadNode {
+func (pool *TopicPayloadPoolBase) allocate(size uint32) *payloadNode {
 	if len(pool.allPayloads) >= int(pool.maxPoolSize) {
 		log.Fatalln("Maximum number of allowed reserved payloads reached")
 		return nil
@@ -237,7 +229,7 @@ func (pool *TopicPayloadPool) allocate(size uint32) *payloadNode {
 	return payload
 }
 
-func (pool *TopicPayloadPool) getPayload(size uint32, cacheChange *common.CacheChangeT, resizeable bool) bool {
+func (pool *TopicPayloadPoolBase) getPayload(size uint32, cacheChange *common.CacheChangeT, resizeable bool) bool {
 	var payload *payloadNode
 	pool.mutex.Lock()
 	if len(pool.freePayloads) == 0 {
@@ -276,4 +268,8 @@ func (pool *TopicPayloadPool) getPayload(size uint32, cacheChange *common.CacheC
 	cacheChange.SetPayloadOwner(pool)
 
 	return true
+}
+
+func NewTopicPayloadPoolBase(payloadPoolImpl iTopicPayloadPoolImpl) *TopicPayloadPoolBase {
+	return &TopicPayloadPoolBase{impl: payloadPoolImpl}
 }

@@ -15,12 +15,6 @@ import (
 
 var _ history.IWriterWithHistory = (IRTPSWriter)(nil)
 
-// type IWriterParent interface {
-// 	GetAttributes() *attributes.RTPSParticipantAttributes
-// 	Wlp() endpoint.IWlp
-// 	SendSync(msg *common.CDRMessage, locators []common.Locator, maxBlockingTimePoint common.Time) bool
-// }
-
 type writerCallback = func() uint32
 
 // RTPSWriter manages the sending of data to the readers. Is always associated with a HistoryCache.

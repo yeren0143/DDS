@@ -1,5 +1,7 @@
 package transport
 
+import "log"
+
 var _ ITransportDescriptor = (*SharedMemTransportDescriptor)(nil)
 
 //SharedMemTransportDescriptor configure Shared memory transport
@@ -12,6 +14,7 @@ type SharedMemTransportDescriptor struct {
 }
 
 func (descriptor *SharedMemTransportDescriptor) CreateTransport() ITransport {
+	log.Println("SharedMemTransportDescriptor CreateTransport not Impl !!!!")
 	return (ITransport)(nil)
 }
 

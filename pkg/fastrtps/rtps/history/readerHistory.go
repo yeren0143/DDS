@@ -54,18 +54,18 @@ func (history *ReaderHistory) addChange(change *common.CacheChangeT) bool {
 		log.Fatalln("The Writer GUID_t must be defined")
 	}
 
-	if len(history.changes) > 0 {
-		if change.SourceTimestamp.Less(history.changes[len(history.changes)-1].SourceTimestamp) {
+	if len(history.Changes) > 0 {
+		if change.SourceTimestamp.Less(history.Changes[len(history.Changes)-1].SourceTimestamp) {
 			i := 0
-			for ; history.changes[i].SourceTimestamp.Less(change.SourceTimestamp); i++ {
+			for ; history.Changes[i].SourceTimestamp.Less(change.SourceTimestamp); i++ {
 			}
-			newChanges := history.changes[:i]
+			newChanges := history.Changes[:i]
 			newChanges = append(newChanges, change)
 			newChanges = append(newChanges)
-			history.changes = newChanges
+			history.Changes = newChanges
 		}
 	} else {
-		history.changes = append(history.changes, change)
+		history.Changes = append(history.Changes, change)
 	}
 
 	log.Printf("Change (%v) added with (%v) bytes", change.SequenceNumber, change.SerializedPayload)
@@ -91,15 +91,15 @@ func (history *ReaderHistory) RemoveChangeNts(removal uint32, release bool) {
 		log.Fatalln("You need to create a Reader with this History before adding any changes")
 	}
 
-	if int(removal) >= len(history.changes) {
+	if int(removal) >= len(history.Changes) {
 		log.Println("Trying to remove without a proper CacheChange_t referenced")
 		return
 	}
 
-	change := history.changes[removal]
-	newChanges := history.changes[:removal-1]
-	newChanges = append(newChanges, history.changes[removal+1])
-	history.changes = newChanges
+	change := history.Changes[removal]
+	newChanges := history.Changes[:removal-1]
+	newChanges = append(newChanges, history.Changes[removal+1])
+	history.Changes = newChanges
 	history.isHistoryFull = false
 
 	history.Reader.ChangeRemovedByHistory(change, nil)

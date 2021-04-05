@@ -17,6 +17,7 @@ replace (
 	github.com/yeren0143/DDS/fastrtps/rtps/endpoint => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/endpoint
 	github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/flowcontrol
 	github.com/yeren0143/DDS/fastrtps/rtps/history => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/history
+	github.com/yeren0143/DDS/fastrtps/rtps/builtin/liveliness => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/builtin/liveliness
 	github.com/yeren0143/DDS/fastrtps/rtps/network => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/network
 	github.com/yeren0143/DDS/fastrtps/rtps/persistence => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/persistence
 	github.com/yeren0143/DDS/fastrtps/rtps/qos => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/qos

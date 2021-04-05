@@ -23,10 +23,17 @@ func (timeEvent *TimedEvent) UpdateInterval(inter common.DurationT) bool {
 	return timeEvent.impl.UpdateInterval(duration)
 }
 
+func (timeEvent *TimedEvent) RestartTimer() {
+	if timeEvent.impl.GoReady() {
+		timeEvent.service.Notify(timeEvent.impl)
+	}
+}
+
 func NewTimedEvent(service *ResourceEvent, callback *TimedEventCallback, milliseconds int64) *TimedEvent {
 	var event TimedEvent
 	event.impl = NewTimedEventImpl(callback, milliseconds)
-	service.RegisterTimer(event.impl)
+	event.service = service
+	event.service.RegisterTimer(event.impl)
 	return &event
 }
 
@@ -45,6 +52,19 @@ func (timeEvents *TimeEventVector) Less(i, j int) bool {
 	lhs := timeEvents.Events[i].NextTriggerTime()
 	rhs := timeEvents.Events[j].NextTriggerTime()
 	return lhs.Before(rhs)
+}
+
+func (timeEvents *TimeEventVector) Push(event *TimedEventImpl) {
+	timeEvents.Events = append(timeEvents.Events, event)
+}
+
+func (timeEvents *TimeEventVector) Has(event *TimedEventImpl) bool {
+	for i := 0; i < len(timeEvents.Events); i++ {
+		if timeEvents.Events[i] == event {
+			return true
+		}
+	}
+	return false
 }
 
 func (timeEvents *TimeEventVector) Swap(i, j int) {

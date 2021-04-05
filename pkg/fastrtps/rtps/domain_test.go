@@ -2,6 +2,7 @@ package rtps
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"testing"
@@ -12,6 +13,8 @@ import (
 
 func TestNewParticipant(t *testing.T) {
 	go StartHTTPDebuger()
+
+	log.SetFlags(log.Ldate | log.Llongfile)
 
 	os.Setenv("SHM_TRANSPORT_BUILTIN", "1")
 	os.Setenv("FASTDDS_SHM_TRANSPORT_DISABLED", "true")
@@ -24,7 +27,10 @@ func TestNewParticipant(t *testing.T) {
 	att.Builtin.DiscoveryConfig.LeaseDuration = common.KTimeInfinite
 	att.Name = "Participant_sub_test"
 
-	participant := NewRTPSParticipant(0, true, att, nil)
+	pparam := attributes.NewParticipantAttributes()
+	pparam.RTPS = att
+
+	participant := NewRTPSParticipant(pparam, nil)
 	fmt.Printf("%v", participant)
 
 	sigChan := make(chan os.Signal)

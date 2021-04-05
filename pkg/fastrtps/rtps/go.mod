@@ -15,6 +15,7 @@ replace (
 	github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/edp => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/builtin/discovery/edp
 	github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/pdp => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/builtin/discovery/pdp
 	github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/builtin/discovery/protocol
+	github.com/yeren0143/DDS/fastrtps/rtps/builtin/liveliness => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/builtin/liveliness
 	github.com/yeren0143/DDS/fastrtps/rtps/endpoint => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/endpoint
 	github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/flowcontrol
 	github.com/yeren0143/DDS/fastrtps/rtps/history => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/history
@@ -38,6 +39,7 @@ require (
 	github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/edp v0.0.0-00010101000000-000000000000 // indirect
 	github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/pdp v0.0.0-00010101000000-000000000000 // indirect
 	github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol v0.0.0-00010101000000-000000000000 // indirect
+	github.com/yeren0143/DDS/fastrtps/rtps/builtin/liveliness v0.0.0-00010101000000-000000000000 // indirect
 	github.com/yeren0143/DDS/fastrtps/rtps/participant v0.0.0-00010101000000-000000000000
 	github.com/yeren0143/DDS/fastrtps/rtps/persistence v0.0.0-00010101000000-000000000000 // indirect
 	github.com/yeren0143/DDS/fastrtps/rtps/writer v0.0.0-00010101000000-000000000000 // indirect

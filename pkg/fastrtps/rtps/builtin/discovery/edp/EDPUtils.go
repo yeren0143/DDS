@@ -41,9 +41,8 @@ func createEDPReader(participant protocol.IParticipant, topicName string, entity
 	payloadPool = createPayloadPool(topicName, histAtt, true)
 	edpReader.Hist = history.NewReaderHistory(histAtt)
 
-	ok, aReader := participant.CreateReader(ratt, payloadPool,
+	aReader, ok := participant.CreateReader(ratt, payloadPool,
 		edpReader.Hist, listener, entityID, true, true)
-
 	if ok {
 		edpReader.AReader = aReader.(*reader.StatefulReader)
 	}

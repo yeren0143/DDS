@@ -9,6 +9,7 @@ replace (
 	github.com/yeren0143/DDS/fastrtps/rtps/attributes => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/attributes
 	github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/edp => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/builtin/discovery/edp
 	github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/pdp => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/builtin/discovery/pdp
+	github.com/yeren0143/DDS/fastrtps/rtps/builtin/liveliness => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/builtin/liveliness
 	github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/flowcontrol
 	github.com/yeren0143/DDS/fastrtps/rtps/network => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/network
 	github.com/yeren0143/DDS/fastrtps/rtps/reader => /home/jiayin/Desktop/DDS/DDS_go/pkg/fastrtps/rtps/reader

@@ -4,7 +4,7 @@ import (
 	"github.com/yeren0143/DDS/common"
 )
 
-type ParameterIDT uint16
+type ParameterIDT = uint16
 
 const (
 	KParameterKeyHashLength = 16
@@ -35,7 +35,7 @@ const (
 	KPidTimeBasedFilter                  ParameterIDT = 0x0004
 	KPidTransportPriority                ParameterIDT = 0x0049
 	KPidProtocolVersion                  ParameterIDT = 0x0015
-	KPidVersionID                        ParameterIDT = 0x0016
+	KPidVendorID                         ParameterIDT = 0x0016
 	KPidUnicastLocator                   ParameterIDT = 0x002f
 	KPidMulticastLocator                 ParameterIDT = 0x0030
 	KPidMulticastIPAddress               ParameterIDT = 0x0011
@@ -84,10 +84,10 @@ const (
 
 type ParameterT struct {
 	Pid    ParameterIDT
-	Length uint32
+	Length uint16
 }
 
-func NewParameterT(pid ParameterIDT, length uint32) *ParameterT {
+func NewParameterT(pid ParameterIDT, length uint16) *ParameterT {
 	return &ParameterT{
 		Pid:    pid,
 		Length: length,
@@ -107,7 +107,7 @@ type ParameterKeyT struct {
 	Key common.InstanceHandleT
 }
 
-func NewParameterKey(pid ParameterIDT, length uint32) *ParameterKeyT {
+func NewParameterKey(pid ParameterIDT, length uint16) *ParameterKeyT {
 	return &ParameterKeyT{
 		ParameterT: ParameterT{
 			Pid:    pid,
@@ -121,14 +121,28 @@ type ParamaterLocatorT struct {
 	Locator common.Locator
 }
 
+func NewParamaterLocator(pid ParameterIDT, len uint16, loc *common.Locator) *ParamaterLocatorT {
+	var parameter ParamaterLocatorT
+	parameter.ParameterT = *NewParameterT(pid, len)
+	parameter.Locator = *loc
+	return &parameter
+}
+
 const (
-	KParameterLocatorLength uint32 = 24
+	KParameterLocatorLength uint16 = 24
 )
 
 type ParameterStringT struct {
 	ParameterT
 	// Name. <br> By default, empty string.
-	name string
+	Name string
+}
+
+func NewParameterString(pid ParameterIDT, len uint16, strin string) *ParameterStringT {
+	var parameter ParameterStringT
+	parameter.ParameterT = *NewParameterT(pid, len)
+	parameter.Name = strin
+	return &parameter
 }
 
 type ParameterPortT struct {
@@ -145,13 +159,27 @@ type ParameterGuidT struct {
 	Guid common.GUIDT
 }
 
+func NewParameterGuid(pid ParameterIDT, len uint16, guidIn *common.GUIDT) *ParameterGuidT {
+	var parameter ParameterGuidT
+	parameter.ParameterT = *NewParameterT(pid, len)
+	parameter.Guid = *guidIn
+	return &parameter
+}
+
 const (
-	KParameterGuidLength uint32 = 16
+	KParameterGuidLength uint16 = 16
 )
 
 type ParameterProtocolVersionT struct {
 	ParameterT
 	ProtocolVersion common.ProtocolVersionT
+}
+
+func NewParameterProtocolVersion(pid ParameterIDT, len uint16) *ParameterProtocolVersionT {
+	var protocol ParameterProtocolVersionT
+	protocol.ParameterT = *NewParameterT(pid, len)
+	protocol.ProtocolVersion = common.KProtocolVersion
+	return &protocol
 }
 
 const (
@@ -161,6 +189,13 @@ const (
 type ParameterVendorIDT struct {
 	ParameterT
 	VendorID common.VendorIDT
+}
+
+func NewParameterVendorIDT(pid ParameterIDT, len uint16) *ParameterVendorIDT {
+	var parameter ParameterVendorIDT
+	parameter.ParameterT = *NewParameterT(pid, len)
+	parameter.VendorID = common.KVendorIDTeProsima
+	return &parameter
 }
 
 const (
@@ -222,8 +257,14 @@ type ParameterTimeT struct {
 }
 
 const (
-	KParameterTimeLength uint32 = 8
+	KParameterTimeLength uint16 = 8
 )
+
+func NewParameterTimeT(pid ParameterIDT, len uint16) *ParameterTimeT {
+	var param ParameterTimeT
+	param.ParameterT = *NewParameterT(pid, len)
+	return &param
+}
 
 type ParameterBuiltinEndpointSetT struct {
 	ParameterT
@@ -231,8 +272,14 @@ type ParameterBuiltinEndpointSetT struct {
 }
 
 const (
-	KParameterBuiltinEndpointsetLength uint32 = 4
+	KParameterBuiltinEndpointsetLength uint16 = 4
 )
+
+func NewParameterBuiltinEndpointSetT(pid ParameterIDT, len uint16) *ParameterBuiltinEndpointSetT {
+	var param ParameterBuiltinEndpointSetT
+	param.ParameterT = *NewParameterT(pid, len)
+	return &param
+}
 
 type ParameterPropertyT struct {
 	data []common.Octet
@@ -252,6 +299,10 @@ type ParameterPropertyListT struct {
 	limitSize   bool
 	ptr         []common.Octet
 	value       ParameterPropertyT
+}
+
+func (paramList *ParameterPropertyListT) Size() uint32 {
+	return paramList.nproperties
 }
 
 type ParameterSampleIdentityT struct {

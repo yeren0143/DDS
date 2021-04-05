@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/yeren0143/DDS/common"
+	"github.com/yeren0143/DDS/core/policy"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/edp"
@@ -99,6 +100,10 @@ func (pdp *pdpBase) GetRTPSParticipant() protocol.IParticipant {
 	return pdp.rtpsParticipant
 }
 
+func (pdp *pdpBase) Enable() bool {
+	return pdp.rtpsParticipant.EnableReader(pdp.reader)
+}
+
 // Force the sending of our local DPD to all remote RTPSParticipants and multicast Locators.
 func (pdp *pdpBase) AnnounceParticipantState(newChange, dispose bool, wparams *common.WriteParamsT) {
 	var aChange *common.CacheChangeT
@@ -111,6 +116,8 @@ func (pdp *pdpBase) AnnounceParticipantState(newChange, dispose bool, wparams *c
 			pdp.mutex.Unlock()
 
 			if pdp.pdpWriterHistory.GetHistorySize() > 0 {
+				length := pdp.pdpWriterHistory.GetHistorySize()
+				log.Fatalln(length)
 				pdp.pdpWriterHistory.RemoveMinChange()
 			}
 			cdrSize := proxyDataCopy.GetSerializedSize(true)
@@ -168,6 +175,10 @@ func (pdp *pdpBase) AnnounceParticipantState(newChange, dispose bool, wparams *c
 	}
 }
 
+func (pdp *pdpBase) ResetParticipantAnnouncement() {
+	pdp.resendParticipantInfoEvent.RestartTimer()
+}
+
 func (pdp *pdpBase) GetLocalParticipantProxyData() *data.ParticipantProxyData {
 	return pdp.participantProxies.Proxies[0]
 }
@@ -203,7 +214,8 @@ func (pdp *pdpBase) initPDP(participant protocol.IParticipant) bool {
 	}
 
 	callback := func() bool {
-		pdp.AnnounceParticipantState(false, false, &common.KWriteParamDefault)
+		writeParam := common.KWriteParamDefault
+		pdp.AnnounceParticipantState(false, false, &writeParam)
 		pdp.setNextAnnouncementInterval()
 		return true
 	}
@@ -299,8 +311,65 @@ func (pdp *pdpBase) addParticipantProxyData(participantGUID *common.GUIDT, withL
 	return retVal
 }
 
-func (pdp *pdpBase) initializeParticipantProxyData(*data.ParticipantProxyData) {
+func (pdp *pdpBase) initializeParticipantProxyData(participantData *data.ParticipantProxyData) {
+	builtinAtt := pdp.rtpsParticipant.GetAttributes().Builtin
+	leaseMilliSeconds := builtinAtt.DiscoveryConfig.LeaseDuration.MilliSeconds()
+	participantData.LeaseDuration = time.Duration(leaseMilliSeconds) * time.Millisecond
+	participantData.VendorID = common.KVendorIDTeProsima
 
+	participantData.AviableBuiltinEndpoints |= data.DISC_BUILTIN_ENDPOINT_PARTICIPANT_ANNOUNCER
+	participantData.AviableBuiltinEndpoints |= data.DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR
+
+	if builtinAtt.UseWriterLivelinessProtocol {
+		participantData.AviableBuiltinEndpoints |= data.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_WRITER
+		participantData.AviableBuiltinEndpoints |= data.BUILTIN_ENDPOINT_PARTICIPANT_MESSAGE_DATA_READER
+	}
+
+	if builtinAtt.TypeLookupConfig.UseServer {
+		participantData.AviableBuiltinEndpoints |= data.BUILTIN_ENDPOINT_TYPELOOKUP_SERVICE_REQUEST_DATA_READER
+		participantData.AviableBuiltinEndpoints |= data.BUILTIN_ENDPOINT_TYPELOOKUP_SERVICE_REPLY_DATA_WRITER
+	}
+
+	defaultUnicastLocators := pdp.rtpsParticipant.GetAttributes().DefaultUnicastLocatorList
+	for i := 0; i < len(defaultUnicastLocators.Locators); i++ {
+		participantData.DefaultLocators.AddUnicastLocator(&defaultUnicastLocators.Locators[i])
+	}
+
+	defaultMulticastLocators := pdp.rtpsParticipant.GetAttributes().DefaultMulticastLocatorList
+	for i := 0; i < len(defaultMulticastLocators.Locators); i++ {
+		participantData.DefaultLocators.AddMulticastLocator(&defaultMulticastLocators.Locators[i])
+	}
+	participantData.ExpectsInlineQos = false
+	participantData.Guid = *pdp.rtpsParticipant.GetGuid()
+	copy(participantData.Key.Value[:12], participantData.Guid.Prefix.Value[:12])
+	copy(participantData.Key.Value[12:], participantData.Guid.EntityID.Value[:4])
+
+	// Keep persistence Guid_Prefix_t in a specific property.
+	// This info must be propagated to all builtin endpoints
+	{
+		persistence := pdp.rtpsParticipant.GetAttributes().Prefix
+		if *persistence != common.KUnknownGUIDPrefix {
+			guid := &common.GUIDT{*persistence, *common.KEidRTPSParticipant}
+			participantData.SetPersistenceGuid(guid)
+		}
+	}
+
+	participantData.MetatrafficLocators.Unicast = []common.Locator{}
+	uniLocators := pdp.builtin.GetMetatrafficUnicastLocatorList()
+	for i := 0; i < len(uniLocators.Locators); i++ {
+		participantData.MetatrafficLocators.AddUnicastLocator(&uniLocators.Locators[i])
+	}
+
+	participantData.MetatrafficLocators.Multicast = []common.Locator{}
+	multiLocators := pdp.builtin.GetMetatrafficMulticastLocatorList()
+	if !pdp.discovery.AvoidBuiltinMulticast || len(participantData.MetatrafficLocators.Unicast) == 0 {
+		for i := 0; i < len(multiLocators.Locators); i++ {
+			participantData.MetatrafficLocators.AddMulticastLocator(&multiLocators.Locators[i])
+		}
+	}
+	participantData.ParticipantName = pdp.rtpsParticipant.GetAttributes().Name
+	userData := pdp.rtpsParticipant.GetAttributes().UserData
+	participantData.UserData = policy.NewUserDataQosPolicy(policy.KPidUserData, userData)
 }
 
 func newPDP(protocol IPDPParent, att *attributes.RTPSParticipantAllocationAttributes, impl IpdpBaseImpl) *pdpBase {
