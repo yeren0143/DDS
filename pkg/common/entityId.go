@@ -1,7 +1,20 @@
 package common
 
+import (
+	"os"
+)
+
 type EntityIDT struct {
 	Value [4]Octet
+}
+
+func (entID *EntityIDT) reverse() {
+	oaux := entID.Value[3]
+	entID.Value[3] = entID.Value[0]
+	entID.Value[0] = oaux
+	oaux = entID.Value[2]
+	entID.Value[2] = entID.Value[1]
+	entID.Value[1] = oaux
 }
 
 //NewEntityID ...
@@ -11,6 +24,9 @@ func NewEntityID(id uint32) *EntityIDT {
 	entityID.Value[1] = Octet(id >> 8)
 	entityID.Value[2] = Octet(id >> 16)
 	entityID.Value[3] = Octet(id >> 24)
+	if os.Getenv("FASTDDS_IS_BIG_ENDIAN_TARGET") == "" {
+		entityID.reverse()
+	}
 	return &entityID
 }
 

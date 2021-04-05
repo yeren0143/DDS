@@ -96,7 +96,7 @@ func (pdp *PDPSimple) CreatePDPEndpoints() bool {
 	pdp.readerPayloadPool.ReserveHistory(readerPoolCfg, true)
 
 	pdp.pdpReaderHistory = history.NewReaderHistory(&hatt)
-	var ratt attributes.ReaderAttributes
+	ratt := attributes.NewReaderAttributes()
 	ratt.EndpointAtt.MulticastLocatorList = *pdp.builtin.GetMetatrafficMulticastLocatorList()
 	ratt.EndpointAtt.UnicastLocatorList = *pdp.builtin.GetMetatrafficUnicastLocatorList()
 	ratt.EndpointAtt.TopicKind = common.KNoKey
@@ -106,9 +106,9 @@ func (pdp *PDPSimple) CreatePDPEndpoints() bool {
 
 	pdp.listener = newPDPListener(pdp)
 	var ok bool
-	pdp.reader, ok = pdp.rtpsParticipant.CreateReader(&ratt, pdp.readerPayloadPool,
+	pdp.reader, ok = pdp.rtpsParticipant.CreateReader(ratt, pdp.readerPayloadPool,
 		pdp.pdpReaderHistory, pdp.listener,
-		common.KEidSEDPBuiltinTopicReader, true, false)
+		common.KEntityIDSPDPReader, true, false)
 	if ok {
 		if os.Getenv("HAVE_SECURITY") != "" {
 			log.Fatal("todo HAVE_SECURITY CreatePDPEndpoints")

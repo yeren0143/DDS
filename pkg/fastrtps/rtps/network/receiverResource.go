@@ -59,9 +59,10 @@ func (resource *ReceiverResource) RegisterReceiver(rcv *message.Receiver) {
 	}
 }
 
-func NewReceiverResource(transport transport.ITransport, locator *common.Locator,
+func NewReceiverResource(inTransport transport.ITransport, locator *common.Locator,
 	maxRecvBufferSize uint32) *ReceiverResource {
 	resource := &ReceiverResource{}
+	transport := inTransport
 	resource.MaxMessageSize = maxRecvBufferSize
 	resource.Valid = transport.OpenInputChannel(locator, resource, maxRecvBufferSize)
 	if !resource.Valid {
