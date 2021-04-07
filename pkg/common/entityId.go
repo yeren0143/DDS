@@ -2,6 +2,7 @@ package common
 
 import (
 	"os"
+	"unsafe"
 )
 
 type EntityIDT struct {
@@ -17,13 +18,23 @@ func (entID *EntityIDT) reverse() {
 	entID.Value[1] = oaux
 }
 
+func (entID *EntityIDT) Equal(id *EntityIDT) bool {
+	if entID.Value == id.Value {
+		return true
+	} 
+
+	return false
+}
+
 //NewEntityID ...
 func NewEntityID(id uint32) *EntityIDT {
 	var entityID = EntityIDT{}
-	entityID.Value[0] = Octet(id)
-	entityID.Value[1] = Octet(id >> 8)
-	entityID.Value[2] = Octet(id >> 16)
-	entityID.Value[3] = Octet(id >> 24)
+	// entityID.Value[0] = Octet(id)
+	// entityID.Value[1] = Octet(id >> 8)
+	// entityID.Value[2] = Octet(id >> 16)
+	// entityID.Value[3] = Octet(id >> 24)
+	a := (*[4]byte)(unsafe.Pointer(&id))
+	entityID.Value = *a
 	if os.Getenv("FASTDDS_IS_BIG_ENDIAN_TARGET") == "" {
 		entityID.reverse()
 	}

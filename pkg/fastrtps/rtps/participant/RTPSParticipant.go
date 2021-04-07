@@ -334,14 +334,14 @@ func (participant *RTPSParticipant) Wlp() endpoint.IWlp {
 }
 
 func trustedWriter(readerEnt *common.EntityIDT) common.EntityIDT {
-	switch readerEnt {
-	case common.KEntityIDSPDPReader:
+	switch *readerEnt {
+	case *common.KEntityIDSPDPReader:
 		return *common.KEntityIDSPDPWriter
-	case common.KEntityIDSEDPPubReader:
+	case *common.KEntityIDSEDPPubReader:
 		return *common.KEntityIDSEDPPubWriter
-	case common.KEntityIDSEDPSubReader:
+	case *common.KEntityIDSEDPSubReader:
 		return *common.KEntityIDSEDPSubWriter
-	case common.KEntityIDReaderLiveliness:
+	case *common.KEntityIDReaderLiveliness:
 		return *common.KEntityIDWriterLiveliness
 	default:
 		return *common.KEIDUnknown

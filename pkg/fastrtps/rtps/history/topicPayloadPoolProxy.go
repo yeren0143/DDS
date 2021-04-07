@@ -23,8 +23,7 @@ func (proxy *TopicPayloadPoolProxy) GetPayload(size uint32, cacheChange *common.
 
 func (proxy *TopicPayloadPoolProxy) GetPayloadWithOwner(data *common.SerializedPayloadT, dataOwner *common.ICacheChangeParent,
 	aChange *common.CacheChangeT) bool {
-	//return proxy.innerPool.GetPayloadWithOwner(data, dataOwner, aChange)
-	return false
+	return proxy.innerPool.GetPayloadWithOwner(data, dataOwner, aChange)
 }
 
 func (proxy *TopicPayloadPoolProxy) ReleasePayload(cacheChange *common.CacheChangeT) bool {

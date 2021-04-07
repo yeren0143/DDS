@@ -36,6 +36,18 @@ func (statelessReader *StatelessReader) ChangeRemovedByHistory(change *common.Ca
 }
 
 func (statelessReader *StatelessReader) acceptMsgFrom(writerID *common.GUIDT, changeKind common.ChangeKindT) bool {
+	if changeKind == common.KAlive {
+		if statelessReader.acceptMessageFromUnKnowWriters {
+			return true
+		} else if (writerID.EntityID == statelessReader.trustedWriterEntityID) {
+			return true
+		}
+	}
+	for i := 0; i < len(statelessReader.matchedWriters); i++ {
+		if statelessReader.matchedWriters[i].GUID == *writerID {
+			return true
+		}
+	}
 	return false
 }
 
@@ -45,6 +57,7 @@ func (statelessReader *StatelessReader) ProcessDataMsg(change *common.CacheChang
 	defer statelessReader.Mutex.Unlock()
 
 	if !statelessReader.acceptMsgFrom(&change.WriterGUID, change.Kind) {
+		log.Println("refuse to accept msg")
 		return true
 	}
 
@@ -120,8 +133,9 @@ func (statelessReader *StatelessReader) ChangeReceived(aChange *common.CacheChan
 
 func (statelessReader *StatelessReader) getLastNotified(guid *common.GUIDT) common.SequenceNumberT {
 	var retVal common.SequenceNumberT
-	statelessReader.Mutex.Lock()
-	statelessReader.Mutex.Unlock()
+	// TODO::
+	// statelessReader.Mutex.Lock()
+	// defer statelessReader.Mutex.Unlock()
 	guidToLook := *guid
 	pGUID, ok := statelessReader.historyState.PersistenceGUIDMap[*guid]
 	if ok {
@@ -138,7 +152,7 @@ func (statelessReader *StatelessReader) getLastNotified(guid *common.GUIDT) comm
 
 func (statelessReader *StatelessReader) thereIsUpperRecordOf(guid *common.GUIDT, seq *common.SequenceNumberT) bool {
 	lastNotifiedSeq := statelessReader.getLastNotified(guid)
-	return !seq.Less(&lastNotifiedSeq)
+	return !lastNotifiedSeq.Less(seq)
 }
 
 func (statelessReader *StatelessReader) assertWriterLiveliness(guid *common.GUIDT) {

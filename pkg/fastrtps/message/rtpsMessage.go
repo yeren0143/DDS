@@ -49,6 +49,13 @@ type IRtpsMsgReader interface {
 	ProcessGapMsg(writerGUID *common.GUIDT,
 		gapStart *common.SequenceNumberT,
 		gapList *common.SequenceNumberSet) bool
+
+	ProcessDataMsg(change *common.CacheChangeT) bool
+
+	ProcessDataFragMsg(change *common.CacheChangeT,
+		sampleSize uint32,
+		fragmentStartingNum uint32,
+		fragmentsInSubmessage uint16) bool
 }
 
 type IRtpsMsgWriter interface {

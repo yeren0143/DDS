@@ -20,8 +20,8 @@ type IReceiverOwner interface {
 	AssertRemoteParticipantLiveliness(*common.GUIDPrefixT)
 }
 
-type processDataMessageFunction func(entityID *common.EntityIDT, change *common.CacheChangeT)
-type processDataFragmentMessageFunction func(*common.EntityIDT, *common.CacheChangeT, uint32, uint32, uint16)
+type processDataMessageFunction = func(entityID *common.EntityIDT, change *common.CacheChangeT)
+type processDataFragmentMessageFunction = func(*common.EntityIDT, *common.CacheChangeT, uint32, uint32, uint16)
 
 // Receiver process the received messages.
 type Receiver struct {
@@ -51,6 +51,9 @@ func NewMessageReceiver(holder IReceiverOwner, rcvBufferSize uint32) *Receiver {
 		associatedReaders: make(map[common.EntityIDT][]IRtpsMsgReader),
 	}
 	log.Printf("Created with CDRMessage of size: %v", rcvBufferSize)
+
+	receiver.dataMsgFunc = receiver.processDataMessageWithoutSecurity
+	receiver.dataFragMsgFunc = receiver.processDataFragmentMessageWithoutSecurity
 
 	return &receiver
 }
@@ -861,4 +864,21 @@ func (receiver *Receiver) ProcessCDRMsg(loc *common.Locator, msg *common.CDRMess
 	}
 
 	receiver.participant.AssertRemoteParticipantLiveliness(&receiver.sourceGUIDPrefix)
+}
+
+func (receiver *Receiver) processDataMessageWithoutSecurity(readerID *common.EntityIDT, achange *common.CacheChangeT) {
+	processMsg := func(areader IRtpsMsgReader) {
+		areader.ProcessDataMsg(achange)
+	}
+	receiver.findAllReaders(readerID, processMsg)
+}
+
+func (receiver *Receiver) processDataFragmentMessageWithoutSecurity(readerID *common.EntityIDT,
+	achange *common.CacheChangeT, sampleSize uint32,
+	fragmentStartingNum uint32, fragmentsInSubmessage uint16) {
+	processMsg := func(areader IRtpsMsgReader) {
+		areader.ProcessDataFragMsg(achange, sampleSize, fragmentStartingNum, fragmentsInSubmessage)
+	}
+
+	receiver.findAllReaders(readerID, processMsg)
 }

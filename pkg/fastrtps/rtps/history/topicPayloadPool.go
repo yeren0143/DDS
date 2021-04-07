@@ -159,7 +159,7 @@ func (pool *TopicPayloadPoolBase) GetPayloadWithOwner(data *common.SerializedPay
 		log.Panic("not impl")
 	} else {
 		if pool.GetPayload(data.Length, aChange) {
-			if aChange.SerializedPayload.Copy(data, true) {
+			if !aChange.SerializedPayload.Copy(data, true) {
 				pool.ReleasePayload(aChange)
 				return false
 			}
