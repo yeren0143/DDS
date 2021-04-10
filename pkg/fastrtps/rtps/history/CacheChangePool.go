@@ -46,9 +46,32 @@ func (changePool *CacheChangePool) ReserveCache() (*common.CacheChangeT, bool) {
 	return cacheChange, true
 }
 
-func (changePool *CacheChangePool) ReleaseCache(*common.CacheChangeT) bool {
-	log.Fatalln("not impl")
-	return false
+func (changePool *CacheChangePool) ReleaseCache(cacheChange *common.CacheChangeT) bool {
+	switch changePool.memoryMode {
+	case resources.KPreallocatedMemoryMode:
+		changePool.returnCacheToPool(cacheChange)
+	case resources.KPreallocatedWithReallocMemoryMode:
+		changePool.returnCacheToPool(cacheChange)
+	case resources.KDynamicReusableMemoryMode:
+		changePool.returnCacheToPool(cacheChange)
+	case resources.KDynamicReserveMemoryMode:
+		// Find pointer in CacheChange vector, remove element, then delete it
+		target := -1
+		for i := 0; i < len(changePool.allCaches); i++ {
+			if cacheChange == changePool.allCaches[i] {
+				target = i
+			}
+		}
+		if target != -1 {
+			changePool.allCaches = append(changePool.allCaches[:target], changePool.allCaches[:target+1]...)
+		} else {
+			log.Println("Tried to release a CacheChange that is not logged in the Pool")
+			return false
+		}
+
+		changePool.currentPoolSize--
+	}
+	return true
 }
 
 func (changePool *CacheChangePool) allocateSingle() *common.CacheChangeT {
@@ -84,6 +107,19 @@ func (changePool *CacheChangePool) allocateSingle() *common.CacheChangeT {
 	}
 
 	return ch
+}
+
+// Returns a CacheChange to the free caches pool
+func (changePool *CacheChangePool) returnCacheToPool(ch *common.CacheChangeT) {
+	ch.Kind = common.KAlive
+	ch.SequenceNumber.Value = 0
+	ch.WriterGUID = common.KGuidUnknown
+	ch.InstanceHandle.Value = [16]common.Octet{0}
+	ch.IsRead = false
+	ch.SourceTimestamp.Seconds = 0
+	ch.SourceTimestamp.Nanosec = 0
+	ch.SetFragmentSize(0, false)
+	changePool.freeCaches = append(changePool.freeCaches, ch)
 }
 
 func (changePool *CacheChangePool) allocateGroup(groupSize uint32) bool {
@@ -146,13 +182,13 @@ func NewCacheChangePool(cfg *PoolConfig) *CacheChangePool {
 		cachePool.allocateGroup(poolSize)
 	case resources.KPreallocatedWithReallocMemoryMode:
 		log.Println(`Semi-Static Mode is active,
-			preallocating memory for pool_size. Size of the cachechanges can be increased`)
+            preallocating memory for pool_size. Size of the cachechanges can be increased`)
 		cachePool.allocateGroup(poolSize)
 	case resources.KDynamicReserveMemoryMode:
 		log.Println("Dynamic Mode is active, CacheChanges are allocated on request")
 	case resources.KDynamicReusableMemoryMode:
 		log.Println(`Semi-Dynamic Mode is active, 
-		no preallocation but dynamically allocated CacheChanges are reused for future cachechanges`)
+        no preallocation but dynamically allocated CacheChanges are reused for future cachechanges`)
 	}
 
 	return &cachePool

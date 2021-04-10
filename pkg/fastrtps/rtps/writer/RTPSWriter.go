@@ -122,7 +122,7 @@ func (writerBase *rtpsWriterBase) NewChange(dataCdrSerializedSize writerCallback
 	changeKind common.ChangeKindT, handle common.InstanceHandleT) *common.CacheChangeT {
 	log.Println("Creating new change")
 	writerBase.Mutex.Lock()
-	writerBase.Mutex.Unlock()
+	defer writerBase.Mutex.Unlock()
 	reservedChange, ok := writerBase.ChangePool.ReserveCache()
 	if !ok {
 		log.Println("Problem reserving cache from pool")

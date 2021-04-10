@@ -5,6 +5,7 @@ import "time"
 // Time used to describe times
 type Time struct {
 	Seconds int32
+	// TODO:
 	Nanosec uint32
 }
 

@@ -39,7 +39,7 @@ func (wHistory *WriterHistory) RemoveMinChange() bool {
 
 	wHistory.Mutex.Lock()
 	defer wHistory.Mutex.Unlock()
-	if len(wHistory.Changes) > 0 && wHistory.RemoveChange(wHistory.Changes[0]) {
+	if len(wHistory.Changes) > 0 && wHistory.removeChange(wHistory.Changes[0]) {
 		return true
 	}
 	return false

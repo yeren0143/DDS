@@ -86,7 +86,7 @@ func NewStatelessWriter(parent endpoint.IEndpointParent, guid *common.GUIDT,
 	awriter.rtpsWriterBase = *newRtpsWriterBase(parent, guid, att, payloadPool, changePool, hist, wlisten)
 	//changeSize := history.ResourceLimitsFromHistory(hist.Att)
 	awriter.hist.Writer = &awriter
-	awriter.hist.Mutex = &awriter.Mutex
+	awriter.hist.Mutex = awriter.Mutex
 	awriter.init(parent, att)
 	return &awriter
 }

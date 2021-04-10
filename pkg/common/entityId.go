@@ -21,7 +21,7 @@ func (entID *EntityIDT) reverse() {
 func (entID *EntityIDT) Equal(id *EntityIDT) bool {
 	if entID.Value == id.Value {
 		return true
-	} 
+	}
 
 	return false
 }

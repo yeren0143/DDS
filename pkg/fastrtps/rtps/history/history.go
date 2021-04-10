@@ -35,12 +35,9 @@ func (hist *historyBase) GetHistorySize() uint32 {
 	return uint32(len(hist.Changes))
 }
 
-func (hist *historyBase) RemoveChange(ch *common.CacheChangeT) bool {
-	hist.Mutex.Lock()
-	defer hist.Mutex.Unlock()
-
-	hist.Mutex.Lock()
-	defer hist.Mutex.Unlock()
+func (hist *historyBase) removeChange(ch *common.CacheChangeT) bool {
+	// hist.mutex.Lock()
+	// defer hist.mutex.Unlock()
 
 	index := 0
 	for ; index < len(hist.Changes); index++ {

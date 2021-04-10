@@ -99,7 +99,7 @@ func (reader *RTPSReader) init(exactReader IRTPSReader, payloadPool history.IPay
 	}
 
 	reader.readerHistory.Reader = exactReader
-	reader.readerHistory.Mutex = &reader.Mutex
+	reader.readerHistory.Mutex = reader.Mutex
 
 	log.Println("RTPSReader created correctly")
 }
@@ -138,8 +138,9 @@ func (reader *RTPSReader) ReleaseCache(change *common.CacheChangeT) {
 // Update the last notified sequence for a RTPS guid
 func (reader *RTPSReader) updateLastNotified(guid *common.GUIDT, seq *common.SequenceNumberT) common.SequenceNumberT {
 	var retVal common.SequenceNumberT
-	reader.Mutex.Lock()
-	defer reader.Mutex.Unlock()
+	// TODO:
+	// reader.Mutex.Lock()
+	// defer reader.Mutex.Unlock()
 	guidToLook := *guid
 	pguid, ok := reader.historyState.PersistenceGUIDMap[*guid]
 	if ok {
@@ -196,6 +197,7 @@ func NewRtpsReader(parent endpoint.IEndpointParent, guid *common.GUIDT, att *att
 	retReader.historyState = NewReaderHistoryState(att.MatchedWritersAllocation.Initial)
 	retReader.livelinessKind = att.LivelinessKind
 	retReader.livelinessLeaseDuration = att.LivelinessLeaseDuration
+	retReader.newNotificationCV = utils.NewTimedCond(&sync.Mutex{})
 	//retReader.impl.init(payloadPool, changePool)
 	return &retReader
 }

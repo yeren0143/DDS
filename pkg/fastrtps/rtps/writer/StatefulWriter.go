@@ -132,7 +132,7 @@ func NewStatefulWriter(parent endpoint.IEndpointParent, guid *common.GUIDT, att 
 	awriter.currentUsageSendBufferSize = parent.GetMinNetworkSendBufferSize()
 
 	awriter.hist.Writer = &awriter
-	awriter.hist.Mutex = &awriter.Mutex
+	awriter.hist.Mutex = awriter.Mutex
 	awriter.init(parent, att)
 	return &awriter
 }

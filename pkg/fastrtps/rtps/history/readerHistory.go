@@ -40,8 +40,9 @@ func (history *ReaderHistory) addChange(change *common.CacheChangeT) bool {
 		log.Fatalln("You need to create a Reader with this History before adding any changes")
 	}
 
-	history.Mutex.Lock()
-	defer history.Mutex.Unlock()
+	// TODO: history.mutex equal reader.mutex
+	// history.Mutex.Lock()
+	// defer history.Mutex.Unlock()
 
 	if history.Att.MemoryPolicy == resources.KPreallocatedMemoryMode &&
 		change.SerializedPayload.Length > history.Att.PayloadMaxSize {

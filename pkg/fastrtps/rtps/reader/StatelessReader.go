@@ -39,7 +39,7 @@ func (statelessReader *StatelessReader) acceptMsgFrom(writerID *common.GUIDT, ch
 	if changeKind == common.KAlive {
 		if statelessReader.acceptMessageFromUnKnowWriters {
 			return true
-		} else if (writerID.EntityID == statelessReader.trustedWriterEntityID) {
+		} else if writerID.EntityID == statelessReader.trustedWriterEntityID {
 			return true
 		}
 	}
