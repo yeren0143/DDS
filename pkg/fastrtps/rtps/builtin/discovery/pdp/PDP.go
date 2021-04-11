@@ -247,7 +247,7 @@ func (pdp *pdpBase) setNextAnnouncementInterval() {
 	}
 }
 
-func (pdp *pdpBase) removeRemoteParticipant(partGUID *common.GUIDT, reason DiscoveryStatus) bool {
+func (pdp *pdpBase) RemoveRemoteParticipant(partGUID *common.GUIDT, reason DiscoveryStatus) bool {
 	log.Fatalln("not impl")
 	return false
 }
@@ -260,7 +260,7 @@ func (pdp *pdpBase) checkRemoteParticipantLiveliness(remoteParticipant *data.Par
 		realLeaseTm := remoteParticipant.LastReceivedMessageTm.Add(remoteParticipant.LeaseDuration)
 		if now.After(realLeaseTm) {
 			pdp.mutex.Unlock()
-			pdp.removeRemoteParticipant(&remoteParticipant.Guid, KDroppedParticipant)
+			pdp.RemoveRemoteParticipant(&remoteParticipant.Guid, KDroppedParticipant)
 			return
 		}
 	}

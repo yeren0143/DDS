@@ -10,7 +10,7 @@ import (
 	"github.com/yeren0143/DDS/common"
 )
 
-func CreateLocator(kindin int8, address string, portin uint32) common.Locator {
+func CreateLocator(kindin int32, address string, portin uint32) common.Locator {
 	var locator common.Locator
 	locator.Kind = kindin
 	locator.Port = portin

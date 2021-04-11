@@ -17,7 +17,7 @@ type ITCPTransport interface {
 }
 
 type tcpTransport struct {
-	transportKind     int8
+	transportKind     int32
 	socketsMapMutex   sync.Mutex
 	receiverResources map[uint16]ITransportReceiver
 	currentInterfaces []utils.InfoIP
@@ -30,7 +30,7 @@ func (transport *tcpTransport) isInputPortOpen(port uint16) bool {
 	return ok
 }
 
-func (transport *tcpTransport) Kind() int8 {
+func (transport *tcpTransport) Kind() int32 {
 	return transport.transportKind
 }
 

@@ -54,6 +54,14 @@ type IPDP interface {
 	// @param pdata Pointer to the ParticipantProxyData to remove
 	RemoveRemoteEndpoints(pdata *data.ParticipantProxyData)
 
+	/**
+	 * This method removes a remote RTPSParticipant and all its writers and readers.
+	 * @param participant_guid GUID_t of the remote RTPSParticipant.
+	 * @param reason Why the participant is being removed (dropped vs removed)
+	 * @return true if correct.
+	 */
+	RemoveRemoteParticipant(partGUID *common.GUIDT, reason uint8) bool
+
 	// Force the sending of our local DPD to all remote RTPSParticipants and multicast Locators.
 	AnnounceParticipantState(newChange bool, dispose bool, wparams *common.WriteParamsT)
 

@@ -156,7 +156,7 @@ func (receiver *Receiver) readSubmessageHeader(msg *common.CDRMessage, smh *Subm
 	}
 
 	var length uint16
-	readUInt16(msg, &length)
+	msg.ReadUInt16(&length)
 	if (msg.Pos + uint32(length)) > msg.Length {
 		log.Printf("SubMsg of invalid length (%v) with current msg position/length (%v/)", msg.Pos, msg.Length)
 		return false
@@ -201,13 +201,11 @@ func (receiver *Receiver) checkRTPSHeader(msg *common.CDRMessage) bool {
 	receiver.sourceVendorID.Vendor[1] = msg.Buffer[msg.Pos]
 	msg.Pos++
 	// set source guid prefix
-	data, ok := readData(msg, common.KGUIDPrefixSize)
+	data, ok := msg.ReadData(common.KGUIDPrefixSize)
 	if !ok {
 		log.Fatal("receive bad data, prefix not ok")
 	}
-	for i := 0; i < len(receiver.sourceGUIDPrefix.Value); i++ {
-		receiver.sourceGUIDPrefix.Value[i] = data[i]
-	}
+	copy(receiver.sourceGUIDPrefix.Value[:], data[:len(receiver.sourceGUIDPrefix.Value)])
 	receiver.haveTimeStamp = false
 
 	return true
@@ -245,19 +243,19 @@ func (receiver *Receiver) procSubmsgHeartbeat(msg *common.CDRMessage, smh *Subme
 	}
 	var readerGUID, writerGUID common.GUIDT
 	readerGUID.Prefix = receiver.destGUIDPrefix
-	readEntityID(msg, &readerGUID.EntityID)
+	msg.ReadEntityID(&readerGUID.EntityID)
 	writerGUID.Prefix = receiver.sourceGUIDPrefix
-	readEntityID(msg, &writerGUID.EntityID)
+	msg.ReadEntityID(&writerGUID.EntityID)
 	var firstSN, lastSN common.SequenceNumberT
-	readSequenceNumber(msg, &firstSN)
-	readSequenceNumber(msg, &lastSN)
+	msg.ReadSequenceNumber(&firstSN)
+	msg.ReadSequenceNumber(&lastSN)
 	if lastSN.Less(&firstSN) && (lastSN.Value != (firstSN.Value - 1)) {
 		log.Printf("Invalid Heartbeat received (%v) - (%v),  ignoring", firstSN, lastSN)
 		return false
 	}
 
 	var HBCount uint32
-	readUInt32(msg, &HBCount)
+	msg.ReadUInt32(&HBCount)
 
 	receiver.mutex.Lock()
 	defer receiver.mutex.Unlock()
@@ -295,11 +293,11 @@ func (receiver *Receiver) procSubmsgDataFrag(msg *common.CDRMessage, smh *Submes
 	msg.Pos += 2
 
 	var octetsToInLineQos int16
-	valid := readInt16(msg, &octetsToInLineQos)
+	valid := msg.ReadInt16(&octetsToInLineQos)
 
 	// reader and writer ID
 	var readerID common.EntityIDT
-	readEntityID(msg, &readerID)
+	msg.ReadEntityID(&readerID)
 
 	// WE KNOW THE READER THAT THE MESSAGE IS DIRECTED TO SO WE LOOK FOR IT:
 	_, ok := receiver.willAReaderAcceptMsgDirectedTo(&readerID)
@@ -311,10 +309,10 @@ func (receiver *Receiver) procSubmsgDataFrag(msg *common.CDRMessage, smh *Submes
 	// We ask the reader for a cachechange to store the information.
 	ch := common.NewCacheChangeT()
 	ch.WriterGUID.Prefix = receiver.sourceGUIDPrefix
-	valid = valid && readEntityID(msg, &ch.WriterGUID.EntityID)
+	valid = valid && msg.ReadEntityID(&ch.WriterGUID.EntityID)
 
 	// Get sequence number
-	valid = valid && readSequenceNumber(msg, &ch.SequenceNumber)
+	valid = valid && msg.ReadSequenceNumber(&ch.SequenceNumber)
 
 	if ch.SequenceNumber.Value >= ^uint64(0) {
 		log.Println("Invalid message received, bad sequence Number")
@@ -323,19 +321,19 @@ func (receiver *Receiver) procSubmsgDataFrag(msg *common.CDRMessage, smh *Submes
 
 	// READ FRAGMENT NUMBER
 	var fragmentStartingNum uint32
-	valid = valid && readUInt32(msg, &fragmentStartingNum)
+	valid = valid && msg.ReadUInt32(&fragmentStartingNum)
 
 	// READ FRAGMENTSINSUBMESSAGE
 	var fragmentsInSubmessage uint16
-	valid = valid && readUInt16(msg, &fragmentsInSubmessage)
+	valid = valid && msg.ReadUInt16(&fragmentsInSubmessage)
 
 	// READ FRAGMENTSIZE
 	var fragmentSize uint16
-	valid = valid && readUInt16(msg, &fragmentSize)
+	valid = valid && msg.ReadUInt16(&fragmentSize)
 
 	// READ SAMPLESIZE
 	var sampleSize uint32
-	valid = valid && readUInt32(msg, &sampleSize)
+	valid = valid && msg.ReadUInt32(&sampleSize)
 
 	if !valid {
 		return false
@@ -444,11 +442,11 @@ func (receiver *Receiver) procSubmsgData(msg *common.CDRMessage, smh *Submessage
 
 	valid := true
 	octetsToInLineQos := int16(0)
-	valid = valid && readInt16(msg, &octetsToInLineQos) // it should be 16 in this implementation
+	valid = valid && msg.ReadInt16(&octetsToInLineQos) // it should be 16 in this implementation
 
 	// reader and writer ID
 	var readerID common.EntityIDT
-	valid = valid && readEntityID(msg, &readerID)
+	valid = valid && msg.ReadEntityID(&readerID)
 
 	// WE KNOW THE READER THAT THE MESSAGE IS DIRECTED TO SO WE LOOK FOR IT:
 	_, ok := receiver.willAReaderAcceptMsgDirectedTo(&readerID)
@@ -461,10 +459,10 @@ func (receiver *Receiver) procSubmsgData(msg *common.CDRMessage, smh *Submessage
 	ch := common.NewCacheChangeT()
 	ch.Kind = common.KAlive
 	ch.WriterGUID.Prefix = receiver.sourceGUIDPrefix
-	valid = valid && readEntityID(msg, &ch.WriterGUID.EntityID)
+	valid = valid && msg.ReadEntityID(&ch.WriterGUID.EntityID)
 
 	// Get sequence number
-	valid = valid && readSequenceNumber(msg, &ch.SequenceNumber)
+	valid = valid && msg.ReadSequenceNumber(&ch.SequenceNumber)
 
 	if !valid {
 		return false
@@ -556,15 +554,15 @@ func (receiver *Receiver) procSubmsgAcknack(msg *common.CDRMessage, smh *Submess
 
 	var readerGUID common.GUIDT
 	readerGUID.Prefix = receiver.sourceGUIDPrefix
-	readEntityID(msg, &readerGUID.EntityID)
+	msg.ReadEntityID(&readerGUID.EntityID)
 
 	var writerGUID common.GUIDT
 	writerGUID.Prefix = receiver.destGUIDPrefix
-	readEntityID(msg, &writerGUID.EntityID)
+	msg.ReadEntityID(&writerGUID.EntityID)
 
-	snsSet := readSequenceNumberSet(msg)
+	snsSet := msg.ReadSequenceNumberSet()
 	var ackCount uint32
-	readUInt32(msg, &ackCount)
+	msg.ReadUInt32(&ackCount)
 
 	receiver.mutex.Lock()
 	defer receiver.mutex.Unlock()
@@ -594,20 +592,20 @@ func (receiver *Receiver) procSubmsgNackFrag(msg *common.CDRMessage, smh *Submes
 
 	var readerGUID common.GUIDT
 	readerGUID.Prefix = receiver.sourceGUIDPrefix
-	readEntityID(msg, &readerGUID.EntityID)
+	msg.ReadEntityID(&readerGUID.EntityID)
 
 	var writerGUID common.GUIDT
 	writerGUID.Prefix = receiver.destGUIDPrefix
-	readEntityID(msg, &writerGUID.EntityID)
+	msg.ReadEntityID(&writerGUID.EntityID)
 
 	var writerSN common.SequenceNumberT
-	readSequenceNumber(msg, &writerSN)
+	msg.ReadSequenceNumber(&writerSN)
 
 	fnState := common.NewFragmentNumberSet()
-	readFragmentNumberSet(msg, fnState)
+	msg.ReadFragmentNumberSet(fnState)
 
 	var ackCount uint32
-	readUInt32(msg, &ackCount)
+	msg.ReadUInt32(&ackCount)
 
 	receiver.mutex.Lock()
 	defer receiver.mutex.Unlock()
@@ -634,15 +632,15 @@ func (receiver *Receiver) procSubmsgGap(msg *common.CDRMessage, smh *SubmessageH
 
 	var readerGUID common.GUIDT
 	readerGUID.Prefix = receiver.destGUIDPrefix
-	readEntityID(msg, &readerGUID.EntityID)
+	msg.ReadEntityID(&readerGUID.EntityID)
 
 	var writerGUID common.GUIDT
 	writerGUID.Prefix = receiver.sourceGUIDPrefix
-	readEntityID(msg, &writerGUID.EntityID)
+	msg.ReadEntityID(&writerGUID.EntityID)
 
 	var gapStart common.SequenceNumberT
-	readSequenceNumber(msg, &gapStart)
-	gapList := readSequenceNumberSet(msg)
+	msg.ReadSequenceNumber(&gapStart)
+	gapList := msg.ReadSequenceNumberSet()
 	if gapStart.Value <= 0 {
 		return false
 	}
@@ -668,20 +666,20 @@ func (receiver *Receiver) procSubmsgHeartbeatFrag(msg *common.CDRMessage, smh *S
 
 	var readerGUID common.GUIDT
 	readerGUID.Prefix = receiver.destGUIDPrefix
-	readEntityID(msg, &readerGUID.EntityID)
+	msg.ReadEntityID(&readerGUID.EntityID)
 
 	var writerGUID common.GUIDT
 	writerGUID.Prefix = receiver.sourceGUIDPrefix
-	readEntityID(msg, &writerGUID.EntityID)
+	msg.ReadEntityID(&writerGUID.EntityID)
 
 	var writerSN common.SequenceNumberT
-	readSequenceNumber(msg, &writerSN)
+	msg.ReadSequenceNumber(&writerSN)
 
 	var lastFN common.FragmentNumberT
-	readUInt32(msg, &lastFN)
+	msg.ReadUInt32(&lastFN)
 
 	var HBCount uint32
-	readUInt32(msg, &HBCount)
+	msg.ReadUInt32(&HBCount)
 
 	return true
 }
@@ -695,7 +693,7 @@ func (receiver *Receiver) procSubmsgInfoDst(msg *common.CDRMessage, smh *Submess
 	}
 
 	var guidP common.GUIDPrefixT
-	data, _ := readData(msg, common.KGUIDPrefixSize)
+	data, _ := msg.ReadData(common.KGUIDPrefixSize)
 	for i := 0; i < len(data); i++ {
 		guidP.Value[i] = data[i]
 	}
@@ -719,7 +717,7 @@ func (receiver *Receiver) procSubmsgInfoTs(msg *common.CDRMessage, smh *Submessa
 
 	if !timeFlag {
 		receiver.haveTimeStamp = true
-		readTimestamp(msg, &receiver.timeStamp)
+		msg.ReadTimestamp(&receiver.timeStamp)
 	} else {
 		receiver.haveTimeStamp = false
 	}
@@ -737,14 +735,14 @@ func (receiver *Receiver) procSubmsgInfoSrc(msg *common.CDRMessage, smh *Submess
 
 	if smh.SubmessageLength == KInfoSrcSubmsgLength {
 		msg.Pos += 4
-		readOctet(msg, &receiver.sourceVersion.Major)
-		readOctet(msg, &receiver.sourceVersion.Minor)
+		msg.ReadOctet(&receiver.sourceVersion.Major)
+		msg.ReadOctet(&receiver.sourceVersion.Minor)
 
-		vendorID, _ := readData(msg, 2)
+		vendorID, _ := msg.ReadData(2)
 		receiver.sourceVendorID.Vendor[0] = vendorID[0]
 		receiver.sourceVendorID.Vendor[1] = vendorID[1]
 
-		guidP, _ := readData(msg, common.KGUIDPrefixSize)
+		guidP, _ := msg.ReadData(common.KGUIDPrefixSize)
 		for i := 0; i < common.KGUIDPrefixSize; i++ {
 			receiver.sourceGUIDPrefix.Value[i] = guidP[i]
 		}

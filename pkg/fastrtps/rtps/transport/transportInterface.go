@@ -77,7 +77,7 @@ type ITransport interface {
 		domainID uint32, list *common.LocatorList) bool
 
 	//return transport kind
-	Kind() int8
+	Kind() int32
 
 	AddDefaultOutputLocator(defaultList *common.LocatorList)
 }

@@ -2,7 +2,7 @@ package pdp
 
 import "github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
 
-type DiscoveryStatus uint8
+type DiscoveryStatus = uint8
 
 const (
 	KDiscoveryParticipant DiscoveryStatus = iota

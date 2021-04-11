@@ -46,6 +46,7 @@ func (listener *ReaderListenerBase) OnReaderMatchedWithStatus(reader IRTPSReader
 
 func (listener *ReaderListenerBase) OnNewCacheChangeAdded(reader IRTPSReader, change *common.CacheChangeT) {
 	log.Println("not impl OnNewCacheChangeAdded")
+	log.Fatalln("notImpl")
 }
 
 func (listener *ReaderListenerBase) OnLivelinessChanged(reader IRTPSReader, liveness *status.LivelinessChangedStatus) {

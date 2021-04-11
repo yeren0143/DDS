@@ -1,7 +1,7 @@
 package common
 
 // LocatorEnum ...
-type LocatorEnum = int8
+type LocatorEnum = int32
 
 // transport enum
 const (
@@ -16,7 +16,7 @@ const (
 
 //Locator ...
 type Locator struct {
-	Kind    int8
+	Kind    int32
 	Port    uint32
 	Address [16]Octet
 }
