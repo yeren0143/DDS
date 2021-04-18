@@ -74,6 +74,8 @@ type ProtocolVersionT struct {
 	Minor Octet
 }
 
+var KDefaultProtocolVersion ProtocolVersionT = ProtocolVersionT{2, 2}
+
 func NewProtocolVersion(maj Octet, min Octet) ProtocolVersionT {
 	return ProtocolVersionT{maj, min}
 }

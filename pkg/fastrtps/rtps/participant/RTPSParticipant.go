@@ -73,6 +73,10 @@ func shouldBeIntraProcessOnly(pparam *attributes.RTPSParticipantAttributes) bool
 	return false
 }
 
+func (participant *RTPSParticipant) HasShmTransport() bool {
+	return participant.hasShmTransport
+}
+
 //DidMutationTookPlaceOnMeta Compare metatraffic locators list searching for mutations
 func (participant *RTPSParticipant) DidMutationTookPlaceOnMeta(multicast, unicast *common.LocatorList) bool {
 	if participant.Att.Builtin.MetatrafficMulticastLocatorList == multicast &&

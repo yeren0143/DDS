@@ -91,15 +91,15 @@ func (msg *CDRMessage) AddInt32(lo int32) bool {
 	o3 := Octet(lo >> 30)
 
 	if msg.MsgEndian == KDefaultEndian {
-		msg.Buffer[msg.Pos] = o3
-		msg.Buffer[msg.Pos+1] = o2
-		msg.Buffer[msg.Pos+2] = o1
-		msg.Buffer[msg.Pos+3] = o0
-	} else {
 		msg.Buffer[msg.Pos] = o0
 		msg.Buffer[msg.Pos+1] = o1
 		msg.Buffer[msg.Pos+2] = o2
 		msg.Buffer[msg.Pos+3] = o3
+	} else {
+		msg.Buffer[msg.Pos] = o3
+		msg.Buffer[msg.Pos+1] = o2
+		msg.Buffer[msg.Pos+2] = o1
+		msg.Buffer[msg.Pos+3] = o0
 	}
 
 	msg.Pos += 4
@@ -118,15 +118,15 @@ func (msg *CDRMessage) AddUInt32(lo uint32) bool {
 	o3 := Octet(lo & 0xFF000000)
 
 	if msg.MsgEndian == KDefaultEndian {
-		msg.Buffer[msg.Pos] = o3
-		msg.Buffer[msg.Pos+1] = o2
-		msg.Buffer[msg.Pos+2] = o1
-		msg.Buffer[msg.Pos+3] = o0
-	} else {
 		msg.Buffer[msg.Pos] = o0
 		msg.Buffer[msg.Pos+1] = o1
 		msg.Buffer[msg.Pos+2] = o2
 		msg.Buffer[msg.Pos+3] = o3
+	} else {
+		msg.Buffer[msg.Pos] = o3
+		msg.Buffer[msg.Pos+1] = o2
+		msg.Buffer[msg.Pos+2] = o1
+		msg.Buffer[msg.Pos+3] = o0
 	}
 
 	msg.Pos += 4
@@ -149,15 +149,6 @@ func (msg *CDRMessage) AddInt64(lolo int64) bool {
 	o7 := Octet(lolo >> 62)
 
 	if msg.MsgEndian == KDefaultEndian {
-		msg.Buffer[msg.Pos] = o7
-		msg.Buffer[msg.Pos+1] = o6
-		msg.Buffer[msg.Pos+2] = o5
-		msg.Buffer[msg.Pos+3] = o4
-		msg.Buffer[msg.Pos] = o3
-		msg.Buffer[msg.Pos+1] = o2
-		msg.Buffer[msg.Pos+2] = o1
-		msg.Buffer[msg.Pos+3] = o0
-	} else {
 		msg.Buffer[msg.Pos] = o0
 		msg.Buffer[msg.Pos+1] = o1
 		msg.Buffer[msg.Pos+2] = o2
@@ -166,6 +157,15 @@ func (msg *CDRMessage) AddInt64(lolo int64) bool {
 		msg.Buffer[msg.Pos+1] = o5
 		msg.Buffer[msg.Pos+2] = o6
 		msg.Buffer[msg.Pos+3] = o7
+	} else {
+		msg.Buffer[msg.Pos] = o7
+		msg.Buffer[msg.Pos+1] = o6
+		msg.Buffer[msg.Pos+2] = o5
+		msg.Buffer[msg.Pos+3] = o4
+		msg.Buffer[msg.Pos] = o3
+		msg.Buffer[msg.Pos+1] = o2
+		msg.Buffer[msg.Pos+2] = o1
+		msg.Buffer[msg.Pos+3] = o0
 	}
 
 	msg.Pos += 8
@@ -265,6 +265,7 @@ func (msg *CDRMessage) ReadUInt32(lo *uint32) bool {
 	} else {
 		*lo = uint32(o1<<24) + uint32(o2<<16) + uint32(o3<<8) + uint32(o1)
 	}
+	msg.Pos += 4
 
 	return true
 }
@@ -310,6 +311,7 @@ func (msg *CDRMessage) ReadUInt64(lolo *uint64) bool {
 		*lolo = uint64(o8) + uint64(o7<<8) + uint64(o6<<16) + uint64(o5<<24) +
 			uint64(o4<<32) + uint64(o3<<40) + uint64(o2<<48) + uint64(o1<<56)
 	}
+	msg.Pos += 8
 	return true
 }
 
@@ -334,6 +336,9 @@ func (msg *CDRMessage) ReadInt64(lolo *int64) bool {
 		*lolo = int64(o8) + int64(o7<<8) + int64(o6<<16) + int64(o5<<24) +
 			int64(o4<<32) + int64(o3<<40) + int64(o2<<48) + int64(o1<<56)
 	}
+
+	msg.Pos += 8
+
 	return true
 }
 
@@ -372,7 +377,7 @@ func (msg *CDRMessage) ReadInt16(i16 *int16) bool {
 	}
 
 	if msg.MsgEndian == KDefaultEndian {
-		*i16 = int16(msg.Buffer[msg.Pos]<<8) + int16(msg.Buffer[msg.Pos+1])
+		*i16 = int16(msg.Buffer[msg.Pos+1]<<8) + int16(msg.Buffer[msg.Pos])
 	} else {
 		*i16 = int16(msg.Buffer[msg.Pos+1]<<8) + int16(msg.Buffer[msg.Pos])
 	}
@@ -386,9 +391,9 @@ func (msg *CDRMessage) ReadUInt16(i16 *uint16) bool {
 	}
 
 	if msg.MsgEndian == KDefaultEndian {
-		*i16 = uint16(msg.Buffer[msg.Pos]<<8) + uint16(msg.Buffer[msg.Pos+1])
-	} else {
 		*i16 = uint16(msg.Buffer[msg.Pos+1]<<8) + uint16(msg.Buffer[msg.Pos])
+	} else {
+		*i16 = uint16(msg.Buffer[msg.Pos+1]) + uint16(msg.Buffer[msg.Pos+1])
 	}
 	msg.Pos += 2
 	return true

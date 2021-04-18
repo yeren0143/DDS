@@ -104,6 +104,10 @@ func (pdp *pdpBase) Enable() bool {
 	return pdp.rtpsParticipant.EnableReader(pdp.reader)
 }
 
+func (pdp *pdpBase) GetMutex() *sync.Mutex {
+	return pdp.mutex
+}
+
 // Force the sending of our local DPD to all remote RTPSParticipants and multicast Locators.
 func (pdp *pdpBase) AnnounceParticipantState(newChange, dispose bool, wparams *common.WriteParamsT) {
 	var aChange *common.CacheChangeT
@@ -181,6 +185,10 @@ func (pdp *pdpBase) ResetParticipantAnnouncement() {
 
 func (pdp *pdpBase) GetLocalParticipantProxyData() *data.ParticipantProxyData {
 	return pdp.participantProxies.Proxies[0]
+}
+
+func (pdp *pdpBase) GetPDPReaderHistory() *history.ReaderHistory {
+	return pdp.pdpReaderHistory
 }
 
 func (pdp *pdpBase) initPDP(participant protocol.IParticipant) bool {

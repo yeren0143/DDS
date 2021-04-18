@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/yeren0143/DDS/common"
+	"github.com/yeren0143/DDS/core/policy"
 )
 
 // Write parameterList encapsulation to the CDRMessage.
@@ -38,7 +39,48 @@ func ParameterProcess(change *common.CacheChangeT, msg *common.CDRMessage, qosSi
 }
 
 // Read change instanceHandle from the KEY_HASH or another specific PID parameter of a CDRMessage
-func ReadInstanceHandleFromCdrMsg(change *common.CacheChangeT, searchPid uint16) bool {
-	log.Fatalln("not impl")
-	return true
+func ReadInstanceHandleFromCdrMsg(achange *common.CacheChangeT, searchPid uint16) bool {
+	// Only process data when change does not already have a handle
+	if achange.InstanceHandle.IsDefined() {
+		return true
+	}
+
+	// Use a temporary wraping message
+	msg := common.NewCDRMessageWithPayload(&achange.SerializedPayload)
+
+	// Read encapsulation
+	msg.Pos++
+	var encapsulation common.Octet
+	msg.ReadOctet(&encapsulation)
+	if encapsulation == common.PL_CDR_BE {
+		msg.MsgEndian = common.BIGEND
+	} else if encapsulation == common.PL_CDR_LE {
+		msg.MsgEndian = common.LITTLEEND
+	} else {
+		return false
+	}
+
+	achange.SerializedPayload.Encapsulation = uint16(encapsulation)
+
+	// Skip encapsulation options
+	msg.Pos += 2
+
+	valid := true
+	var pid, plength uint16
+	for msg.Pos < msg.Length {
+		valid = valid && msg.ReadUInt16(&pid)
+		valid = valid && msg.ReadUInt16(&plength)
+		if pid == policy.KPidSentinel || !valid {
+			break
+		}
+		if pid == policy.KPidKeyHash || pid == searchPid {
+			handle, ok := msg.ReadData(16)
+			copy(achange.InstanceHandle.Value[:16], handle[:])
+			return valid && ok
+		}
+
+		msg.Pos += uint32(int(plength+3) & int(^3))
+	}
+
+	return false
 }

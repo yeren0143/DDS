@@ -12,6 +12,7 @@ type IHistory interface {
 	doReserveCache(size uint32) (*common.CacheChangeT, bool)
 	doReleaseCache(ch *common.CacheChangeT)
 	GetHistorySize() uint32
+	RemoveChange(ch *common.CacheChangeT) bool
 }
 
 type historyImpl interface {
@@ -35,7 +36,7 @@ func (hist *historyBase) GetHistorySize() uint32 {
 	return uint32(len(hist.Changes))
 }
 
-func (hist *historyBase) removeChange(ch *common.CacheChangeT) bool {
+func (hist *historyBase) RemoveChange(ch *common.CacheChangeT) bool {
 	// hist.mutex.Lock()
 	// defer hist.mutex.Unlock()
 

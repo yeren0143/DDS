@@ -75,3 +75,14 @@ func AddParameterSentinelToMsg(msg *common.CDRMessage) bool {
 
 	return true
 }
+
+func ReadVendorIdFromCDRMessage(parameter *ParameterVendorIDT, msg *common.CDRMessage, parameterLength uint16) bool {
+	if parameterLength != KParameterVendorLength {
+		return false
+	}
+	parameter.Length = parameterLength
+	valid := msg.ReadOctet(&parameter.VendorID.Vendor[0])
+	valid = valid && msg.ReadOctet(&parameter.VendorID.Vendor[1])
+	msg.Pos += 2
+	return valid
+}

@@ -343,6 +343,11 @@ type GenericDataQosPolicy struct {
 	Data []common.Octet
 }
 
+func (policy *GenericDataQosPolicy) Clear() {
+	policy.Data = []common.Octet{}
+	policy.HasChanged = false
+}
+
 func NewGenericDataQosPolicy(pid ParameterIDT, data []common.Octet) *GenericDataQosPolicy {
 	var dataQosPolicy GenericDataQosPolicy
 	dataQosPolicy.ParameterT = *NewParameterT(pid, 0)

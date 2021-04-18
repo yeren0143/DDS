@@ -199,7 +199,7 @@ func NewParameterVendorIDT(pid ParameterIDT, len uint16) *ParameterVendorIDT {
 }
 
 const (
-	KParameterVendorLength uint32 = 4
+	KParameterVendorLength uint16 = 4
 )
 
 type ParameterIP4AddressT struct {
@@ -303,6 +303,25 @@ type ParameterPropertyListT struct {
 
 func (paramList *ParameterPropertyListT) Size() uint32 {
 	return paramList.nproperties
+}
+
+func (paramList *ParameterPropertyListT) Clear() {
+	paramList.Length = 0
+	paramList.nproperties = 0
+}
+
+func NewParameterPropertyListT(size uint32) *ParameterPropertyListT {
+	var property ParameterPropertyListT
+	property.properties = common.CreateSerializedPayload()
+	property.properties.Reserve(size)
+	property.nproperties = 0
+	if size == 0 {
+		property.limitSize = false
+	} else {
+		property.limitSize = true
+	}
+	property.ParameterT = *NewParameterT(KPidPropertyList, 0)
+	return &property
 }
 
 type ParameterSampleIdentityT struct {

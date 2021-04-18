@@ -1,6 +1,8 @@
 package protocol
 
 import (
+	"sync"
+
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
@@ -23,6 +25,7 @@ type IParticipant interface {
 	NetworkFactory() *network.NetFactory
 	GetEventResource() *resources.ResourceEvent
 	EnableReader(areader reader.IRTPSReader) bool
+	HasShmTransport() bool
 }
 
 type ReaderProxyDataInitFunc = func(*data.ReaderProxyData, bool, *data.ParticipantProxyData) bool
@@ -76,6 +79,10 @@ type IPDP interface {
 	GetRTPSParticipant() IParticipant
 
 	GetLocalParticipantProxyData() *data.ParticipantProxyData
+
+	GetPDPReaderHistory() *history.ReaderHistory
+
+	GetMutex() *sync.Mutex
 
 	AddReaderProxyData(readerGUID, participantGUID *common.GUIDT, initializer ReaderProxyDataInitFunc) *data.ReaderProxyData
 }

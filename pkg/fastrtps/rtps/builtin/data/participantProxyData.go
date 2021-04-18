@@ -8,6 +8,7 @@ import (
 	"github.com/yeren0143/DDS/common"
 	"github.com/yeren0143/DDS/core/policy"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
+	"github.com/yeren0143/DDS/fastrtps/rtps/network"
 	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
 )
 
@@ -56,6 +57,10 @@ type ParticipantProxyData struct {
 	// Store the last timestamp it was received a RTPS message from the remote participant.
 	LastReceivedMessageTm time.Time
 	LeaseDuration         time.Duration
+	leaseDurationMill     int
+	IsAlive               bool
+	Readers               map[*ReaderProxyData]bool
+	Writers               map[*WriterProxyData]bool
 }
 
 func (proxy *ParticipantProxyData) GetSerializedSize(includeEncapsulation bool) uint32 {
@@ -106,6 +111,67 @@ func (proxy *ParticipantProxyData) GetSerializedSize(includeEncapsulation bool) 
 	}
 
 	return retVal + 4
+}
+
+func (proxy *ParticipantProxyData) ReadFromCDRMessage(msg *common.CDRMessage, useEncapsulation bool,
+	network *network.NetFactory, isShmTransportAvailable bool) bool {
+	//areShmMetrafficLocatorsPresent := false
+	//areShmDefaultLocatorsPresent := false
+	//isShmTransportPossible := false
+
+	paramProcess := func(msg *common.CDRMessage, pid policy.ParameterIDT, plength uint16) bool {
+		switch pid {
+		case policy.KPidKeyHash:
+			//p := policy.NewParameterKey(pid, plength)
+			log.Fatalln("not Impl")
+		case policy.KPidProtocolVersion:
+			p := policy.NewParameterVendorIDT(pid, plength)
+			if !policy.ReadVendorIdFromCDRMessage(p, msg, plength) {
+				return false
+			}
+
+			proxy.VendorID.Vendor[0] = p.VendorID.Vendor[0]
+			proxy.VendorID.Vendor[1] = p.VendorID.Vendor[1]
+			valid := (proxy.VendorID == common.KVendorIDTeProsima)
+			isShmTransportAvailable = isShmTransportAvailable && valid
+		case policy.KPidExpectsInlineQos:
+			log.Fatalln("not impl")
+		case policy.KPidParticipantGUID:
+			log.Fatalln("not impl")
+		case policy.KPidMetatrafficMulticastLocator:
+			log.Fatalln("not impl")
+		case policy.KPidMetatrafficUnicastLocator:
+			log.Fatalln("not impl")
+		case policy.KPidDefaultUnicastLocator:
+			log.Fatalln("not impl")
+		case policy.KPidDefaultMulticastLocator:
+			log.Fatalln("not impl")
+		case policy.KPidParticipantLeaseDuration:
+			log.Fatalln("not impl")
+		case policy.KPidBuiltinEndpointSet:
+			log.Fatalln("not impl")
+		case policy.KPidEntityName:
+			log.Fatalln("not impl")
+		case policy.KPidPropertyList:
+			log.Fatalln("not impl")
+		case policy.KPidUserData:
+			log.Fatalln("not impl")
+		case policy.KPidIdentityToken:
+			log.Fatalln("not impl")
+		case policy.KPidPremissionsToken:
+			log.Fatalln("not impl")
+		case policy.KPidParticipantSecurityInfo:
+			log.Fatalln("not impl")
+		default:
+			log.Println("policy kind not impl")
+		}
+		return true
+	}
+
+	proxy.Clear()
+
+	var qosSize uint32
+	return policy.ReadParameterListFromCDRMsg(msg, paramProcess, useEncapsulation, &qosSize)
 }
 
 func (proxy *ParticipantProxyData) WriteToCDRMessage(msg *common.CDRMessage, writeEncapsulation bool) bool {
@@ -212,7 +278,46 @@ func (proxy *ParticipantProxyData) SetPersistenceGuid(guid *common.GUIDT) {
 	log.Panic("not impl")
 }
 
-func NewParticipantProxyData(att *attributes.RTPSParticipantAllocationAttributes) *ParticipantProxyData {
+func (proxy *ParticipantProxyData) Clear() {
+	proxy.ProtoVersion = common.KDefaultProtocolVersion
+	proxy.VendorID = common.KVendorIDTUnknown
+	proxy.ExpectsInlineQos = false
+	proxy.AviableBuiltinEndpoints = 0
+	proxy.MetatrafficLocators.Unicast = []common.Locator{}
+	proxy.MetatrafficLocators.Multicast = []common.Locator{}
+	proxy.DefaultLocators.Unicast = []common.Locator{}
+	proxy.DefaultLocators.Multicast = []common.Locator{}
+	proxy.ParticipantName = ""
+	proxy.Key = common.KInstanceHandleUnknown
+	proxy.LeaseDuration = 0
+	proxy.leaseDurationMill = 0
+	proxy.IsAlive = true
+	proxy.Properties.Clear()
+	proxy.Properties.Length = 0
+	proxy.UserData.Clear()
+	proxy.UserData.Length = 0
+
+}
+
+func NewParticipantProxyData(allocation *attributes.RTPSParticipantAllocationAttributes) *ParticipantProxyData {
 	var proxyData ParticipantProxyData
+	proxyData.ProtoVersion = common.KProtocolVersion
+	proxyData.VendorID = common.KVendorIDTUnknown
+	proxyData.ExpectsInlineQos = false
+	proxyData.AviableBuiltinEndpoints = 0
+	proxyData.MetatrafficLocators = *common.NewRemoteLocatorList(allocation.Locators.MaxUnicastLocators,
+		allocation.Locators.MaxMulticastLocators)
+	proxyData.DefaultLocators = *common.NewRemoteLocatorList(allocation.Locators.MaxUnicastLocators,
+		allocation.Locators.MaxMulticastLocators)
+	proxyData.IsAlive = false
+	proxyData.Properties = *policy.NewParameterPropertyListT(uint32(allocation.DataLimits.MaxProperties))
+	proxyData.ShouldCheckLeaseDuration = false
+	proxyData.Readers = make(map[*ReaderProxyData]bool)
+	proxyData.Writers = make(map[*WriterProxyData]bool)
+	proxyData.UserData = &policy.UserDataQosPolicy{}
+
+	// TODO:
+	//m_userData.set_max_size(static_cast<uint32_t>(allocation.data_limits.max_user_data));
+
 	return &proxyData
 }
