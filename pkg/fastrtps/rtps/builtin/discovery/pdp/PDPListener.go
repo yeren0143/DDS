@@ -73,6 +73,46 @@ func (listener *PDPListener) OnNewCacheChangeAdded(reader reader.IRTPSReader, ac
 		participant := listener.parentPDP.GetRTPSParticipant()
 		if listener.tempParticipantData.ReadFromCDRMessage(msg, true, participant.NetworkFactory(),
 			participant.HasShmTransport()) {
+
+			// After correctly reading it
+			achange.InstanceHandle = listener.tempParticipantData.Key
+			guid = listener.tempParticipantData.Guid
+
+			// Check if participant already exists (updated info)
+			var pdata *data.ParticipantProxyData
+			proxies := listener.parentPDP.GetParticipantProxies()
+			for i := 0; i < len(proxies); i++ {
+				if guid == proxies[i].Guid {
+					pdata = proxies[i]
+					break
+				}
+			}
+
+			var status DiscoveryStatus
+			if pdata == nil {
+				status = KDiscoveryParticipant
+
+				// Create a new one when not found
+				pdata = listener.parentPDP.CreateParticipantProxyData(&listener.tempParticipantData,
+					&writerGuid)
+				if pdata != nil {
+					log.Fatalln("not impl")
+				}
+			} else {
+				status = KChangedQosParticipant
+
+				log.Fatalln("not impl")
+			}
+
+			log.Println(status)
+
+			// if pdata != nil {
+			// 	rtpsListener := listener.parentPDP.GetRTPSParticipant().GetListener()
+			// 	if rtpsListener != nil {
+			// 		log.Fatalln("not Impl")
+			// 	}
+			// }
+
 			log.Fatalln("not impl")
 		}
 

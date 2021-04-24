@@ -11,7 +11,7 @@ type RTPSMessageGroupT struct {
 }
 
 func (messageGroup *RTPSMessageGroupT) Init(participantGUID *common.GUIDPrefixT) {
-	initCDRMsg(&messageGroup.FullMessage, common.KRTPSMessageCommonDataPayloadSize)
+	common.InitCDRMsg(&messageGroup.FullMessage, common.KRTPSMessageCommonDataPayloadSize)
 	addHeader(&messageGroup.FullMessage, participantGUID, &common.KProtocolVersion, &common.KVendorIDTeProsima)
 }
 

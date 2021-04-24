@@ -108,6 +108,10 @@ func (pdp *pdpBase) GetMutex() *sync.Mutex {
 	return pdp.mutex
 }
 
+func (pdp *pdpBase) GetParticipantProxies() []*data.ParticipantProxyData {
+	return pdp.participantProxies.Proxies
+}
+
 // Force the sending of our local DPD to all remote RTPSParticipants and multicast Locators.
 func (pdp *pdpBase) AnnounceParticipantState(newChange, dispose bool, wparams *common.WriteParamsT) {
 	var aChange *common.CacheChangeT

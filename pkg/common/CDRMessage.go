@@ -232,6 +232,17 @@ func (msg *CDRMessage) AddLocator(loc *Locator) bool {
 	return true
 }
 
+func (msg *CDRMessage) ReadLocator(loc *Locator) bool {
+	if msg.Pos+24 > msg.Length {
+		return false
+	}
+	valid := msg.ReadInt32(&loc.Kind)
+	valid = valid && msg.ReadUInt32(&loc.Port)
+	dataum, ok := msg.ReadData(16)
+	copy(loc.Address[:16], dataum[:])
+	return valid && ok
+}
+
 func (msg *CDRMessage) ReadOctet(oc *Octet) bool {
 	if msg.Pos+1 > msg.Length {
 		return false
@@ -480,7 +491,24 @@ func (msg *CDRMessage) ReadFragmentNumberSet(fragmentNumberSet *FragmentNumberSe
 	return valid
 }
 
-func (message *CDRMessage) InitCDRMsg(msg *CDRMessage, payloadSize uint32) bool {
+func (msg *CDRMessage) ReadString() (string, bool) {
+	var strSize uint32
+	stri := ""
+	valid := msg.ReadUInt32(&strSize)
+	if msg.Pos+strSize > msg.Length {
+		return stri, false
+	}
+
+	if strSize > 1 {
+		stri = string(msg.Buffer[msg.Pos : msg.Pos+strSize])
+	}
+	msg.Pos += strSize
+	msg.Pos = uint32(int(msg.Pos+3) & (^3))
+
+	return stri, valid
+}
+
+func InitCDRMsg(msg *CDRMessage, payloadSize uint32) bool {
 	if len(msg.Buffer) == 0 {
 		msg.Buffer = make([]Octet, payloadSize+KRTPSMessageCommonDataPayloadSize)
 		msg.MaxSize = payloadSize + KRTPSMessageCommonRTPSPayloadSize

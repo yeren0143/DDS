@@ -78,6 +78,8 @@ type IPDP interface {
 
 	GetRTPSParticipant() IParticipant
 
+	GetParticipantProxies() []*data.ParticipantProxyData
+
 	GetLocalParticipantProxyData() *data.ParticipantProxyData
 
 	GetPDPReaderHistory() *history.ReaderHistory

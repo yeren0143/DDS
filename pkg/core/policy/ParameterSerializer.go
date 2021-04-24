@@ -86,3 +86,68 @@ func ReadVendorIdFromCDRMessage(parameter *ParameterVendorIDT, msg *common.CDRMe
 	msg.Pos += 2
 	return valid
 }
+
+func ReadParameterProtocolFromCDRMessage(parameter *ParameterProtocolVersionT, msg *common.CDRMessage, parameterLength uint16) bool {
+	if parameterLength != KParameterProtocolLength {
+		return false
+	}
+	parameter.Length = parameterLength
+	valid := msg.ReadOctet(&parameter.ProtocolVersion.Major)
+	valid = valid && msg.ReadOctet(&parameter.ProtocolVersion.Minor)
+	msg.Pos += 2
+	return valid
+}
+
+func ReadGuidFromCDRMessage(parameter *ParameterGuidT, msg *common.CDRMessage, parameterLength uint16) bool {
+	if parameterLength != KParameterGuidLength {
+		return false
+	}
+	parameter.Length = parameterLength
+	prefix, ok1 := msg.ReadData(12)
+	copy(parameter.Guid.Prefix.Value[:12], prefix[:])
+	entityID, ok2 := msg.ReadData(4)
+	copy(parameter.Guid.EntityID.Value[:4], entityID[:])
+	return ok1 && ok2
+}
+
+func ReadLocatorFromCDRMessage(parameter *ParamaterLocatorT, msg *common.CDRMessage, parameterLength uint16) bool {
+	if parameterLength != KParameterLocatorLength {
+		return false
+	}
+	parameter.Length = parameterLength
+	return msg.ReadLocator(&parameter.Locator)
+}
+
+func ReadTimeFromCDRMessage(parameter *ParameterTimeT, msg *common.CDRMessage, parameterLength uint16) bool {
+	if parameterLength != KParameterTimeLength {
+		return false
+	}
+	parameter.Length = parameterLength
+	var sec int32
+	valid := msg.ReadInt32(&sec)
+	parameter.Time.Seconds = sec
+	var frac uint32
+	valid = valid && msg.ReadUInt32(&frac)
+	parameter.Time.Nanosec = frac
+	return valid
+}
+
+func ReadBuiltinEndpointSetFromCDRMessage(parameter *ParameterBuiltinEndpointSetT, msg *common.CDRMessage, parameterLength uint16) bool {
+
+	if parameterLength != KParameterBuiltinEndpointsetLength {
+		return false
+	}
+	parameter.Length = parameterLength
+	return msg.ReadUInt32(&parameter.EndpointSet)
+}
+
+func ReadEntityNameFromCDRMessage(parameter *ParameterStringT, msg *common.CDRMessage, parameterLength uint16) bool {
+	if parameterLength > 256 {
+		return false
+	}
+
+	parameter.Length = parameterLength
+	stri, valid := msg.ReadString()
+	parameter.Name = stri
+	return valid
+}

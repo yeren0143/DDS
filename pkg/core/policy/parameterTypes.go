@@ -183,7 +183,7 @@ func NewParameterProtocolVersion(pid ParameterIDT, len uint16) *ParameterProtoco
 }
 
 const (
-	KParameterProtocolLength uint32 = 4
+	KParameterProtocolLength uint16 = 4
 )
 
 type ParameterVendorIDT struct {

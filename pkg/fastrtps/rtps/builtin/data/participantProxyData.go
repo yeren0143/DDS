@@ -40,7 +40,7 @@ var DISC_BUILTIN_ENDPOINT_PARTICIPANT_SECURE_ANNOUNCER = uint32(0x00000001 << 26
 var DISC_BUILTIN_ENDPOINT_PARTICIPANT_SECURE_DETECTOR = uint32(0x00000001 << 27)
 
 type ParticipantProxyData struct {
-	ProtoVersion             common.ProtocolVersionT
+	ProtocolVersion          common.ProtocolVersionT
 	Guid                     common.GUIDT
 	VendorID                 common.VendorIDT
 	ExpectsInlineQos         bool
@@ -57,7 +57,7 @@ type ParticipantProxyData struct {
 	// Store the last timestamp it was received a RTPS message from the remote participant.
 	LastReceivedMessageTm time.Time
 	LeaseDuration         time.Duration
-	leaseDurationMill     int
+	leaseDurationMill     int64
 	IsAlive               bool
 	Readers               map[*ReaderProxyData]bool
 	Writers               map[*WriterProxyData]bool
@@ -115,9 +115,9 @@ func (proxy *ParticipantProxyData) GetSerializedSize(includeEncapsulation bool) 
 
 func (proxy *ParticipantProxyData) ReadFromCDRMessage(msg *common.CDRMessage, useEncapsulation bool,
 	network *network.NetFactory, isShmTransportAvailable bool) bool {
-	//areShmMetrafficLocatorsPresent := false
-	//areShmDefaultLocatorsPresent := false
-	//isShmTransportPossible := false
+	areShmMetrafficLocatorsPresent := false
+	areShmDefaultLocatorsPresent := false
+	isShmTransportPossible := false
 
 	paramProcess := func(msg *common.CDRMessage, pid policy.ParameterIDT, plength uint16) bool {
 		switch pid {
@@ -125,6 +125,16 @@ func (proxy *ParticipantProxyData) ReadFromCDRMessage(msg *common.CDRMessage, us
 			//p := policy.NewParameterKey(pid, plength)
 			log.Fatalln("not Impl")
 		case policy.KPidProtocolVersion:
+			p := policy.NewParameterProtocolVersion(pid, plength)
+			if !policy.ReadParameterProtocolFromCDRMessage(p, msg, plength) {
+				return false
+			}
+
+			if p.ProtocolVersion.Major < common.KProtocolVersion.Major {
+				return false
+			}
+			proxy.ProtocolVersion = p.ProtocolVersion
+		case policy.KPidVendorID:
 			p := policy.NewParameterVendorIDT(pid, plength)
 			if !policy.ReadVendorIdFromCDRMessage(p, msg, plength) {
 				return false
@@ -137,21 +147,72 @@ func (proxy *ParticipantProxyData) ReadFromCDRMessage(msg *common.CDRMessage, us
 		case policy.KPidExpectsInlineQos:
 			log.Fatalln("not impl")
 		case policy.KPidParticipantGUID:
-			log.Fatalln("not impl")
+			p := policy.NewParameterGuid(pid, plength, &common.KGuidUnknown)
+			if !policy.ReadGuidFromCDRMessage(p, msg, plength) {
+				return false
+			}
+			proxy.Guid = p.Guid
+			proxy.Key = common.CreateInstanceHandle(&p.Guid)
 		case policy.KPidMetatrafficMulticastLocator:
-			log.Fatalln("not impl")
+			p := policy.NewParamaterLocator(pid, plength, common.NewLocator())
+			if !policy.ReadLocatorFromCDRMessage(p, msg, plength) {
+				return false
+			}
+			var tempLocator common.Locator
+			if network.TransformRemoteLocator(&p.Locator, &tempLocator) {
+				FilterLocators(isShmTransportAvailable, &isShmTransportPossible,
+					&areShmMetrafficLocatorsPresent, &proxy.MetatrafficLocators, &tempLocator, false)
+			}
 		case policy.KPidMetatrafficUnicastLocator:
-			log.Fatalln("not impl")
+			p := policy.NewParamaterLocator(pid, plength, common.NewLocator())
+			if !policy.ReadLocatorFromCDRMessage(p, msg, plength) {
+				return false
+			}
+			var tempLocator common.Locator
+			if network.TransformRemoteLocator(&p.Locator, &tempLocator) {
+				FilterLocators(isShmTransportAvailable, &isShmTransportPossible,
+					&areShmMetrafficLocatorsPresent, &proxy.MetatrafficLocators, &tempLocator, true)
+			}
 		case policy.KPidDefaultUnicastLocator:
-			log.Fatalln("not impl")
+			p := policy.NewParamaterLocator(pid, plength, common.NewLocator())
+			if !policy.ReadLocatorFromCDRMessage(p, msg, plength) {
+				return false
+			}
+			var tempLocator common.Locator
+			if network.TransformRemoteLocator(&p.Locator, &tempLocator) {
+				FilterLocators(isShmTransportAvailable, &isShmTransportPossible,
+					&areShmDefaultLocatorsPresent, &proxy.DefaultLocators, &tempLocator, true)
+			}
 		case policy.KPidDefaultMulticastLocator:
-			log.Fatalln("not impl")
+			p := policy.NewParamaterLocator(pid, plength, common.NewLocator())
+			if !policy.ReadLocatorFromCDRMessage(p, msg, plength) {
+				return false
+			}
+			var tempLocator common.Locator
+			if network.TransformRemoteLocator(&p.Locator, &tempLocator) {
+				FilterLocators(isShmTransportAvailable, &isShmTransportPossible,
+					&areShmDefaultLocatorsPresent, &proxy.DefaultLocators, &tempLocator, false)
+			}
 		case policy.KPidParticipantLeaseDuration:
-			log.Fatalln("not impl")
+			p := policy.NewParameterTimeT(pid, plength)
+			if !policy.ReadTimeFromCDRMessage(p, msg, plength) {
+				return false
+			}
+			proxy.LeaseDuration = time.Duration(p.Time.Seconds)*time.Second + time.Duration(p.Time.Nanosec)*time.Nanosecond
+			proxy.leaseDurationMill = int64(p.Time.Seconds*1000000) + int64(p.Time.Nanosec/1000)
+
 		case policy.KPidBuiltinEndpointSet:
-			log.Fatalln("not impl")
+			p := policy.NewParameterBuiltinEndpointSetT(pid, plength)
+			if !policy.ReadBuiltinEndpointSetFromCDRMessage(p, msg, plength) {
+				return false
+			}
+			proxy.AviableBuiltinEndpoints = p.EndpointSet
 		case policy.KPidEntityName:
-			log.Fatalln("not impl")
+			p := policy.NewParameterString(pid, plength, "")
+			if !policy.ReadEntityNameFromCDRMessage(p, msg, plength) {
+				return false
+			}
+			proxy.ParticipantName = p.Name
 		case policy.KPidPropertyList:
 			log.Fatalln("not impl")
 		case policy.KPidUserData:
@@ -183,7 +244,7 @@ func (proxy *ParticipantProxyData) WriteToCDRMessage(msg *common.CDRMessage, wri
 
 	{
 		p := policy.NewParameterProtocolVersion(policy.KPidProtocolVersion, 4)
-		p.ProtocolVersion = proxy.ProtoVersion
+		p.ProtocolVersion = proxy.ProtocolVersion
 		if !policy.AddProtocolVersionToMsg(p, msg) {
 			return false
 		}
@@ -279,7 +340,7 @@ func (proxy *ParticipantProxyData) SetPersistenceGuid(guid *common.GUIDT) {
 }
 
 func (proxy *ParticipantProxyData) Clear() {
-	proxy.ProtoVersion = common.KDefaultProtocolVersion
+	proxy.ProtocolVersion = common.KDefaultProtocolVersion
 	proxy.VendorID = common.KVendorIDTUnknown
 	proxy.ExpectsInlineQos = false
 	proxy.AviableBuiltinEndpoints = 0
@@ -301,7 +362,7 @@ func (proxy *ParticipantProxyData) Clear() {
 
 func NewParticipantProxyData(allocation *attributes.RTPSParticipantAllocationAttributes) *ParticipantProxyData {
 	var proxyData ParticipantProxyData
-	proxyData.ProtoVersion = common.KProtocolVersion
+	proxyData.ProtocolVersion = common.KProtocolVersion
 	proxyData.VendorID = common.KVendorIDTUnknown
 	proxyData.ExpectsInlineQos = false
 	proxyData.AviableBuiltinEndpoints = 0

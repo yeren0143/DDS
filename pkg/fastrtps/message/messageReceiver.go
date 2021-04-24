@@ -272,7 +272,7 @@ func (receiver *Receiver) procSubmsgDataFrag(msg *common.CDRMessage, smh *Submes
 	defer receiver.mutex.Unlock()
 
 	// READ and PROCESS
-	if smh.SubmessageLength < KRTPSMessageDataMinLength {
+	if smh.SubmessageLength < common.KRTPSMessageDataMinLength {
 		log.Printf("Too short submessage received, ignoring")
 		return false
 	}
@@ -340,8 +340,8 @@ func (receiver *Receiver) procSubmsgDataFrag(msg *common.CDRMessage, smh *Submes
 	}
 
 	// Jump ahead if more parameters are before inlineQos (not in this version, maybe if further minor versions.)
-	if octetsToInLineQos > KRtpsMessageOctetStoinlineqosDataFragSubmsg {
-		msg.Pos += uint32(octetsToInLineQos - KRtpsMessageOctetStoinlineqosDataFragSubmsg)
+	if octetsToInLineQos > common.KRTPSMessageOcetsToInlineQosDataFragSubMsg {
+		msg.Pos += uint32(octetsToInLineQos - common.KRTPSMessageOcetsToInlineQosDataFragSubMsg)
 		if msg.Pos > msg.Length {
 			log.Printf("Invalid jump through msg, msg->pos %v > msg->length %v", msg.Pos, msg.Length)
 			return false
@@ -357,7 +357,7 @@ func (receiver *Receiver) procSubmsgDataFrag(msg *common.CDRMessage, smh *Submes
 	}
 
 	payloadSize := smh.SubmessageLength -
-		(KRTPSMessageDataExtraInlineQosSize + uint32(octetsToInLineQos) + uint32(inlineQosSize))
+		(common.KRTPSMessageDataExtraInlineQosSize + uint32(octetsToInLineQos) + uint32(inlineQosSize))
 
 	if !keyFlag {
 		nextPos := msg.Pos + payloadSize
@@ -416,7 +416,7 @@ func (receiver *Receiver) procSubmsgData(msg *common.CDRMessage, smh *Submessage
 	defer receiver.mutex.Unlock()
 
 	// READ and PROCESS
-	if smh.SubmessageLength < KRTPSMessageDataMinLength {
+	if smh.SubmessageLength < common.KRTPSMessageDataMinLength {
 		log.Print("Too short submessage received, ignoring")
 		return false
 	}
@@ -474,8 +474,8 @@ func (receiver *Receiver) procSubmsgData(msg *common.CDRMessage, smh *Submessage
 	}
 
 	// Jump ahead if more parameters are before inlineQos (not in this version, maybe if further minor versions.)
-	if octetsToInLineQos > KRtpsMessageOctetStoinlineqosDataSubMsg {
-		msg.Pos += (uint32(octetsToInLineQos) - KRtpsMessageOctetStoinlineqosDataSubMsg)
+	if octetsToInLineQos > common.KRTPSMessageOcetsToInlineQosDataFragSubMsg {
+		msg.Pos += (uint32(octetsToInLineQos) - common.KRTPSMessageOcetsToInlineQosDataFragSubMsg)
 		if msg.Pos > msg.Length {
 			log.Printf("Invalid jump through msg, msg->pos %v > msg->length %v", msg.Pos, msg.Length)
 			return false
@@ -493,7 +493,7 @@ func (receiver *Receiver) procSubmsgData(msg *common.CDRMessage, smh *Submessage
 
 	if dataFlag || keyFlag {
 		payloadSize := smh.SubmessageLength -
-			(KRTPSMessageDataExtraInlineQosSize + uint32(octetsToInLineQos) + inlineQosSize)
+			(common.KRTPSMessageDataExtraInlineQosSize + uint32(octetsToInLineQos) + inlineQosSize)
 
 		if dataFlag {
 			nextPos := msg.Pos + payloadSize
