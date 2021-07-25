@@ -112,6 +112,9 @@ type DiscoverySettings struct {
 
 	//Discovery Server settings, only needed if use_CLIENT_DiscoveryProtocol=true
 	DiscoveryServers RemoteServerList
+
+	//! Filtering participants out depending on location
+	IgnoreParticipantFlags ParticipantFilteringFlags
 }
 
 // NewDiscoverySettings create DiscoverySetting with default value
@@ -125,6 +128,7 @@ func NewDiscoverySettings() *DiscoverySettings {
 	discoverySettings.InitialAnnouncements = NewDefaultInitialAnnouncementConfig()
 	discoverySettings.SimpleEDP = NewSimpleEDPAttributes()
 	discoverySettings.DiscoveryServerClientSyncPeriod = common.DurationT{Seconds: 0, Nanosec: 450 * 1000000}
+	discoverySettings.IgnoreParticipantFlags = KNoFilter
 
 	return &discoverySettings
 }

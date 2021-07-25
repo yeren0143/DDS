@@ -66,7 +66,8 @@ type BuiltinEndpointSet = uint32
 type CountT = uint32
 
 type VendorIDT struct {
-	Vendor [2]Octet
+	//Vendor [2]Octet
+	Value [2]Octet
 }
 
 type ProtocolVersionT struct {
@@ -82,13 +83,13 @@ func NewProtocolVersion(maj Octet, min Octet) ProtocolVersionT {
 
 func CreateVendorID(a uint8, b uint8) VendorIDT {
 	var vendor VendorIDT
-	vendor.Vendor[0] = a
-	vendor.Vendor[1] = b
+	vendor.Value[0] = a
+	vendor.Value[1] = b
 	return vendor
 }
 
 func (vendor_id *VendorIDT) Equal(v *VendorIDT) bool {
-	if vendor_id.Vendor[0] == v.Vendor[0] && vendor_id.Vendor[1] == v.Vendor[1] {
+	if vendor_id.Value[0] == v.Value[0] && vendor_id.Value[1] == v.Value[1] {
 		return true
 	} else {
 		return false

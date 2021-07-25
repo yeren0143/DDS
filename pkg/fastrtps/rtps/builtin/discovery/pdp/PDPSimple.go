@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/yeren0143/DDS/common"
+	"github.com/yeren0143/DDS/core/policy"
 	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
 	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/edp"
@@ -23,18 +24,56 @@ type PDPSimple struct {
 
 func (pdp *PDPSimple) AssignRemoteEndpoints(pdata *data.ParticipantProxyData) {
 	log.Println("For RTPSParticipant: ", pdata.Guid.Prefix)
+	log.Fatalln("not impl")
+	network := pdp.rtpsParticipant.NetworkFactory()
+	endp := pdata.AviableBuiltinEndpoints
+	useMulticastLocators := pdp.rtpsParticipant.GetAttributes().Builtin.AvoidBuiltinMulticast ||
+		len(pdata.MetatrafficLocators.Unicast) == 0
+	auxendp := endp & data.DISC_BUILTIN_ENDPOINT_PARTICIPANT_ANNOUNCER
+	if auxendp != 0 {
+		pdp.tempDataMutex.Lock()
+		pdp.tempWriterData.Clear()
+		pdp.tempWriterData.Guid().Prefix = pdata.Guid.Prefix
+		pdp.tempWriterData.Guid().EntityID = *common.KEntityIDSPDPWriter
+		pdp.tempWriterData.SetPersistenceGuid(pdata.GetPersistenceGuid())
+		pdp.tempWriterData.SetPersistenceEntityID(common.KEntityIDSPDPWriter)
+		pdp.tempWriterData.SetRemoteLocators(pdata.MetatrafficLocators, network, useMulticastLocators)
+		pdp.tempWriterData.Qos.Reliability.Kind = policy.RELIABLE_RELIABILITY_QOS
+		pdp.tempWriterData.Qos.Durability.Kind = policy.TRANSIENT_LOCAL_DURABILITY_QOS
+		pdp.reader.MatchedWriterAdd(pdp.tempWriterData)
+		pdp.tempDataMutex.Unlock()
+	}
+	log.Fatalln("not impl")
+
 }
 
 func (pdp *PDPSimple) NotifyAboveRemoteEndpoints(pdata *data.ParticipantProxyData) {
-
+	log.Fatalln("not impl")
 }
 
 func (pdp *PDPSimple) RemoveRemoteEndpoints(pdata *data.ParticipantProxyData) {
-
+	log.Fatalln("not impl")
 }
 
-func (pdp *PDPSimple) CreateParticipantProxyData(p *data.ParticipantProxyData, writer_guid *common.GUIDT) *data.ParticipantProxyData {
-	return nil
+func (pdp *PDPSimple) CreateParticipantProxyData(participantData *data.ParticipantProxyData, writer_guid *common.GUIDT) *data.ParticipantProxyData {
+	// TODO::
+	//pdp.GetMutex().Lock()
+
+	// decide if we dismiss the participant using the ParticipantFilteringFlags
+	flags := pdp.discovery.DiscoveryConfig.IgnoreParticipantFlags
+	if flags != attributes.KNoFilter {
+		log.Fatalln("not Impl")
+	}
+	pdata := pdp.addParticipantProxyData(&participantData.Guid, true)
+	if pdata != nil {
+		pdata.Copy(participantData)
+		pdata.IsAlive = true
+		interval := common.NewTime(&pdata.LeaseDuration)
+		pdata.LeaseDurationEvent.UpdateInterval(*interval)
+		pdata.LeaseDurationEvent.RestartTimer()
+	}
+
+	return pdata
 }
 
 func (pdp *PDPSimple) Init(participant protocol.IParticipant) bool {

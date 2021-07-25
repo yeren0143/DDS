@@ -14,8 +14,8 @@ func addHeader(msg *common.CDRMessage, guidPrefix *common.GUIDPrefixT,
 	msg.AddOctet(version.Major)
 	msg.AddOctet(version.Minor)
 
-	msg.AddOctet(vendorID.Vendor[0])
-	msg.AddOctet(vendorID.Vendor[1])
+	msg.AddOctet(vendorID.Value[0])
+	msg.AddOctet(vendorID.Value[1])
 
 	if msg.Pos+12 < msg.Length {
 		for i := 0; i < 12; i++ {

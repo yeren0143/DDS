@@ -196,9 +196,9 @@ func (receiver *Receiver) checkRTPSHeader(msg *common.CDRMessage) bool {
 	}
 
 	// set source vendor id
-	receiver.sourceVendorID.Vendor[0] = msg.Buffer[msg.Pos]
+	receiver.sourceVendorID.Value[0] = msg.Buffer[msg.Pos]
 	msg.Pos++
-	receiver.sourceVendorID.Vendor[1] = msg.Buffer[msg.Pos]
+	receiver.sourceVendorID.Value[1] = msg.Buffer[msg.Pos]
 	msg.Pos++
 	// set source guid prefix
 	data, ok := msg.ReadData(common.KGUIDPrefixSize)
@@ -739,8 +739,8 @@ func (receiver *Receiver) procSubmsgInfoSrc(msg *common.CDRMessage, smh *Submess
 		msg.ReadOctet(&receiver.sourceVersion.Minor)
 
 		vendorID, _ := msg.ReadData(2)
-		receiver.sourceVendorID.Vendor[0] = vendorID[0]
-		receiver.sourceVendorID.Vendor[1] = vendorID[1]
+		receiver.sourceVendorID.Value[0] = vendorID[0]
+		receiver.sourceVendorID.Value[1] = vendorID[1]
 
 		guidP, _ := msg.ReadData(common.KGUIDPrefixSize)
 		for i := 0; i < common.KGUIDPrefixSize; i++ {

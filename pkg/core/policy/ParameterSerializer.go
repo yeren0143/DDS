@@ -59,8 +59,8 @@ func AddProtocolVersionToMsg(parameter *ParameterProtocolVersionT, msg *common.C
 
 func AddVendorIDToMsg(parameter *ParameterVendorIDT, msg *common.CDRMessage) bool {
 	valid := AddCommonToMsg(&parameter.ParameterT, msg)
-	valid = valid && msg.AddOctet(parameter.VendorID.Vendor[0])
-	valid = valid && msg.AddOctet(parameter.VendorID.Vendor[1])
+	valid = valid && msg.AddOctet(parameter.VendorID.Value[0])
+	valid = valid && msg.AddOctet(parameter.VendorID.Value[1])
 	valid = valid && msg.AddUInt16(0)
 	return valid
 }
@@ -81,8 +81,8 @@ func ReadVendorIdFromCDRMessage(parameter *ParameterVendorIDT, msg *common.CDRMe
 		return false
 	}
 	parameter.Length = parameterLength
-	valid := msg.ReadOctet(&parameter.VendorID.Vendor[0])
-	valid = valid && msg.ReadOctet(&parameter.VendorID.Vendor[1])
+	valid := msg.ReadOctet(&parameter.VendorID.Value[0])
+	valid = valid && msg.ReadOctet(&parameter.VendorID.Value[1])
 	msg.Pos += 2
 	return valid
 }

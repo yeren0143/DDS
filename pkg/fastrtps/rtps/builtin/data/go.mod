@@ -25,4 +25,5 @@ require (
 	github.com/yeren0143/DDS/fastrtps/rtps/network v0.0.0-00010101000000-000000000000
 	github.com/yeren0143/DDS/fastrtps/rtps/qos v0.0.0-00010101000000-000000000000
 	github.com/yeren0143/DDS/fastrtps/rtps/resources v0.0.0
+	github.com/yeren0143/DDS/fastrtps/rtps/transport/shm v0.0.0-00010101000000-000000000000
 )

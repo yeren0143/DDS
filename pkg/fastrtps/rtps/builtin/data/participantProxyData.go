@@ -113,6 +113,23 @@ func (proxy *ParticipantProxyData) GetSerializedSize(includeEncapsulation bool) 
 	return retVal + 4
 }
 
+func (proxy *ParticipantProxyData) Copy(pdata *ParticipantProxyData) {
+	proxy.ProtocolVersion = pdata.ProtocolVersion
+	proxy.Guid = pdata.Guid
+	proxy.VendorID.Value[0] = pdata.VendorID.Value[0]
+	proxy.VendorID.Value[1] = pdata.VendorID.Value[1]
+	proxy.AviableBuiltinEndpoints = pdata.AviableBuiltinEndpoints
+	proxy.MetatrafficLocators = pdata.MetatrafficLocators
+	proxy.DefaultLocators = pdata.DefaultLocators
+	proxy.ParticipantName = pdata.ParticipantName
+	proxy.LeaseDuration = pdata.LeaseDuration
+	proxy.leaseDurationMill = pdata.LeaseDuration.Milliseconds()
+	proxy.Key = pdata.Key
+	proxy.IsAlive = pdata.IsAlive
+	proxy.UserData = pdata.UserData
+	proxy.Properties = pdata.Properties
+}
+
 func (proxy *ParticipantProxyData) ReadFromCDRMessage(msg *common.CDRMessage, useEncapsulation bool,
 	network *network.NetFactory, isShmTransportAvailable bool) bool {
 	areShmMetrafficLocatorsPresent := false
@@ -140,8 +157,8 @@ func (proxy *ParticipantProxyData) ReadFromCDRMessage(msg *common.CDRMessage, us
 				return false
 			}
 
-			proxy.VendorID.Vendor[0] = p.VendorID.Vendor[0]
-			proxy.VendorID.Vendor[1] = p.VendorID.Vendor[1]
+			proxy.VendorID.Value[0] = p.VendorID.Value[0]
+			proxy.VendorID.Value[1] = p.VendorID.Value[1]
 			valid := (proxy.VendorID == common.KVendorIDTeProsima)
 			isShmTransportAvailable = isShmTransportAvailable && valid
 		case policy.KPidExpectsInlineQos:
@@ -251,8 +268,8 @@ func (proxy *ParticipantProxyData) WriteToCDRMessage(msg *common.CDRMessage, wri
 	}
 	{
 		p := policy.NewParameterVendorIDT(policy.KPidVendorID, 4)
-		p.VendorID.Vendor[0] = proxy.VendorID.Vendor[0]
-		p.VendorID.Vendor[1] = proxy.VendorID.Vendor[1]
+		p.VendorID.Value[0] = proxy.VendorID.Value[0]
+		p.VendorID.Value[1] = proxy.VendorID.Value[1]
 		if !policy.AddVendorIDToMsg(p, msg) {
 			return false
 		}
@@ -336,7 +353,16 @@ func (proxy *ParticipantProxyData) WriteToCDRMessage(msg *common.CDRMessage, wri
 }
 
 func (proxy *ParticipantProxyData) SetPersistenceGuid(guid *common.GUIDT) {
-	log.Panic("not impl")
+	log.Fatalln("not impl")
+}
+
+func (proxy *ParticipantProxyData) GetPersistenceGuid() *common.GUIDT {
+	log.Fatalln("not impl")
+	return nil
+}
+
+func (proxy *ParticipantProxyData) SetPersistenceEntityID(id *common.EntityIDT) {
+	log.Fatalln("not impl")
 }
 
 func (proxy *ParticipantProxyData) Clear() {

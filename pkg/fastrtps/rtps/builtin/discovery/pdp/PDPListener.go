@@ -96,7 +96,23 @@ func (listener *PDPListener) OnNewCacheChangeAdded(reader reader.IRTPSReader, ac
 				pdata = listener.parentPDP.CreateParticipantProxyData(&listener.tempParticipantData,
 					&writerGuid)
 				if pdata != nil {
-					log.Fatalln("not impl")
+					reader.GetMutex().Unlock()
+					listener.parentPDP.GetMutex().Unlock()
+
+					log.Print("New participant ", pdata.Guid, " at ", "MTTLoc: ", pdata.MetatrafficLocators,
+						" DefLoc:", pdata.DefaultLocators)
+
+					// Assigning remote endpoints implies sending a DATA(p) to all matched and fixed readers, since
+					// StatelessWriter::matched_reader_add marks the entire history as unsent if the added reader's
+					// durability is bigger or equal to TRANSIENT_LOCAL_DURABILITY_QOS (TRANSIENT_LOCAL or TRANSIENT),
+					// which is the case of ENTITYID_BUILTIN_SDP_PARTICIPANT_READER (TRANSIENT_LOCAL). If a remote
+					// participant is discovered before creating the first DATA(p) change (which happens at the end of
+					// BuiltinProtocols::initBuiltinProtocols), then StatelessWriter::matched_reader_add ends up marking
+					// no changes as unsent (since the history is empty), which is OK because this can only happen if a
+					// participant is discovered in the middle of BuiltinProtocols::initBuiltinProtocols, which will
+					// create the first DATA(p) upon finishing, thus triggering the sent to all fixed and matched
+					// readers anyways.
+					listener.parentPDP.AssignRemoteEndpoints(pdata)
 				}
 			} else {
 				status = KChangedQosParticipant
@@ -106,18 +122,18 @@ func (listener *PDPListener) OnNewCacheChangeAdded(reader reader.IRTPSReader, ac
 
 			log.Println(status)
 
-			// if pdata != nil {
-			// 	rtpsListener := listener.parentPDP.GetRTPSParticipant().GetListener()
-			// 	if rtpsListener != nil {
-			// 		log.Fatalln("not Impl")
-			// 	}
-			// }
+			if pdata != nil {
+				log.Fatalln("not Impl")
+				// rtpsListener := listener.parentPDP.GetRTPSParticipant().GetListener()
+				// if rtpsListener != nil {
+				// 	log.Fatalln("not Impl")
+				// }
+			}
 
-			log.Fatalln("not impl")
+			// TODO:: Take again the reader lock
+			// reader.GetMutex().Lock()
 		}
-
 		listener.parentPDP.GetMutex().Unlock()
-
 	} else {
 		reader.GetMutex().Unlock()
 		if listener.parentPDP.RemoveRemoteParticipant(&guid, KRemovedParticipant) {

@@ -28,8 +28,8 @@ func createGUIDPrefix(ID uint32) *common.GUIDPrefixT {
 	var guid common.GUIDPrefixT
 	pid := os.Getppid()
 
-	guid.Value[0] = common.KVendorIDTeProsima.Vendor[0]
-	guid.Value[1] = common.KVendorIDTeProsima.Vendor[1]
+	guid.Value[0] = common.KVendorIDTeProsima.Value[0]
+	guid.Value[1] = common.KVendorIDTeProsima.Value[1]
 
 	hostID := utils.GetHost().Id()
 	guid.Value[2] = common.Octet(hostID)

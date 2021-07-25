@@ -1,5 +1,9 @@
 package qos
 
+import (
+	"github.com/yeren0143/DDS/core/policy"
+)
+
 /**
  * Class WriterQos, containing all the possible Qos that can be set for a determined Publisher.
  * Although these values can be set and are transmitted
@@ -8,4 +12,7 @@ package qos
  * @ingroup FASTRTPS_ATTRIBUTES_MODULE
  */
 type WriterQos struct {
+	Durability        policy.DurabilityQosPolicy
+	DurabilityService policy.DurabilityServiceQosPolicy
+	Reliability       policy.ReliabilityQosPolicy
 }
