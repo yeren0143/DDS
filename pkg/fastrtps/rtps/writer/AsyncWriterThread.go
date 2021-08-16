@@ -4,7 +4,7 @@ import (
 	"log"
 	"sync"
 
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/fastrtps/utils"
 )
 
 // This static class owns a thread that manages asynchronous writes.

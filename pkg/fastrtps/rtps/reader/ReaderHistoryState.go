@@ -1,6 +1,6 @@
 package reader
 
-import "github.com/yeren0143/DDS/common"
+import "dds/common"
 
 //  Class RTPSReader, manages the reception of data from its matched writers.
 type ReaderHistoryState struct {

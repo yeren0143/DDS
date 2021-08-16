@@ -1,8 +1,8 @@
 package history
 
 import (
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
+	"dds/common"
+	"dds/fastrtps/rtps/resources"
 )
 
 var _ ITopicPayloadPool = (*TopicPayloadPoolProxy)(nil)

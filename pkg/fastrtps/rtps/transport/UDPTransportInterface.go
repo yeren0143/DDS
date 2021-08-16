@@ -6,8 +6,8 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/common"
+	"dds/fastrtps/utils"
 )
 
 type IUDPTransport interface {

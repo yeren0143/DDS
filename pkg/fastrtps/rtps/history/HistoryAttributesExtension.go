@@ -3,8 +3,8 @@ package history
 import (
 	"math"
 
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/utils"
 )
 
 func ResourceLimitsFromHistory(att *attributes.HistoryAttributes, increment uint32) utils.ResourceLimitedContainerConfig {

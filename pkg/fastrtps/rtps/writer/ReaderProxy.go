@@ -3,7 +3,7 @@ package writer
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/attributes"
 )
 
 // ReaderProxy class that helps to keep the state of a specific Reader with respect to the RTPSWriter.

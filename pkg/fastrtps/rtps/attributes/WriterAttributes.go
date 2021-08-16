@@ -1,10 +1,10 @@
 package attributes
 
 import (
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol"
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/common"
+	"dds/core/policy"
+	"dds/fastrtps/rtps/flowcontrol"
+	"dds/fastrtps/utils"
 )
 
 type RTPSWriterPublishMode common.Octet

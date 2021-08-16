@@ -1,9 +1,9 @@
 package writer
 
 import (
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
-	"github.com/yeren0143/DDS/fastrtps/rtps/reader"
+	"dds/common"
+	"dds/fastrtps/rtps/endpoint"
+	"dds/fastrtps/rtps/reader"
 )
 
 var _ IRTPSMessageSender = (*ReaderLocator)(nil)

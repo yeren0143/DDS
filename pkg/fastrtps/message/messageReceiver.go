@@ -4,11 +4,11 @@ import (
 	"log"
 	"sync"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
-	//"github.com/yeren0143/DDS/fastrtps/rtps/reader"
-	//"github.com/yeren0143/DDS/fastrtps/rtps/writer"
+	"dds/common"
+	"dds/core/policy"
+	"dds/fastrtps/rtps/endpoint"
+	//"dds/fastrtps/rtps/reader"
+	//"dds/fastrtps/rtps/writer"
 )
 
 const (

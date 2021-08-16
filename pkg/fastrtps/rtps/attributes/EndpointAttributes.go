@@ -1,7 +1,7 @@
 package attributes
 
 import (
-	"github.com/yeren0143/DDS/common"
+	"dds/common"
 )
 
 // Structure EndpointAttributes, describing the attributes associated with an RTPS Endpoint.

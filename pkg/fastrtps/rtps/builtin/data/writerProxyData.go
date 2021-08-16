@@ -3,9 +3,10 @@ package data
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/qos"
+	"dds/common"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/network"
+	"dds/fastrtps/rtps/qos"
 )
 
 type WriterProxyData struct {
@@ -37,6 +38,11 @@ func (proxy *WriterProxyData) Guid() *common.GUIDT {
 func (proxy *WriterProxyData) WriteToCDRMessage(msg *common.CDRMessage, writeEncapsulation bool) bool {
 	log.Panic("not impl")
 	return false
+}
+
+func (proxy *WriterProxyData) SetRemoteLocators(locators *common.RemoteLocatorList,
+	network *network.NetFactory, useMulticastLocators bool) {
+
 }
 
 func NewWriterProxyData(maxUnicastLocators, maxMulticastLocators uint32,

@@ -1,6 +1,6 @@
 package writer
 
-import "github.com/yeren0143/DDS/common"
+import "dds/common"
 
 // Abstract class IReaderDataFilter that acts as virtual interface for data filters in ReaderProxy.
 type IReaderDataFilter interface {

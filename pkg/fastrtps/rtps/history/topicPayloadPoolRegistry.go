@@ -3,7 +3,7 @@ package history
 import (
 	"sync"
 
-	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
+	"dds/fastrtps/rtps/resources"
 )
 
 type TopicPayloadPoolRegistry struct {

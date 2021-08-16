@@ -1,9 +1,9 @@
 package attributes
 
 import (
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/common"
+	"dds/core/policy"
+	"dds/fastrtps/utils"
 )
 
 // Class ReaderTimes, defining the times associated with the Reliable Readers events.

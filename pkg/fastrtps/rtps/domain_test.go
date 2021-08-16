@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"testing"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
+	"dds/common"
+	"dds/fastrtps/rtps/attributes"
 )
 
 func TestNewParticipant(t *testing.T) {

@@ -3,11 +3,11 @@ package writer
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
-	"github.com/yeren0143/DDS/fastrtps/rtps/flowcontrol"
-	"github.com/yeren0143/DDS/fastrtps/rtps/history"
+	"dds/common"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/endpoint"
+	"dds/fastrtps/rtps/flowcontrol"
+	"dds/fastrtps/rtps/history"
 )
 
 var _ IRTPSWriter = (*StatelessWriter)(nil)

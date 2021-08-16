@@ -1,7 +1,7 @@
 package attributes
 
 import (
-	common "github.com/yeren0143/DDS/common"
+	common "dds/common"
 )
 
 // port use if the ros environment variable doesn't specified one

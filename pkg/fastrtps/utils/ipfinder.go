@@ -60,7 +60,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/yeren0143/DDS/common"
+	"dds/common"
 )
 
 // These are roughly enough for the following:

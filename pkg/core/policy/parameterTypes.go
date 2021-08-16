@@ -1,7 +1,7 @@
 package policy
 
 import (
-	"github.com/yeren0143/DDS/common"
+	"dds/common"
 )
 
 type ParameterIDT = uint16

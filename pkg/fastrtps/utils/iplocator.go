@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/yeren0143/DDS/common"
+	"dds/common"
 )
 
 func CreateLocator(kindin int32, address string, portin uint32) common.Locator {

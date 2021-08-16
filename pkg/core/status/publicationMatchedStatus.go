@@ -1,7 +1,7 @@
 package status
 
 import (
-	"github.com/yeren0143/DDS/common"
+	"dds/common"
 )
 
 // PublicationMatchedStatus storing the publication status

@@ -3,11 +3,11 @@ package data
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/network"
-	"github.com/yeren0143/DDS/fastrtps/rtps/qos"
+	"dds/common"
+	"dds/core/policy"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/network"
+	"dds/fastrtps/rtps/qos"
 )
 
 /**

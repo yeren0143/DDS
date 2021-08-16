@@ -1,7 +1,7 @@
 package status
 
 import (
-	"github.com/yeren0143/DDS/core/policy"
+	"dds/core/policy"
 )
 
 // QosPolicyCount storing the id of the incompatible QoS Policy and the number of times it fails

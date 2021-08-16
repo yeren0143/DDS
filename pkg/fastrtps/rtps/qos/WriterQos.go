@@ -1,7 +1,7 @@
 package qos
 
 import (
-	"github.com/yeren0143/DDS/core/policy"
+	"dds/core/policy"
 )
 
 /**

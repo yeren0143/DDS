@@ -4,14 +4,14 @@ import (
 	"log"
 	"sync"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/fastrtps/message"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
-	"github.com/yeren0143/DDS/fastrtps/rtps/history"
-	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/common"
+	"dds/core/policy"
+	"dds/fastrtps/message"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/endpoint"
+	"dds/fastrtps/rtps/history"
+	"dds/fastrtps/rtps/resources"
+	"dds/fastrtps/utils"
 )
 
 type IReaderHistory interface {

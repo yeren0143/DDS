@@ -7,17 +7,17 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/edp"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
-	"github.com/yeren0143/DDS/fastrtps/rtps/history"
-	"github.com/yeren0143/DDS/fastrtps/rtps/reader"
-	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
-	"github.com/yeren0143/DDS/fastrtps/rtps/writer"
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/common"
+	"dds/core/policy"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/builtin/data"
+	"dds/fastrtps/rtps/builtin/discovery/edp"
+	"dds/fastrtps/rtps/builtin/discovery/protocol"
+	"dds/fastrtps/rtps/history"
+	"dds/fastrtps/rtps/reader"
+	"dds/fastrtps/rtps/resources"
+	"dds/fastrtps/rtps/writer"
+	"dds/fastrtps/utils"
 )
 
 type IPDPParent interface {

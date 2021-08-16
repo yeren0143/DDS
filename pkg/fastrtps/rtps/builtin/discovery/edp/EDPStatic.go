@@ -3,11 +3,11 @@ package edp
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
-	"github.com/yeren0143/DDS/fastrtps/rtps/reader"
-	"github.com/yeren0143/DDS/fastrtps/rtps/writer"
+	"dds/common"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/builtin/data"
+	"dds/fastrtps/rtps/reader"
+	"dds/fastrtps/rtps/writer"
 )
 
 // Class EDPStaticProperty,

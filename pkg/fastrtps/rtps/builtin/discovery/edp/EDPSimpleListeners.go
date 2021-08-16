@@ -3,9 +3,9 @@ package edp
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/reader"
-	"github.com/yeren0143/DDS/fastrtps/rtps/writer"
+	"dds/common"
+	"dds/fastrtps/rtps/reader"
+	"dds/fastrtps/rtps/writer"
 )
 
 var _ reader.IReaderListener = (IEDPListener)(nil)

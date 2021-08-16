@@ -3,12 +3,12 @@ package pdp
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/fastrtps/message"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
-	"github.com/yeren0143/DDS/fastrtps/rtps/reader"
+	"dds/common"
+	"dds/core/policy"
+	"dds/fastrtps/message"
+	"dds/fastrtps/rtps/builtin/data"
+	"dds/fastrtps/rtps/builtin/discovery/protocol"
+	"dds/fastrtps/rtps/reader"
 )
 
 var _ reader.IReaderListener = (*PDPListener)(nil)

@@ -3,9 +3,9 @@ package writer
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/core/status"
+	"dds/common"
+	"dds/core/policy"
+	"dds/core/status"
 )
 
 // Class WriterListener with virtual method so the user can implement callbacks to certain events.

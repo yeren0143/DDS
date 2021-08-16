@@ -3,12 +3,12 @@ package reader
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
-	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
-	"github.com/yeren0143/DDS/fastrtps/rtps/history"
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/common"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/builtin/data"
+	"dds/fastrtps/rtps/endpoint"
+	"dds/fastrtps/rtps/history"
+	"dds/fastrtps/utils"
 )
 
 var _ IRTPSReader = (*StatefulReader)(nil)

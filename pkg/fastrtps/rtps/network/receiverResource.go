@@ -3,9 +3,9 @@ package network
 import (
 	"sync"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/message"
-	"github.com/yeren0143/DDS/fastrtps/rtps/transport"
+	"dds/common"
+	"dds/fastrtps/message"
+	"dds/fastrtps/rtps/transport"
 )
 
 type receiverResourceCleanupFunc func()

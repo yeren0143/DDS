@@ -3,9 +3,9 @@ package history
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
+	"dds/common"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/resources"
 )
 
 type writerCallback = func() uint32

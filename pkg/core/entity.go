@@ -1,8 +1,8 @@
 package core
 
 import (
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/status"
+	"dds/common"
+	"dds/core/status"
 )
 
 // The Entity class is the abstract base class for all the objects that support QoS policies,

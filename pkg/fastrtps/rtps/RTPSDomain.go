@@ -5,10 +5,10 @@ import (
 	"os"
 	"sync"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/participant"
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/common"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/participant"
+	"dds/fastrtps/utils"
 )
 
 var (

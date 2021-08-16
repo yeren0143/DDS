@@ -1,7 +1,7 @@
 package status
 
 import (
-	"github.com/yeren0143/DDS/common"
+	"dds/common"
 )
 
 // SampleRejectedStatusKind is kind of possible values for the sample rejected reason

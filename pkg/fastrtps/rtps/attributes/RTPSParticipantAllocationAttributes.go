@@ -3,7 +3,7 @@ package attributes
 import (
 	"math"
 
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/fastrtps/utils"
 )
 
 //RemoteLocatorsAllocationAttributes specified remote locators allocation attributes

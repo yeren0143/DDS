@@ -3,7 +3,7 @@ package attributes
 import (
 	"testing"
 
-	common "github.com/yeren0143/DDS/common"
+	common "dds/common"
 )
 
 func TestNewParticipantAttributes(t *testing.T) {

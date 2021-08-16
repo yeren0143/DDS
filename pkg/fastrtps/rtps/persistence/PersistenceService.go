@@ -1,9 +1,9 @@
 package persistence
 
 import (
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/history"
+	"dds/common"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/history"
 )
 
 // Abstract interface representing a persistence service implementaion

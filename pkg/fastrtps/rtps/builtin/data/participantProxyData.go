@@ -5,11 +5,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/network"
-	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
+	"dds/common"
+	"dds/core/policy"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/network"
+	"dds/fastrtps/rtps/resources"
 )
 
 var BUILTIN_PARTICIPANT_DATA_MAX_SIZE = uint32(100)

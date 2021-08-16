@@ -3,8 +3,8 @@ package transport
 import (
 	"os"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/common"
+	"dds/fastrtps/utils"
 )
 
 var _ ITransport = (*TCPv4Transport)(nil)

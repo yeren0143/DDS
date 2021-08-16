@@ -3,9 +3,9 @@ package reader
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/core/status"
+	"dds/common"
+	"dds/core/policy"
+	"dds/core/status"
 )
 
 // ReaderListener to be used by the user to override some of is virtual method to program actions to

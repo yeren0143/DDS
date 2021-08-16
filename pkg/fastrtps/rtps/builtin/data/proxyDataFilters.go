@@ -1,8 +1,8 @@
 package data
 
 import (
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/transport/shm"
+	"dds/common"
+	"dds/fastrtps/rtps/transport/shm"
 )
 
 func FilterLocators(isShmTransportAviable bool, isShmTransportPossible *bool,

@@ -1,7 +1,7 @@
 package writer
 
 import (
-	"github.com/yeren0143/DDS/common"
+	"dds/common"
 )
 
 // IRTPSMessageSender is an interface used in RTPSMessageGroup to handle destinations management

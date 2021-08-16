@@ -1,6 +1,6 @@
 package pdp
 
-import "github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
+import "dds/fastrtps/rtps/builtin/data"
 
 type DiscoveryStatus = uint8
 

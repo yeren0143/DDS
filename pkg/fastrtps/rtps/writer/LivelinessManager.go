@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
+	"dds/common"
+	"dds/core/policy"
+	"dds/fastrtps/rtps/resources"
 )
 
 type LivelinessCallback = func(guid *common.GUIDT, kind policy.LivelinessQosPolicyKind,

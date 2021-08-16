@@ -3,9 +3,9 @@ package reader
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/history"
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/history"
+	"dds/fastrtps/utils"
 )
 
 var _ history.IWriterProxyWithHistory = (*WriterProxy)(nil)

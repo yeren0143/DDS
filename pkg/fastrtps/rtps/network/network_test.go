@@ -1,7 +1,7 @@
 package network
 
 import (
-	transport "github.com/yeren0143/DDS/fastrtps/rtps/transport"
+	transport "dds/fastrtps/rtps/transport"
 	"testing"
 )
 

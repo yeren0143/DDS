@@ -5,14 +5,14 @@ import (
 	"math"
 	"os"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/core/policy"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/data"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/edp"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
-	"github.com/yeren0143/DDS/fastrtps/rtps/history"
-	"github.com/yeren0143/DDS/fastrtps/rtps/writer"
+	"dds/common"
+	"dds/core/policy"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/builtin/data"
+	"dds/fastrtps/rtps/builtin/discovery/edp"
+	"dds/fastrtps/rtps/builtin/discovery/protocol"
+	"dds/fastrtps/rtps/history"
+	"dds/fastrtps/rtps/writer"
 )
 
 var _ protocol.IPDP = (*PDPSimple)(nil)
@@ -24,7 +24,7 @@ type PDPSimple struct {
 
 func (pdp *PDPSimple) AssignRemoteEndpoints(pdata *data.ParticipantProxyData) {
 	log.Println("For RTPSParticipant: ", pdata.Guid.Prefix)
-	log.Fatalln("not impl")
+	//log.Fatalln("not impl")
 	network := pdp.rtpsParticipant.NetworkFactory()
 	endp := pdata.AviableBuiltinEndpoints
 	useMulticastLocators := pdp.rtpsParticipant.GetAttributes().Builtin.AvoidBuiltinMulticast ||
@@ -37,13 +37,13 @@ func (pdp *PDPSimple) AssignRemoteEndpoints(pdata *data.ParticipantProxyData) {
 		pdp.tempWriterData.Guid().EntityID = *common.KEntityIDSPDPWriter
 		pdp.tempWriterData.SetPersistenceGuid(pdata.GetPersistenceGuid())
 		pdp.tempWriterData.SetPersistenceEntityID(common.KEntityIDSPDPWriter)
-		pdp.tempWriterData.SetRemoteLocators(pdata.MetatrafficLocators, network, useMulticastLocators)
+		pdp.tempWriterData.SetRemoteLocators(&pdata.MetatrafficLocators, network, useMulticastLocators)
 		pdp.tempWriterData.Qos.Reliability.Kind = policy.RELIABLE_RELIABILITY_QOS
 		pdp.tempWriterData.Qos.Durability.Kind = policy.TRANSIENT_LOCAL_DURABILITY_QOS
 		pdp.reader.MatchedWriterAdd(pdp.tempWriterData)
 		pdp.tempDataMutex.Unlock()
 	}
-	log.Fatalln("not impl")
+	// log.Fatalln("not impl")
 
 }
 

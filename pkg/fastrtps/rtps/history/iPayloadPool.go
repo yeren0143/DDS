@@ -1,7 +1,7 @@
 package history
 
 import (
-	"github.com/yeren0143/DDS/common"
+	"dds/common"
 )
 
 var _ common.ICacheChangeParent = (IPayloadPool)(nil)

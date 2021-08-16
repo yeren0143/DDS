@@ -1,7 +1,7 @@
 package message
 
 import (
-	"github.com/yeren0143/DDS/common"
+	"dds/common"
 )
 
 func addHeader(msg *common.CDRMessage, guidPrefix *common.GUIDPrefixT,

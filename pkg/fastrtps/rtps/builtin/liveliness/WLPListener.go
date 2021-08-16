@@ -1,6 +1,6 @@
 package liveliness
 
-import "github.com/yeren0143/DDS/fastrtps/rtps/reader"
+import "dds/fastrtps/rtps/reader"
 
 var _ reader.IReaderListener = (*WLPListener)(nil)
 

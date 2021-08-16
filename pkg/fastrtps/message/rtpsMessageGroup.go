@@ -1,7 +1,7 @@
 package message
 
 import (
-	"github.com/yeren0143/DDS/common"
+	"dds/common"
 )
 
 // Class RTPSMessageGroup_t that contains the messages used to send multiples changes as one message.

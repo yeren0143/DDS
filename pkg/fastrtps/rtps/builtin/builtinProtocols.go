@@ -3,13 +3,13 @@ package builtin
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/common"
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/pdp"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/discovery/protocol"
-	"github.com/yeren0143/DDS/fastrtps/rtps/builtin/liveliness"
-	"github.com/yeren0143/DDS/fastrtps/rtps/endpoint"
-	"github.com/yeren0143/DDS/fastrtps/rtps/network"
+	"dds/common"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/builtin/discovery/pdp"
+	"dds/fastrtps/rtps/builtin/discovery/protocol"
+	"dds/fastrtps/rtps/builtin/liveliness"
+	"dds/fastrtps/rtps/endpoint"
+	"dds/fastrtps/rtps/network"
 )
 
 //Protocols that contains builtin endpoints implementing the discovery and liveliness protocols.

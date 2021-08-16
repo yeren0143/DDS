@@ -1,7 +1,7 @@
 package history
 
 import (
-	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
+	"dds/fastrtps/rtps/resources"
 )
 
 var _ iTopicPayloadPoolImpl = (*PreallocatedTopicPayloadPool)(nil)

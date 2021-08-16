@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/yeren0143/DDS/fastrtps/utils"
+	"dds/fastrtps/utils"
 )
 
 // ResourceEvent centralizes all operations over timed events in the same thread.

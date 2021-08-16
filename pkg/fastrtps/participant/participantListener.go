@@ -3,8 +3,8 @@ package participant
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/fastrtps/rtps/reader"
-	"github.com/yeren0143/DDS/fastrtps/rtps/writer"
+	"dds/fastrtps/rtps/reader"
+	"dds/fastrtps/rtps/writer"
 )
 
 type ParticipantListener struct {

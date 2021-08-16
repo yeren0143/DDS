@@ -3,7 +3,7 @@ package policy
 import (
 	"log"
 
-	"github.com/yeren0143/DDS/common"
+	"dds/common"
 )
 
 // ParameterList class has static methods to update or read a list of Parameter_t

@@ -1,8 +1,8 @@
 package history
 
 import (
-	"github.com/yeren0143/DDS/fastrtps/rtps/attributes"
-	"github.com/yeren0143/DDS/fastrtps/rtps/resources"
+	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/resources"
 )
 
 type IBasicPoolConfig interface {

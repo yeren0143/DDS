@@ -1,7 +1,7 @@
 package history
 
 import (
-	"github.com/yeren0143/DDS/common"
+	"dds/common"
 )
 
 // An interface for classes responsible of cache changes allocation management.
