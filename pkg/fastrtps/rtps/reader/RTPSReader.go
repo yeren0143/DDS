@@ -8,6 +8,7 @@ import (
 	"dds/core/policy"
 	"dds/fastrtps/message"
 	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/builtin/data"
 	"dds/fastrtps/rtps/endpoint"
 	"dds/fastrtps/rtps/history"
 	"dds/fastrtps/rtps/resources"
@@ -65,6 +66,8 @@ type IRTPSReader interface {
 	ReserveCache(size uint32) (*common.CacheChangeT, bool)
 
 	ExpectsInlineQos() bool
+
+	MatchedWriterAdd(wdata *data.WriterProxyData) bool
 }
 
 // reader who devired from IRtpsReader must implement ireaderImpl

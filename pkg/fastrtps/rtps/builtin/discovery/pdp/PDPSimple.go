@@ -35,11 +35,12 @@ func (pdp *PDPSimple) AssignRemoteEndpoints(pdata *data.ParticipantProxyData) {
 		pdp.tempWriterData.Clear()
 		pdp.tempWriterData.Guid().Prefix = pdata.Guid.Prefix
 		pdp.tempWriterData.Guid().EntityID = *common.KEntityIDSPDPWriter
-		pdp.tempWriterData.SetPersistenceGuid(pdata.GetPersistenceGuid())
+		guid := pdata.GetPersistenceGuid()
+		pdp.tempWriterData.SetPersistenceGuid(&guid)
 		pdp.tempWriterData.SetPersistenceEntityID(common.KEntityIDSPDPWriter)
 		pdp.tempWriterData.SetRemoteLocators(&pdata.MetatrafficLocators, network, useMulticastLocators)
 		pdp.tempWriterData.Qos.Reliability.Kind = policy.RELIABLE_RELIABILITY_QOS
-		pdp.tempWriterData.Qos.Durability.Kind = policy.TRANSIENT_LOCAL_DURABILITY_QOS
+		pdp.tempWriterData.Qos.Durability.Kind = policy.KTransientLocalDurabilityQos
 		pdp.reader.MatchedWriterAdd(pdp.tempWriterData)
 		pdp.tempDataMutex.Unlock()
 	}

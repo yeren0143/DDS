@@ -2,6 +2,7 @@ package policy
 
 import (
 	"dds/common"
+	"log"
 )
 
 type ParameterIDT = uint16
@@ -285,11 +286,36 @@ type ParameterPropertyT struct {
 	data []common.Octet
 }
 
+func (property *ParameterPropertyT) elementSize(offset uint32) uint32 {
+	//size := *(*uint32)(unsafe.Pointer(property.data))
+	size := uint32(property.data[offset])<<24 + uint32(property.data[offset+1])<<16 + uint32(property.data[offset+2])<<8 + uint32(property.data[offset+3])
+	return 4 + ((size + 3) & ^uint32(3))
+}
+
+func (property *ParameterPropertyT) size() uint32 {
+	size1 := property.elementSize(0)
+	size2 := property.elementSize(size1)
+	return (size1 + size2)
+}
+
+func (property *ParameterPropertyT) first() string {
+	size1 := property.elementSize(0)
+	p1 := property.data[4 : size1-4]
+	return string(p1)
+}
+
+func (property *ParameterPropertyT) second() string {
+	size1 := property.elementSize(0)
+	size2 := property.elementSize(size1)
+	str := property.data[size1+4 : size1+size2]
+	return string(str)
+}
+
 const (
 	KParameterPropertyPersistenceGuid  = "PID_PERSISTENCE_GUID"
 	KParameterPropertyParticipantType  = "PARTICIPANT_TYPE"
 	KParameterPropertyDsVersion        = "DS_VERSION"
-	KPArameterPropertyCurrentDSVersion = "2.0"
+	KParameterPropertyCurrentDSVersion = "2.0"
 )
 
 type ParameterPropertyListT struct {
@@ -297,8 +323,19 @@ type ParameterPropertyListT struct {
 	properties  common.SerializedPayloadT
 	nproperties uint32
 	limitSize   bool
-	ptr         []common.Octet
-	value       ParameterPropertyT
+	// ptr         []common.Octet
+	// value       ParameterPropertyT
+}
+
+type propertyIterator struct {
+	offset int
+	value  ParameterPropertyT
+	list   *ParameterPropertyListT
+}
+
+func (iter *propertyIterator) advance() {
+	iter.offset += int(iter.value.size())
+	iter.value.data = iter.list.properties.Data[iter.offset:]
 }
 
 func (paramList *ParameterPropertyListT) Size() uint32 {
@@ -308,6 +345,37 @@ func (paramList *ParameterPropertyListT) Size() uint32 {
 func (paramList *ParameterPropertyListT) Clear() {
 	paramList.Length = 0
 	paramList.nproperties = 0
+}
+
+func (paramList *ParameterPropertyListT) begin() *propertyIterator {
+	return &propertyIterator{
+		offset: 0,
+		value:  ParameterPropertyT{data: paramList.properties.Data},
+		list:   paramList,
+	}
+}
+
+func (paramList *ParameterPropertyListT) Find(guid string) common.GUIDT {
+	retValue := common.KGuidUnknown
+	// for i := 0; i < int(paramList.properties.Length); i++ {
+	// 	if iter.value.first() == guid {
+	// 		strstream := []byte(iter.value.second())
+	// 		copy(retValue.Prefix.Value[:12], strstream[:12])
+	// 		copy(retValue.EntityID.Value[:4], strstream[13:16])
+	// 		break
+	// 	}
+	// }
+	iter := paramList.begin()
+	for i := 0; i < int(paramList.nproperties); i++ {
+		if iter.value.first() == KParameterPropertyPersistenceGuid {
+			str := iter.value.second()
+			log.Fatalln("notImpl:", str)
+			break
+		}
+		iter.advance()
+	}
+
+	return retValue
 }
 
 func NewParameterPropertyListT(size uint32) *ParameterPropertyListT {

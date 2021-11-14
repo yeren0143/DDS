@@ -6,6 +6,7 @@ import (
 
 	"dds/common"
 	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/builtin/data"
 	"dds/fastrtps/rtps/endpoint"
 	"dds/fastrtps/rtps/history"
 )
@@ -48,6 +49,11 @@ func (statelessReader *StatelessReader) acceptMsgFrom(writerID *common.GUIDT, ch
 			return true
 		}
 	}
+	return false
+}
+
+func (statelessReader *StatelessReader) MatchedWriterAdd(wdata *data.WriterProxyData) bool {
+	log.Fatalln("notimpl")
 	return false
 }
 

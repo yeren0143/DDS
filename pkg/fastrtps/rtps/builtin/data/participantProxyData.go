@@ -356,9 +356,8 @@ func (proxy *ParticipantProxyData) SetPersistenceGuid(guid *common.GUIDT) {
 	log.Fatalln("not impl")
 }
 
-func (proxy *ParticipantProxyData) GetPersistenceGuid() *common.GUIDT {
-	log.Fatalln("not impl")
-	return nil
+func (proxy *ParticipantProxyData) GetPersistenceGuid() common.GUIDT {
+	return proxy.Properties.Find(policy.KParameterPropertyPersistenceGuid)
 }
 
 func (proxy *ParticipantProxyData) SetPersistenceEntityID(id *common.EntityIDT) {

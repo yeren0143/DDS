@@ -2,6 +2,8 @@ package qos
 
 import (
 	"dds/core/policy"
+
+	"github.com/golang/glog"
 )
 
 /**
@@ -15,4 +17,8 @@ type WriterQos struct {
 	Durability        policy.DurabilityQosPolicy
 	DurabilityService policy.DurabilityServiceQosPolicy
 	Reliability       policy.ReliabilityQosPolicy
+}
+
+func (qos *WriterQos) Clear() {
+	glog.Warning("not impl")
 }

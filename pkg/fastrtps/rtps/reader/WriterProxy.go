@@ -17,5 +17,4 @@ func NewWriterProxy(areader *StatefulReader, locAlloc *attributes.RemoteLocators
 	changesAllocation *utils.ResourceLimitedContainerConfig) *WriterProxy {
 	log.Fatalln("not impl")
 	return nil
-
 }
