@@ -2,7 +2,6 @@ package policy
 
 import (
 	"dds/common"
-	"log"
 )
 
 type ParameterIDT = uint16
@@ -298,13 +297,13 @@ func (property *ParameterPropertyT) size() uint32 {
 	return (size1 + size2)
 }
 
-func (property *ParameterPropertyT) first() string {
+func (property *ParameterPropertyT) First() string {
 	size1 := property.elementSize(0)
 	p1 := property.data[4 : size1-4]
 	return string(p1)
 }
 
-func (property *ParameterPropertyT) second() string {
+func (property *ParameterPropertyT) Second() string {
 	size1 := property.elementSize(0)
 	size2 := property.elementSize(size1)
 	str := property.data[size1+4 : size1+size2]
@@ -327,15 +326,48 @@ type ParameterPropertyListT struct {
 	// value       ParameterPropertyT
 }
 
-type propertyIterator struct {
+type PropertyIterator struct {
 	offset int
-	value  ParameterPropertyT
+	Value  ParameterPropertyT
 	list   *ParameterPropertyListT
 }
 
-func (iter *propertyIterator) advance() {
-	iter.offset += int(iter.value.size())
-	iter.value.data = iter.list.properties.Data[iter.offset:]
+func (iter *PropertyIterator) advance() {
+	iter.offset += int(iter.Value.size())
+	iter.Value.data = iter.list.properties.Data[iter.offset:]
+}
+
+func (paramList *PropertyIterator) Equal(other *PropertyIterator) bool {
+	if paramList.offset == other.offset && paramList.list == other.list {
+		return true
+	}
+	return false
+}
+
+func (paramList *PropertyIterator) Modify(properity, value string) bool {
+	firstSize := len(properity) + 1
+	firstAlignment := ((firstSize + 3) & (^3)) - firstSize
+	secondSize := len(value) + 1
+	secondAlignment := ((secondSize + 3) & (^3)) - secondSize
+	newSize := firstSize + firstAlignment + secondSize + secondAlignment + 8
+
+	if newSize != int(paramList.Value.size()) {
+		return false
+	}
+
+	paramList.list.properties.Data[0] = byte(firstSize >> 24)
+	paramList.list.properties.Data[1] = byte((firstSize - (firstSize>>24)<<24) >> 16)
+	paramList.list.properties.Data[2] = byte((firstSize - (firstSize>>16)<<16) >> 8)
+	paramList.list.properties.Data[3] = byte(firstSize - (firstSize>>8)<<8)
+	copy(paramList.list.properties.Data[4:], []byte(properity)[:])
+
+	current := 4 + firstSize + firstAlignment
+	paramList.list.properties.Data[current] = byte(secondSize >> 24)
+	paramList.list.properties.Data[current+1] = byte((secondSize - (secondSize>>24)<<24) >> 16)
+	paramList.list.properties.Data[current+2] = byte((secondSize - (secondSize>>16)<<16) >> 8)
+	paramList.list.properties.Data[current+3] = byte(secondSize - (secondSize>>8)<<8)
+	copy(paramList.list.properties.Data[current+4:], []byte(value)[:])
+	return true
 }
 
 func (paramList *ParameterPropertyListT) Size() uint32 {
@@ -347,35 +379,32 @@ func (paramList *ParameterPropertyListT) Clear() {
 	paramList.nproperties = 0
 }
 
-func (paramList *ParameterPropertyListT) begin() *propertyIterator {
-	return &propertyIterator{
+func (paramList *ParameterPropertyListT) Begin() *PropertyIterator {
+	return &PropertyIterator{
 		offset: 0,
-		value:  ParameterPropertyT{data: paramList.properties.Data},
+		Value:  ParameterPropertyT{data: paramList.properties.Data},
 		list:   paramList,
 	}
 }
 
-func (paramList *ParameterPropertyListT) Find(guid string) common.GUIDT {
-	retValue := common.KGuidUnknown
-	// for i := 0; i < int(paramList.properties.Length); i++ {
-	// 	if iter.value.first() == guid {
-	// 		strstream := []byte(iter.value.second())
-	// 		copy(retValue.Prefix.Value[:12], strstream[:12])
-	// 		copy(retValue.EntityID.Value[:4], strstream[13:16])
-	// 		break
-	// 	}
-	// }
-	iter := paramList.begin()
+func (paramList *ParameterPropertyListT) End() *PropertyIterator {
+	offset := len(paramList.properties.Data)
+	return &PropertyIterator{
+		offset: offset,
+		list:   paramList,
+	}
+}
+
+func (paramList *ParameterPropertyListT) Find(guid string) *PropertyIterator {
+	iter := paramList.Begin()
 	for i := 0; i < int(paramList.nproperties); i++ {
-		if iter.value.first() == KParameterPropertyPersistenceGuid {
-			str := iter.value.second()
-			log.Fatalln("notImpl:", str)
+		if iter.Value.First() == KParameterPropertyPersistenceGuid {
 			break
 		}
 		iter.advance()
 	}
 
-	return retValue
+	return iter
 }
 
 func NewParameterPropertyListT(size uint32) *ParameterPropertyListT {

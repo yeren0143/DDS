@@ -357,7 +357,16 @@ func (proxy *ParticipantProxyData) SetPersistenceGuid(guid *common.GUIDT) {
 }
 
 func (proxy *ParticipantProxyData) GetPersistenceGuid() common.GUIDT {
-	return proxy.Properties.Find(policy.KParameterPropertyPersistenceGuid)
+	iter := proxy.Properties.Find(policy.KParameterPropertyPersistenceGuid)
+	if proxy.Properties.End().Equal(iter) {
+		return common.KGuidUnknown
+	}
+
+	strGUID := []byte(iter.Value.Second())
+	var guid common.GUIDT
+	copy(guid.Prefix.Value[:], strGUID[:12])
+	copy(guid.EntityID.Value[:], strGUID[13:])
+	return guid
 }
 
 func (proxy *ParticipantProxyData) SetPersistenceEntityID(id *common.EntityIDT) {

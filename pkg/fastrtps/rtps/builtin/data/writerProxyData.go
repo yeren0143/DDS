@@ -55,10 +55,7 @@ func (proxy *WriterProxyData) Clear() {
 }
 
 func (proxy *WriterProxyData) SetPersistenceGuid(guid *common.GUIDT) {
-	log.Fatalln("not impl")
-	if guid == &common.KGuidUnknown {
-		return
-	}
+	proxy.guid = *guid
 }
 
 func (proxy *WriterProxyData) SetPersistenceEntityID(nid *common.EntityIDT) {
