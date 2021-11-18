@@ -5,10 +5,13 @@ import (
 	"math"
 
 	"dds/common"
+	"dds/core/policy"
 	"dds/fastrtps/rtps/attributes"
 	"dds/fastrtps/rtps/builtin/data"
 	"dds/fastrtps/rtps/endpoint"
 	"dds/fastrtps/rtps/history"
+
+	"github.com/golang/glog"
 )
 
 var _ IRTPSReader = (*StatelessReader)(nil)
@@ -17,7 +20,8 @@ var _ ireaderImpl = (*StatelessReader)(nil)
 // Class StatelessReader, specialization of the RTPSReader for Best Effort Readers.
 type StatelessReader struct {
 	RTPSReader
-	matchedWriters []remoteWriterInfoT
+	matchedWriters    []remoteWriterInfoT
+	maxMatchedWriters int
 }
 
 type remoteWriterInfoT struct {
@@ -54,7 +58,32 @@ func (statelessReader *StatelessReader) acceptMsgFrom(writerID *common.GUIDT, ch
 
 func (statelessReader *StatelessReader) MatchedWriterAdd(wdata *data.WriterProxyData) bool {
 	log.Fatalln("notimpl")
-	return false
+	statelessReader.Mutex.Lock()
+	defer statelessReader.Mutex.Unlock()
+	for i := 0; i < len(statelessReader.matchedWriters); i++ {
+		if statelessReader.matchedWriters[i].GUID == *wdata.Guid() {
+			glog.Info("Attempting to add existing writer")
+			return false
+		}
+	}
+
+	info := remoteWriterInfoT{
+		GUID:            *wdata.Guid(),
+		PersistenceGUID: *wdata.PersistentGuid(),
+	}
+
+	if wdata.Qos.Liveliness.Kind == policy.MANUAL_BY_TOPIC_LIVELINESS_QOS {
+		info.HasManualTopicLiveliness = true
+	}
+	if len(statelessReader.matchedWriters) < statelessReader.maxMatchedWriters {
+		glog.Error("Finite liveliness lease duration but WLP not enabled")
+		return false
+	}
+
+	statelessReader.matchedWriters = append(statelessReader.matchedWriters, info)
+	statelessReader.add_persistence_guid()
+
+	return true
 }
 
 func (statelessReader *StatelessReader) ProcessDataMsg(change *common.CacheChangeT) bool {
@@ -86,7 +115,7 @@ func (statelessReader *StatelessReader) ProcessDataMsg(change *common.CacheChang
 		change.SetPayloadOwner(payloadOwner)
 	} else {
 		dataSize := statelessReader.FixedPayloadSize
-		if dataSize < 0 {
+		if dataSize == 0 {
 			dataSize = math.MaxUint32
 		}
 		log.Println("Problem copying CacheChange, received data is: ",

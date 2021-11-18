@@ -59,11 +59,19 @@ func (proxy *WriterProxyData) SetPersistenceGuid(guid *common.GUIDT) {
 }
 
 func (proxy *WriterProxyData) SetPersistenceEntityID(nid *common.EntityIDT) {
-	log.Fatalln("not impl")
+	if proxy.persistenceGuid.Prefix != common.KUnknownGUIDPrefix {
+		proxy.persistenceGuid.EntityID = *nid
+	} else {
+		proxy.persistenceGuid.EntityID = *common.KEIDUnknown
+	}
 }
 
 func (proxy *WriterProxyData) Guid() *common.GUIDT {
 	return &proxy.guid
+}
+
+func (proxy *WriterProxyData) PersistentGuid() *common.GUIDT {
+	return &proxy.persistenceGuid
 }
 
 func (proxy *WriterProxyData) WriteToCDRMessage(msg *common.CDRMessage, writeEncapsulation bool) bool {

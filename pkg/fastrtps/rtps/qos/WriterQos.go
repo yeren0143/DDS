@@ -17,6 +17,7 @@ type WriterQos struct {
 	Durability        policy.DurabilityQosPolicy
 	DurabilityService policy.DurabilityServiceQosPolicy
 	Reliability       policy.ReliabilityQosPolicy
+	Liveliness        policy.LivelinessQosPolicy
 }
 
 func (qos *WriterQos) Clear() {
