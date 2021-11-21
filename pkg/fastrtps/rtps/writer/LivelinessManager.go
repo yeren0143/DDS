@@ -75,6 +75,13 @@ func (manager *LivelinessManager) timerExpired() bool {
 	return false
 }
 
+func (manager *LivelinessManager) AddWriter(guid common.GUIDT,
+	kind policy.LivelinessQosPolicyKind,
+	leaseDuration common.DurationT) bool {
+	log.Fatalln("not impl")
+	return true
+}
+
 type livelinessCallback = func(guid *common.GUIDT, akind policy.LivelinessQosPolicyKind,
 	leaseDuration *common.DurationT, aliveCount int32, notAliveCount int32)
 

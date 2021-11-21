@@ -4,6 +4,7 @@ import (
 	"dds/common"
 	"dds/fastrtps/rtps/endpoint"
 	"dds/fastrtps/rtps/reader"
+	"log"
 )
 
 var _ IRTPSMessageSender = (*ReaderLocator)(nil)
@@ -41,6 +42,17 @@ func (readerLocator *ReaderLocator) RemoteParticipants() []common.GUIDPrefixT {
 
 func (readerLocator *ReaderLocator) RemoteGUIDs() []common.GUIDT {
 	return readerLocator.guids
+}
+
+func (readerLocator *ReaderLocator) RemoteGUID() common.GUIDT {
+	return readerLocator.localInfo.RemoteGUID
+}
+
+func (readerLocator *ReaderLocator) Start(remoteGuid *common.GUIDT,
+	unicastLocators, multicastLocators []common.Locator,
+	expectedInlineQos bool) bool {
+	log.Fatalln("not impl")
+	return false
 }
 
 func (readerLocator *ReaderLocator) Send(msg *common.CDRMessage, maxBlockingTimePoint common.Time) bool {

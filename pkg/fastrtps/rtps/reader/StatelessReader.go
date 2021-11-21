@@ -14,7 +14,7 @@ import (
 	"github.com/golang/glog"
 )
 
-var _ IRTPSReader = (*StatelessReader)(nil)
+//var _ IRTPSReader = (*StatelessReader)(nil)
 var _ ireaderImpl = (*StatelessReader)(nil)
 
 // Class StatelessReader, specialization of the RTPSReader for Best Effort Readers.
@@ -57,7 +57,6 @@ func (statelessReader *StatelessReader) acceptMsgFrom(writerID *common.GUIDT, ch
 }
 
 func (statelessReader *StatelessReader) MatchedWriterAdd(wdata *data.WriterProxyData) bool {
-	log.Fatalln("notimpl")
 	statelessReader.Mutex.Lock()
 	defer statelessReader.Mutex.Unlock()
 	for i := 0; i < len(statelessReader.matchedWriters); i++ {
@@ -75,13 +74,35 @@ func (statelessReader *StatelessReader) MatchedWriterAdd(wdata *data.WriterProxy
 	if wdata.Qos.Liveliness.Kind == policy.MANUAL_BY_TOPIC_LIVELINESS_QOS {
 		info.HasManualTopicLiveliness = true
 	}
+
 	if len(statelessReader.matchedWriters) < statelessReader.maxMatchedWriters {
 		glog.Error("Finite liveliness lease duration but WLP not enabled")
+		log.Println("No space to add writer ", *wdata.Guid(), " to reader ", statelessReader.GUID)
 		return false
 	}
-
 	statelessReader.matchedWriters = append(statelessReader.matchedWriters, info)
-	statelessReader.add_persistence_guid()
+
+	//statelessReader.AddPersistenceGuid(info.GUID, info.PersistenceGUID)
+
+	persistence_guid_to_store := info.PersistenceGUID
+	if persistence_guid_to_store == common.KGuidUnknown {
+		persistence_guid_to_store = info.GUID
+	}
+	statelessReader.historyState.PersistenceGUIDMap[info.GUID] = persistence_guid_to_store
+	statelessReader.historyState.PersistenceGUIDCount[persistence_guid_to_store]++
+
+	statelessReader.acceptMessageFromUnKnowWriters = false
+	log.Println("Writer ", info.GUID, " add to reader ", statelessReader.GUID)
+
+	if statelessReader.livelinessLeaseDuration.Less(common.KTimeInfinite) {
+		wlp := statelessReader.RTPSParticipant.Wlp()
+		if wlp == nil {
+			glog.Fatalln("Finite liveliness lease duration but WLP not enabled")
+		}
+
+		wlp.SubLivelinessManager().AddWriter(*wdata.Guid(), statelessReader.livelinessKind,
+			statelessReader.livelinessLeaseDuration)
+	}
 
 	return true
 }

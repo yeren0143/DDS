@@ -84,6 +84,10 @@ func (wlp *WLP) setBuiltinWriterHistoryAttributes(hatt *attributes.HistoryAttrib
 	hatt.MaximumReservedCaches = 2
 }
 
+func (wlp *WLP) SubLivelinessManager() endpoint.ILivelinessManager {
+	return wlp.subLivelinessManager
+}
+
 func (wlp *WLP) setBuiltinReaderHistoryAttributes(hatt *attributes.HistoryAttributes,
 	cfg *utils.ResourceLimitedContainerConfig, isSecure bool) {
 	cUpperLimit := uint32(math.MaxUint32 / 2)

@@ -55,11 +55,24 @@ func (proxy *ReaderProxyData) SetLocators(locators *common.RemoteLocatorList) {
 	copy(proxy.remoteLocators.Multicast, locators.Multicast)
 }
 
+func (proxy *ReaderProxyData) RemoteLocators() *common.RemoteLocatorList {
+	return proxy.remoteLocators
+}
+
+func (proxy *ReaderProxyData) SetRemoteLocators(locators *common.RemoteLocatorList,
+	network *network.NetFactory, useMulticastLocators bool) {
+	log.Fatalln("not impl")
+}
+
 func (proxy *ReaderProxyData) SetMulticastLocators(locators *common.LocatorList, networkFactory *network.NetFactory) {
 
 }
 
 func (proxy *ReaderProxyData) SetAnnouncedUnicastLocators(locators *common.LocatorList) {
+
+}
+
+func (proxy *ReaderProxyData) Clear() {
 
 }
 

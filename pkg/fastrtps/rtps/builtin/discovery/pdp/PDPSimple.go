@@ -44,6 +44,20 @@ func (pdp *PDPSimple) AssignRemoteEndpoints(pdata *data.ParticipantProxyData) {
 		pdp.reader.MatchedWriterAdd(pdp.tempWriterData)
 		pdp.tempDataMutex.Unlock()
 	}
+	auxendp = endp
+	auxendp &= data.DISC_BUILTIN_ENDPOINT_PARTICIPANT_DETECTOR
+	if auxendp != 0 {
+		pdp.tempDataMutex.Lock()
+		pdp.tempReaderData.Clear()
+		pdp.tempReaderData.ExpectsInlineQos = false
+		pdp.tempReaderData.GUID.Prefix = pdata.Guid.Prefix
+		pdp.tempReaderData.GUID.EntityID = *common.KEntityIDSPDPReader
+		pdp.tempReaderData.SetRemoteLocators(&pdata.MetatrafficLocators, network, useMulticastLocators)
+		pdp.tempReaderData.Qos.Reliability = policy.BEST_EFFORT_RELIABILITY_QOS
+		pdp.tempReaderData.Qos.Durability = policy.KTransientLocalDurabilityQos
+		pdp.writer.MatchedReaderAdd(pdp.tempReaderData)
+		pdp.tempDataMutex.Unlock()
+	}
 	// log.Fatalln("not impl")
 
 }

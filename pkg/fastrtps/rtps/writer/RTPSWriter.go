@@ -7,6 +7,7 @@ import (
 	"dds/core/policy"
 	"dds/fastrtps/message"
 	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/builtin/data"
 	"dds/fastrtps/rtps/endpoint"
 	"dds/fastrtps/rtps/flowcontrol"
 	"dds/fastrtps/rtps/history"
@@ -48,6 +49,8 @@ type IRTPSWriter interface {
 	AddFlowController(controller flowcontrol.IFlowController)
 
 	SendAnyUnsentChanges()
+
+	MatchedReaderAdd(data *data.ReaderProxyData) bool
 }
 
 type rtpsWriterBase struct {

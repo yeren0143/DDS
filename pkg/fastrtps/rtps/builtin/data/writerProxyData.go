@@ -81,7 +81,10 @@ func (proxy *WriterProxyData) WriteToCDRMessage(msg *common.CDRMessage, writeEnc
 
 func (proxy *WriterProxyData) SetRemoteLocators(locators *common.RemoteLocatorList,
 	network *network.NetFactory, useMulticastLocators bool) {
+}
 
+func (proxy *WriterProxyData) RemoteLocators() *common.RemoteLocatorList {
+	return &proxy.remoteLocators
 }
 
 func NewWriterProxyData(maxUnicastLocators, maxMulticastLocators uint32,

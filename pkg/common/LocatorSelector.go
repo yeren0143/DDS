@@ -34,3 +34,9 @@ func (selector *LocatorSelector) SelectedSize() uint32 {
 	}
 	return uint32(result)
 }
+
+func (selector *LocatorSelector) Clear() {
+	selector.Entries = []*LocatorSelectorEntry{}
+	selector.Selections = []uint32{}
+	selector.LastState = []int{}
+}

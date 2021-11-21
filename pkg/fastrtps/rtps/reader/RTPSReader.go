@@ -13,8 +13,6 @@ import (
 	"dds/fastrtps/rtps/history"
 	"dds/fastrtps/rtps/resources"
 	"dds/fastrtps/utils"
-
-	"github.com/golang/glog"
 )
 
 type IReaderHistory interface {
@@ -114,7 +112,14 @@ func (reader *RTPSReader) AcceptMessagesToUnknownReaders() bool {
 }
 
 func (reader *RTPSReader) AddPersistenceGuid(guid common.GUIDT, persistenceGuid common.GUIDT) {
-	glog.Fatalln("notimpl")
+	persistence_guid_to_store := persistenceGuid
+	if persistenceGuid == common.KGuidUnknown {
+		persistence_guid_to_store = guid
+	}
+	reader.Mutex.Lock()
+	defer reader.Mutex.Unlock()
+	reader.historyState.PersistenceGUIDMap[guid] = persistence_guid_to_store
+	reader.historyState.PersistenceGUIDCount[persistence_guid_to_store]++
 }
 
 func (reader *RTPSReader) ExpectsInlineQos() bool {

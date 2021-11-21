@@ -6,6 +6,7 @@ import (
 
 	"dds/common"
 	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/builtin/data"
 	"dds/fastrtps/rtps/endpoint"
 	"dds/fastrtps/rtps/flowcontrol"
 	"dds/fastrtps/rtps/history"
@@ -79,6 +80,11 @@ func (statefulWriter *StatefulWriter) PerformNackResponse() {
 
 func (statefulWriter *StatefulWriter) AckTimerExpired() bool {
 	log.Fatalln("notImpl")
+	return false
+}
+
+func (statefulWriter *StatefulWriter) MatchedReaderAdd(data *data.ReaderProxyData) bool {
+	log.Fatalln("not impl")
 	return false
 }
 
