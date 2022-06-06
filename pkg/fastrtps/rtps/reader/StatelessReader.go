@@ -6,6 +6,7 @@ import (
 
 	"dds/common"
 	"dds/fastrtps/rtps/attributes"
+	"dds/fastrtps/rtps/builtin/data"
 	"dds/fastrtps/rtps/endpoint"
 	"dds/fastrtps/rtps/history"
 )
@@ -103,6 +104,11 @@ func (statelessReader *StatelessReader) ProcessDataMsg(change *common.CacheChang
 func (statelessReader *StatelessReader) ProcessGapMsg(writerGUID *common.GUIDT,
 	gapStart *common.SequenceNumberT, gapList *common.SequenceNumberSet) bool {
 	return true
+}
+
+func (reader *StatelessReader) MatchedWriterAdd(wdata *data.WriterProxyData) bool {
+	log.Fatalln("notimpl")
+	return false
 }
 
 func (statelessReader *StatelessReader) ProcessHeartbeatMsg(writerGUID *common.GUIDT,

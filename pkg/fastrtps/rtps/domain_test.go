@@ -16,7 +16,7 @@ func TestNewParticipant(t *testing.T) {
 
 	log.SetFlags(log.Ldate | log.Llongfile)
 
-	os.Setenv("SHM_TRANSPORT_BUILTIN", "1")
+	os.Setenv("SHM_TRANSPORT_BUILTIN", "0")
 	os.Setenv("FASTDDS_SHM_TRANSPORT_DISABLED", "true")
 
 	att := attributes.NewRTPSParticipantAttributes()

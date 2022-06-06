@@ -86,22 +86,22 @@ const (
 	 * known by the DataWriter at the time the instance is written. In other words the Service will only attempt
 	 * to provide the data to existing subscribers
 	 */
-	KVolatileDurabilityQos DurabilityQosPolicyKind = iota
+	VOLATILE_DURABILITY_QOS DurabilityQosPolicyKind = iota
 	/**
 	 * For TRANSIENT_LOCAL, the service is only required to keep the data in the memory of the DataWriter that
 	 * wrote the data and the data is not required to survive the DataWriter.
 	 */
-	KTransientLocalDurabilityQos
+	TRANSIENT_LOCAL_DURABILITY_QOS
 	/**
 	 * For TRANSIENT, the service is only required to keep the data in memory and not in permanent storage; but
 	 * the data is not tied to the lifecycle of the DataWriter and will, in general, survive it.
 	 */
-	KTransientDurabilityQos
+	TRANSIENT_DURABILITY_QOS
 	/**
 	 * Data is kept on permanent storage, so that they can outlive a system session.
 	 * @warning Not Supported
 	 */
-	KPersistentDurabilityQos
+	PERSISENT_DURABILITY_QOS
 )
 
 const (
@@ -121,7 +121,7 @@ var DefaultDurabilityQosPolicy = DurabilityQosPolicy{
 		HasChanged: false,
 		SendAlways: true,
 	},
-	Kind: KVolatileDurabilityQos,
+	Kind: VOLATILE_DURABILITY_QOS,
 }
 
 /**
@@ -230,28 +230,19 @@ var KDefaultLivelinessQosPolicy = LivelinessQosPolicy{
 type ReliabilityQosPolicyKind uint8
 
 const (
-	/**
-	 * The Service does not need to keep any samples of data-instances on behalf of any DataReader that is not
-	 * known by the DataWriter at the time the instance is written. In other words the Service will only attempt
-	 * to provide the data to existing subscribers
-	 */
-	VOLATILE_DURABILITY_QOS ReliabilityQosPolicyKind = iota
-
-	/**
-	* For TRANSIENT_LOCAL, the service is only required to keep the data in the memory of the DataWriter that
-	* wrote the data and the data is not required to survive the DataWriter.
-	 */
-	TRANSIENT_LOCAL_DURABILITY_QOS
-	/**
-	* For TRANSIENT, the service is only required to keep the data in memory and not in permanent storage; but
-	* the data is not tied to the lifecycle of the DataWriter and will, in general, survive it.
-	 */
-	TRANSIENT_DURABILITY_QOS
-	/**
-	* Data is kept on permanent storage, so that they can outlive a system session.
-	* @warning Not Supported
-	 */
-	PERSISTENT_DURABILITY_QOS
+    /**
+     * Indicates that it is acceptable to not retry propagation of any samples. Presumably new values for the samples
+     * are generated often enough that it is not necessary to re-send or acknowledge any samples
+     */
+    BEST_EFFORT_RELIABILITY_QOS ReliabilityQosPolicyKind = iota
+    /**
+     * Specifies the Service will attempt to deliver all samples in its history. Missed samples may be retried.
+     * In steady-state (no modifications communicated via the DataWriter) the middleware guarantees that all samples
+     * in the DataWriter history will eventually be delivered to all the DataReader objects. Outside steady state the
+     * HistoryQosPolicy and ResourceLimitsQosPolicy will determine how samples become part of the history and whether
+     * samples can be discarded from it.
+     */
+    RELIABLE_RELIABILITY_QOS
 )
 
 type ReliabilityQosPolicy struct {
